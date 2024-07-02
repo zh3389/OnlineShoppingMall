@@ -1,5 +1,5 @@
 from utils.databaseManager import Database
-from utils.databaseManager import Order, User, Card, ProdCag
+from utils.databaseManager import Order, Card, ProdCag
 
 
 class DisplayDataQuery(Database):
@@ -8,7 +8,7 @@ class DisplayDataQuery(Database):
         info = {}
         info['total_order'] = len(self.get_all_records(Order))  # 总订单
         info['total_money'] = 0  # 总收入
-        info['total_user'] = len(self.get_all_records(User))  # 总用户
+        info['total_user'] = 5  # 总用户
         info['total_card'] = len(self.get_all_records(Card))  # 总卡密
         if show:
             print("info:", info)

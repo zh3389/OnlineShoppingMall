@@ -156,11 +156,11 @@ class Notice(Base):
     user_switch = Column(Boolean, nullable=True, default=False)  # 用户开关
 
 
-class User(Base):
-    __tablename__ = 'user'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column(Text, nullable=False)
-    password = Column(Text, nullable=False)
+# class User(Base):
+#     __tablename__ = 'user'
+#     id = Column(Integer, primary_key=True, autoincrement=True)
+#     username = Column(Text, nullable=False)
+#     password = Column(Text, nullable=False)
 
 
 """
@@ -378,13 +378,13 @@ if __name__ == "__main__":
     db.create_example_data()
 
     # 测试插入示例数据
-    db.add_record(User(username="admin", password="admin"))
+    db.add_record(AdminUser(email="admin@qq.com", hash="admin"))
     # 测试查询示例数据
     with db.session_scope() as session:
-        user = session.query(User).filter_by(id=1).first()
-        print(f"Retrieved User: {user.username}, {user.password}")
+        user = session.query(AdminUser).filter_by(id=1).first()
+        print(f"Retrieved User: {AdminUser.email}, {AdminUser.hash}")
     # 测试更新示例数据
-    db.update_record(User, 1, username="admin", password="123")
+    db.update_record(AdminUser, 1, email="admin", hash="123")
 
     # # 测试删除示例数据
     # db.delete_record(User, 1)
