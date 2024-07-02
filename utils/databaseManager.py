@@ -208,97 +208,99 @@ class Database:
 
     def create_example_data(self):
         """创建示例数据"""
-        with self.session_scope() as session:
-            # 管理员信息
-            session.add(AdminUser(email='admin@qq.com', hash='$2b$12$BKSXKYuCgeXjr8IEbK02re0VhkFoAz7f3aHF3kYAMLzYaEiObqPYm'))
 
-            # 邮箱配置
-            # session.add(Smtp('demo@qq.com', '卡密发卡网', 'smtp.qq.com', '465', 'xxxxxxxxx', True))
+        print("=" * 100)
+        # 管理员
+        print("Session opened")
+        self.add_record(AdminUser(email='admin@qq.com', hash='$2b$12$BKSXKYuCgeXjr8IEbK02re0VhkFoAz7f3aHF3kYAMLzYaEiObqPYm'))
+        print("AdminUser added")
 
-            # 支付渠道
-            session.add(Payment(name='支付宝当面付', icon='支付宝', config="{'APPID':'2016091800537528','alipay_public_key':'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4AHTfGleo8WI3qb+mSWOjJRyn6Vh8XvO6YsQmJjPnNKhvACHTHcU+PCUWUKZ54fSVhMkFZEQWMtAGeOt3lGy3pMBS96anh841gxJc2NUljU14ESXnDn4QdVe4bosmYvfko46wfA0fGClHdpO8UUiJGLj1W5alv10CwiCrYRDtx93SLIuQgwJn4yBC1/kE/KENOaWaA45dXIQvKh2P0lTbm0AvwYMVvYB+eB1GtOGQbuFJXUxWaMa0byTo9wSllhgyiIkOH+HJ9oOZIweGlsrezeUUdr3EEX97k25LdnUt/oQK8FIfthexfWZpTDDlHqmI7p6gCtRVDJenU4sxwpEyQIDAQAB','app_private_key':'MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCqWmxsyPLwRmZHwoLYlUJXMF7PATKtvp7BrJfwLbxwrz6I48G11HpPPyAoNynwAMG7DCXjVX76NCbmfvvPqnbk09rNRULqGju8G6NkQTbLfDjhJs+CE8kdIs89btxqDG70ebePiZTGpQngPLfrziKDOhRfXkA5qRPImbC+PUXiXq9qvkp9Yu/8IYjyxUpNBNjZuTK+fTjSI0RCt7eE+wR0KqpNIzot1q/ds1KTIYmJQM5tEFie4BK0pDtGiIs/VrUG8PTPqLyzEyIMy1N75olUWAiGrk0USqiieP3TYj0PdlQDX2T14DOwMkl5Rjvt7Knc+WGdolPIBssUX1wTE+J7AgMBAAECggEAWpRP+Jv0yRu1wMxFRKJArxmSH+GUL9wej/6Un2nCO+yChMkNtAAxtLdtAtUqIGpWmH2CG9nW9XULhh3ZCPer1kprmiAMz2t5fbD4dRNT7miz2cwIJDMfCbX7mb+7xUutJ6Mcnl7aU7FnierfJKvrn/ke4gK8haxIT66g0tbDtPQhYnGPawyM+gqFulaMBcuqH0naAIq5ZBWHkKuuwJ1SD6yGrWgHdq3Kt2pE8b9yjfdUl15IeW0rszXG6fTika9WX6qaulyoGAAZdjiXED+mbRyqZA3jq7RI38qBP9+/jAb+fdwE8EwqnpPvfGHMBdkREOXK0kzRU8rpd9GbH7INaQKBgQDwpuW+bK/qxKx3BSAXL98f0J2I7YVuk0EFCStGoxnzWRv0yvL0QEDwN+QPiVMmcVQcr79mW5zTBkd4vmr3ud+v1f/X6UPI82kQhZlVWry8LEnisPlZuE0E/EaJrLgF7z4l3ItzCVi8IfpgizPcCYSz/vY49a5W34eKjXHWUB1jDwKBgQC1N8PgGKI2LRDaJeqt5Ef6yyYSMOgVe0WSqAlgyMECb1pjmMBjcNG1AFE/FfgNu4thOaXIogElGVoQFvA5GuJQY48HOJNgx3Ua2SxiowcXkAN0gIm4FY+ozkp7xhizvLVfsmX+MKqPtl6nggiWETJJyvMQnjMgKLmSvhsopMwZ1QKBgGV36az2BOK3VITGq3Y7YBf5DUN76uPpwOOPryiUgs+hhfEcVX55TSg8WLPYUjAGXtHNpKVTAXfU0PPvTgjv3Yo1cC+okkU7pNQrkLB1lti8z9Z+ilSzKf5tJIzOP7V437p1GHNDwJ9qsDhe2VnwxXxjh4wSwxSsIWlhJFuZ4hovAoGAFgm8Fmqof3InlH/79D3IyyUdciTkdIhTQ6yPx2dioYstMOOIsg8sUZjCSKvBSNo/7wj1slqRTROyMja37Bnq39/bqwMkWSaohSVYEn7FBAaNhQOEvBBTMjI0OK00n9cZL5QgdzMv6t5A0JottSJOPU8jFChJC2Yoe0IHR4ATGikCgYB2smi7/ptKiGdwmiuUHsF/U3jfjpHyHwLrXjoSU+mwV+GjqcdbtkSP1suGjN8tcdbFvLSCRX/IRdFHYJeuPUXQtZtiC431+upasbEiJ1xZ2KcK3lKf0mOn10kPD5QC7mmsfmjz4cw9cSrBjmcWGXeIwIXPLhOAAIzpHqy8oP/F/g=='}", info='alipay.com 官方接口0.38~0.6%', isactive=True))
-            session.add(Payment(name='微信官方接口', icon='微信支付', config="{'APPID':'XXXXXXXX','MCH_ID':'XXXXXX','APP_SECRET':'XXXXXX'}", info='pay.weixin.qq.com 微信官方0.38%需要营业执照', isactive=False))
-            session.add(Payment(name='QQ钱包', icon='QQ支付', config="{'mch_id':'XXXXXXXX','key':'YYYYY'}", info='mp.qpay.tenpay.com QQ官方0.6%需要营业执照', isactive=False))
-            session.add(Payment(name='虎皮椒支付宝', icon='支付宝', config="{'API':'api.vrmrgame.com','appid':'XXXXXX','AppSecret':'YYYYY'}", info='xunhupay.com 个人接口0.38%+1~2%', isactive=False))
-            session.add(Payment(name='虎皮椒微信', icon='微信支付', config="{'API':'api.vrmrgame.com','appid':'XXXXXX','AppSecret':'YYYYY'}", info='xunhupay.com 个人接口0.38~0.6%+1~2%', isactive=False))
-            session.add(Payment(name='PAYJS支付宝', icon='支付宝', config="{'payjs_key':'XXXXXX','mchid':'YYYYY','mchid':'ZZZZZZZ'}", info='payjs.cn 个人接口2.38%', isactive=False))
-            session.add(Payment(name='PAYJS微信', icon='微信支付', config="{'payjs_key':'XXXXXX','mchid':'YYYYY','mchid':'ZZZZZZZ'}", info='payjs.cn 个人接口2.38%', isactive=False))
-            session.add(Payment(name='迅虎微信', icon='微信支付', config="{'ID':'XXXXXX','Key':'YYYYY',}", info='pay.xunhuweb.com 个人接口0.38~0.6%+1~2%', isactive=False))   # https://admin.xunhuweb.com/pay/payment 返回系统异常错误
-            session.add(Payment(name='码支付支付宝', icon='支付宝', config="{'codepay_id':'58027','codepay_key':'fgl454542WSDJHEJHDJZpTRrmbn','token':'jljCGU3pRvXXXXXXXXXXXb1iq'}", info='codepay.fateqq.com[不可用]', isactive=False))
-            session.add(Payment(name='码支付微信', icon='微信支付', config="{'codepay_id':'58027','codepay_key':'fgl454542WSDJHEJHDJZpTRrmbn','token':'jljCGU3pRvXXXXXXXXXXXb1iq'}", info='codepay.fateqq.com[不可用]', isactive=False))
-            session.add(Payment(name='码支付QQ', icon='QQ支付', config="{'codepay_id':'58027','codepay_key':'fgl454542WSDJHEJHDJZpTRrmbn','token':'jljCGU3pRvXXXXXXXXXXXb1iq'}", info='codepay.fateqq.com[不可用]', isactive=False))
-            session.add(Payment(name='V免签支付宝', icon='支付宝', config="{'API':'http://google.com','KEY':'YYYYYYYY'}", info='0费率实时到账', isactive=False))
-            session.add(Payment(name='V免签微信', icon='微信', config="{'API':'http://google.com','KEY':'YYYYYYYY'}", info='0费率实时到账', isactive=False))
-            session.add(Payment(name='云免签支付宝', icon='支付宝', config="{'APP_ID':'XXXX','KEY':'YYYYYYYY'}", info='云端监控yunmianqian.com', isactive=False))
-            session.add(Payment(name='云免签微信', icon='微信', config="{'APP_ID':'XXXX','KEY':'YYYYYYYY'}", info='云端监控yunmianqian.com', isactive=False))
-            session.add(Payment(name='易支付QQ', icon='QQ支付', config="{'API':'http://google.com','ID':'XXXXX','KEY':'YYYYYYYY'}", info='任意一家易支付 高费率不稳定', isactive=False))
-            session.add(Payment(name='易支付支付宝', icon='支付宝', config="{'API':'http://google.com','ID':'XXXXX','KEY':'YYYYYYYY'}", info='任意一家易支付高费率不稳定', isactive=False))
-            session.add(Payment(name='易支付微信', icon='微信', config="{'API':'http://google.com','ID':'XXXXX','KEY':'YYYYYYYY'}", info='任意一家易支付 高费率不稳定', isactive=False))
-            session.add(Payment(name='YunGouOS', icon='微信或支付宝支付', config="{'mch_id':'xxxxxx','pay_secret':'yyyyyyy'}", info='yungouos.com 微信或支付宝个体1+0.38%', isactive=False))
-            session.add(Payment(name='YunGouOS_WXPAY', icon='微信支付', config="{'mch_id':'xxxxxx','pay_secret':'yyyyyyy'}", info='yungouos.com 微信个体1+0.38~0.6%', isactive=False))
-            session.add(Payment(name='Mugglepay', icon='Mugglepay', config="{'TOKEN':'xxxxxx','Currency':'CNY'}", info='mugglepay.com全球综合收款系统(已修复)', isactive=False))
-            session.add(Payment(name='Stripe支付宝', icon='支付宝', config="{'key':'sk_xxx','currency':'cny'}", info='stripe.com综合收款系统(已完成逻辑，但未实测,缺少反馈)', isactive=False))
-            session.add(Payment(name='Stripe微信', icon='微信支付', config="{'key':'sk_xxx','currency':'usd'}", info='stripe.com综合收款系统(aud, cad, eur, gbp, hkd, jpy, sgd, usd)', isactive=False))
+        # 邮箱配置
+        # self.add_record(Smtp('demo@qq.com', '卡密发卡网', 'smtp.qq.com', '465', 'xxxxxxxxx', True))
 
-            # 商品分类
-            session.add(ProdCag(name='账户ID', info='虚拟账号类商品', sort='100'))
-            session.add(ProdCag(name='激活码', info='单独激活类商品', sort='1000'))
-            session.add(ProdCag(name='第三分类', info='单独激活类商品', sort='1000'))
+        # 支付渠道
+        self.add_record(Payment(name='支付宝当面付', icon='支付宝', config="{'APPID':'2016091800537528','alipay_public_key':'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4AHTfGleo8WI3qb+mSWOjJRyn6Vh8XvO6YsQmJjPnNKhvACHTHcU+PCUWUKZ54fSVhMkFZEQWMtAGeOt3lGy3pMBS96anh841gxJc2NUljU14ESXnDn4QdVe4bosmYvfko46wfA0fGClHdpO8UUiJGLj1W5alv10CwiCrYRDtx93SLIuQgwJn4yBC1/kE/KENOaWaA45dXIQvKh2P0lTbm0AvwYMVvYB+eB1GtOGQbuFJXUxWaMa0byTo9wSllhgyiIkOH+HJ9oOZIweGlsrezeUUdr3EEX97k25LdnUt/oQK8FIfthexfWZpTDDlHqmI7p6gCtRVDJenU4sxwpEyQIDAQAB','app_private_key':'MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCqWmxsyPLwRmZHwoLYlUJXMF7PATKtvp7BrJfwLbxwrz6I48G11HpPPyAoNynwAMG7DCXjVX76NCbmfvvPqnbk09rNRULqGju8G6NkQTbLfDjhJs+CE8kdIs89btxqDG70ebePiZTGpQngPLfrziKDOhRfXkA5qRPImbC+PUXiXq9qvkp9Yu/8IYjyxUpNBNjZuTK+fTjSI0RCt7eE+wR0KqpNIzot1q/ds1KTIYmJQM5tEFie4BK0pDtGiIs/VrUG8PTPqLyzEyIMy1N75olUWAiGrk0USqiieP3TYj0PdlQDX2T14DOwMkl5Rjvt7Knc+WGdolPIBssUX1wTE+J7AgMBAAECggEAWpRP+Jv0yRu1wMxFRKJArxmSH+GUL9wej/6Un2nCO+yChMkNtAAxtLdtAtUqIGpWmH2CG9nW9XULhh3ZCPer1kprmiAMz2t5fbD4dRNT7miz2cwIJDMfCbX7mb+7xUutJ6Mcnl7aU7FnierfJKvrn/ke4gK8haxIT66g0tbDtPQhYnGPawyM+gqFulaMBcuqH0naAIq5ZBWHkKuuwJ1SD6yGrWgHdq3Kt2pE8b9yjfdUl15IeW0rszXG6fTika9WX6qaulyoGAAZdjiXED+mbRyqZA3jq7RI38qBP9+/jAb+fdwE8EwqnpPvfGHMBdkREOXK0kzRU8rpd9GbH7INaQKBgQDwpuW+bK/qxKx3BSAXL98f0J2I7YVuk0EFCStGoxnzWRv0yvL0QEDwN+QPiVMmcVQcr79mW5zTBkd4vmr3ud+v1f/X6UPI82kQhZlVWry8LEnisPlZuE0E/EaJrLgF7z4l3ItzCVi8IfpgizPcCYSz/vY49a5W34eKjXHWUB1jDwKBgQC1N8PgGKI2LRDaJeqt5Ef6yyYSMOgVe0WSqAlgyMECb1pjmMBjcNG1AFE/FfgNu4thOaXIogElGVoQFvA5GuJQY48HOJNgx3Ua2SxiowcXkAN0gIm4FY+ozkp7xhizvLVfsmX+MKqPtl6nggiWETJJyvMQnjMgKLmSvhsopMwZ1QKBgGV36az2BOK3VITGq3Y7YBf5DUN76uPpwOOPryiUgs+hhfEcVX55TSg8WLPYUjAGXtHNpKVTAXfU0PPvTgjv3Yo1cC+okkU7pNQrkLB1lti8z9Z+ilSzKf5tJIzOP7V437p1GHNDwJ9qsDhe2VnwxXxjh4wSwxSsIWlhJFuZ4hovAoGAFgm8Fmqof3InlH/79D3IyyUdciTkdIhTQ6yPx2dioYstMOOIsg8sUZjCSKvBSNo/7wj1slqRTROyMja37Bnq39/bqwMkWSaohSVYEn7FBAaNhQOEvBBTMjI0OK00n9cZL5QgdzMv6t5A0JottSJOPU8jFChJC2Yoe0IHR4ATGikCgYB2smi7/ptKiGdwmiuUHsF/U3jfjpHyHwLrXjoSU+mwV+GjqcdbtkSP1suGjN8tcdbFvLSCRX/IRdFHYJeuPUXQtZtiC431+upasbEiJ1xZ2KcK3lKf0mOn10kPD5QC7mmsfmjz4cw9cSrBjmcWGXeIwIXPLhOAAIzpHqy8oP/F/g=='}", info='alipay.com 官方接口0.38~0.6%', isactive=True))
+        self.add_record(Payment(name='微信官方接口', icon='微信支付', config="{'APPID':'XXXXXXXX','MCH_ID':'XXXXXX','APP_SECRET':'XXXXXX'}", info='pay.weixin.qq.com 微信官方0.38%需要营业执照', isactive=False))
+        self.add_record(Payment(name='QQ钱包', icon='QQ支付', config="{'mch_id':'XXXXXXXX','key':'YYYYY'}", info='mp.qpay.tenpay.com QQ官方0.6%需要营业执照', isactive=False))
+        self.add_record(Payment(name='虎皮椒支付宝', icon='支付宝', config="{'API':'api.vrmrgame.com','appid':'XXXXXX','AppSecret':'YYYYY'}", info='xunhupay.com 个人接口0.38%+1~2%', isactive=False))
+        self.add_record(Payment(name='虎皮椒微信', icon='微信支付', config="{'API':'api.vrmrgame.com','appid':'XXXXXX','AppSecret':'YYYYY'}", info='xunhupay.com 个人接口0.38~0.6%+1~2%', isactive=False))
+        self.add_record(Payment(name='PAYJS支付宝', icon='支付宝', config="{'payjs_key':'XXXXXX','mchid':'YYYYY','mchid':'ZZZZZZZ'}", info='payjs.cn 个人接口2.38%', isactive=False))
+        self.add_record(Payment(name='PAYJS微信', icon='微信支付', config="{'payjs_key':'XXXXXX','mchid':'YYYYY','mchid':'ZZZZZZZ'}", info='payjs.cn 个人接口2.38%', isactive=False))
+        self.add_record(Payment(name='迅虎微信', icon='微信支付', config="{'ID':'XXXXXX','Key':'YYYYY',}", info='pay.xunhuweb.com 个人接口0.38~0.6%+1~2%', isactive=False))   # https://admin.xunhuweb.com/pay/payment 返回系统异常错误
+        self.add_record(Payment(name='码支付支付宝', icon='支付宝', config="{'codepay_id':'58027','codepay_key':'fgl454542WSDJHEJHDJZpTRrmbn','token':'jljCGU3pRvXXXXXXXXXXXb1iq'}", info='codepay.fateqq.com[不可用]', isactive=False))
+        self.add_record(Payment(name='码支付微信', icon='微信支付', config="{'codepay_id':'58027','codepay_key':'fgl454542WSDJHEJHDJZpTRrmbn','token':'jljCGU3pRvXXXXXXXXXXXb1iq'}", info='codepay.fateqq.com[不可用]', isactive=False))
+        self.add_record(Payment(name='码支付QQ', icon='QQ支付', config="{'codepay_id':'58027','codepay_key':'fgl454542WSDJHEJHDJZpTRrmbn','token':'jljCGU3pRvXXXXXXXXXXXb1iq'}", info='codepay.fateqq.com[不可用]', isactive=False))
+        self.add_record(Payment(name='V免签支付宝', icon='支付宝', config="{'API':'http://google.com','KEY':'YYYYYYYY'}", info='0费率实时到账', isactive=False))
+        self.add_record(Payment(name='V免签微信', icon='微信', config="{'API':'http://google.com','KEY':'YYYYYYYY'}", info='0费率实时到账', isactive=False))
+        self.add_record(Payment(name='云免签支付宝', icon='支付宝', config="{'APP_ID':'XXXX','KEY':'YYYYYYYY'}", info='云端监控yunmianqian.com', isactive=False))
+        self.add_record(Payment(name='云免签微信', icon='微信', config="{'APP_ID':'XXXX','KEY':'YYYYYYYY'}", info='云端监控yunmianqian.com', isactive=False))
+        self.add_record(Payment(name='易支付QQ', icon='QQ支付', config="{'API':'http://google.com','ID':'XXXXX','KEY':'YYYYYYYY'}", info='任意一家易支付 高费率不稳定', isactive=False))
+        self.add_record(Payment(name='易支付支付宝', icon='支付宝', config="{'API':'http://google.com','ID':'XXXXX','KEY':'YYYYYYYY'}", info='任意一家易支付高费率不稳定', isactive=False))
+        self.add_record(Payment(name='易支付微信', icon='微信', config="{'API':'http://google.com','ID':'XXXXX','KEY':'YYYYYYYY'}", info='任意一家易支付 高费率不稳定', isactive=False))
+        self.add_record(Payment(name='YunGouOS', icon='微信或支付宝支付', config="{'mch_id':'xxxxxx','pay_secret':'yyyyyyy'}", info='yungouos.com 微信或支付宝个体1+0.38%', isactive=False))
+        self.add_record(Payment(name='YunGouOS_WXPAY', icon='微信支付', config="{'mch_id':'xxxxxx','pay_secret':'yyyyyyy'}", info='yungouos.com 微信个体1+0.38~0.6%', isactive=False))
+        self.add_record(Payment(name='Mugglepay', icon='Mugglepay', config="{'TOKEN':'xxxxxx','Currency':'CNY'}", info='mugglepay.com全球综合收款系统(已修复)', isactive=False))
+        self.add_record(Payment(name='Stripe支付宝', icon='支付宝', config="{'key':'sk_xxx','currency':'cny'}", info='stripe.com综合收款系统(已完成逻辑，但未实测,缺少反馈)', isactive=False))
+        self.add_record(Payment(name='Stripe微信', icon='微信支付', config="{'key':'sk_xxx','currency':'usd'}", info='stripe.com综合收款系统(aud, cad, eur, gbp, hkd, jpy, sgd, usd)', isactive=False))
 
-            # 商品设置
-            session.add(ProdInfo(cag_name='账户ID', name='普通商品演示', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=True))
-            # session.add(ProdInfo(cag_name='账户ID', name='批发商品演示', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：我是商品描述信息-', price=9.99, price_wholesale='9,100#9.9,8.82,7.7'None, auto=True, sales=0,tag=0,isactive=True))
-            session.add(ProdInfo(cag_name='账户ID', name='批发商品演示', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=True))
-            session.add(ProdInfo(cag_name='账户ID', name='普通商品DD', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=False, sales=0, tag='请填写邮箱', isactive=False))
-            session.add(ProdInfo(cag_name='激活码', name='重复卡密演示', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=True))
-            session.add(ProdInfo(cag_name='激活码', name='普通商品CC', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=True))
-            session.add(ProdInfo(cag_name='激活码', name='普通商品BB', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=False))
+        # 商品分类
+        self.add_record(ProdCag(name='账户ID', info='虚拟账号类商品', sort='100'))
+        self.add_record(ProdCag(name='激活码', info='单独激活类商品', sort='1000'))
+        self.add_record(ProdCag(name='第三分类', info='单独激活类商品', sort='1000'))
 
-            # 卡密设置
-            session.add(Card(prod_name='普通商品演示', card='454545454454545454', reuse=False, isused=False))
-            session.add(Card(prod_name='批发商品演示', card='555555555555555555', reuse=False, isused=False))
-            session.add(Card(prod_name='批发商品演示', card='666666666666666666', reuse=False, isused=False))
-            session.add(Card(prod_name='重复卡密演示', card='666666666666666666', reuse=True, isused=False))
+        # 商品设置
+        self.add_record(ProdInfo(cag_name='账户ID', name='普通商品演示', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=True))
+        # self.add_record(ProdInfo(cag_name='账户ID', name='批发商品演示', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：我是商品描述信息-', price=9.99, price_wholesale='9,100#9.9,8.82,7.7'None, auto=True, sales=0,tag=0,isactive=True))
+        self.add_record(ProdInfo(cag_name='账户ID', name='批发商品演示', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=True))
+        self.add_record(ProdInfo(cag_name='账户ID', name='普通商品DD', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=False, sales=0, tag='请填写邮箱', isactive=False))
+        self.add_record(ProdInfo(cag_name='激活码', name='重复卡密演示', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=True))
+        self.add_record(ProdInfo(cag_name='激活码', name='普通商品CC', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=True))
+        self.add_record(ProdInfo(cag_name='激活码', name='普通商品BB', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=False))
 
-            # 系统配置
-            session.add(Config(name='web_name', info='KAMIFAKA', description='网站名称', isshow=True))
-            session.add(Config(name='web_keyword', info='关键词、收录词汇', description='网站关键词', isshow=True))
-            session.add(Config(name='description', info='网站描述信息。。。', description='网站描述', isshow=True))
-            session.add(Config(name='web_url', info='http://localhost:80', description='必填，网站实际地址', isshow=True))
-            session.add(Config(name='web_bg_url', info='https://cdn.jsdelivr.net/gh/Baiyuetribe/yyycode@dev/colorfull.jpg', description='网站背景图片', isshow=True))
-            session.add(Config(name='contact_us', info='<p>示例，请在管理后台>>网站设置里修改，支持HTML格式</p>', description='首页-联系我们', isshow=True))
-            session.add(Config(name='web_footer', info='<a style="color: #fafafa;" href="https://www.baidu.com">川ICP备1101XXXX号-10</a>', description='可填写备案信息', isshow=True))
-            session.add(Config(name='top_notice', info='稳定版演示站点，公告信息可在后台设置', description='首页公告', isshow=True))
-            session.add(Config(name='toast_notice', info='稳定版演示站点，公告信息可在后台设置', description='首页滑动消息设置', isshow=True))
-            # session.add(Config(name='top_notice', info='开发版演示站点，公告信息可在后台设置', description='首页公告', isshow=True))
-            # session.add(Config(name='toast_notice', info='这里是开发板，每天更新好几次那种', description='首页滑动消息设置', isshow=True))
-            # session.add(Config(name='modal_notice', info='【计划中】','全局弹窗信息', isshow=True))
-            session.add(Config(name='contact_option', info='0', description='是否启用联系方式查询[0启用，1关闭]', isshow=True))
-            session.add(Config(name='theme', info='list', description='主题', isshow=False))
-            session.add(Config(name='kamiFaka', info='https://www.baidu.com', description='Github项目地址，用于手动检测新版', isshow=False))
-            session.add(Config(name='kamiFaka_v', info='1.88', description='Github项目地址，用于手动检测新版', isshow=False))
+        # 卡密设置
+        self.add_record(Card(prod_name='普通商品演示', card='454545454454545454', reuse=False, isused=False))
+        self.add_record(Card(prod_name='批发商品演示', card='555555555555555555', reuse=False, isused=False))
+        self.add_record(Card(prod_name='批发商品演示', card='666666666666666666', reuse=False, isused=False))
+        self.add_record(Card(prod_name='重复卡密演示', card='666666666666666666', reuse=True, isused=False))
 
-            # 通知渠道 ：名称；对管理员开关；对用户开关；对管理员需要管理员账号；用户无；名称+config+管理员+admin_switch+user_switch
-            session.add(Notice(name='邮箱通知', config="{'sendname':'no_replay','sendmail':'demo@gmail.com','smtp_address':'smtp.163.com','smtp_port':'465','smtp_pwd':'ZZZZZZZ'}", admin_account='demo@qq.com', admin_switch=False, user_switch=False))
-            session.add(Notice(name='微信通知', config="{'token':'AT_nvlYDjev89gV96hBAvUX5HR3idWQwLlA'}", admin_account='xxxxxxxxxxxxxxxx', admin_switch=False, user_switch=False))
-            session.add(Notice(name='TG通知', config="{'TG_TOKEN':'1290570937:AAHaXA2uOvDoGKbGeY4xVIi5kR7K55saXhs'}", admin_account='445545444', admin_switch=False, user_switch=False))
-            session.add(Notice(name='短信通知', config="{'username':'XXXXXX','password':'YYYYY','tokenYZM':'必填','templateid':'必填'}", admin_account='15347875415', admin_switch=False, user_switch=False))
-            session.add(Notice(name='QQ通知', config="{'Key':'null'}", admin_account='格式：您的KEY@已添加的QQ号,示例：abc@123', admin_switch=False, user_switch=False))
+        # 系统配置
+        self.add_record(Config(name='web_name', info='KAMIFAKA', description='网站名称', isshow=True))
+        self.add_record(Config(name='web_keyword', info='关键词、收录词汇', description='网站关键词', isshow=True))
+        self.add_record(Config(name='description', info='网站描述信息。。。', description='网站描述', isshow=True))
+        self.add_record(Config(name='web_url', info='http://localhost:80', description='必填，网站实际地址', isshow=True))
+        self.add_record(Config(name='web_bg_url', info='https://cdn.jsdelivr.net/gh/Baiyuetribe/yyycode@dev/colorfull.jpg', description='网站背景图片', isshow=True))
+        self.add_record(Config(name='contact_us', info='<p>示例，请在管理后台>>网站设置里修改，支持HTML格式</p>', description='首页-联系我们', isshow=True))
+        self.add_record(Config(name='web_footer', info='<a style="color: #fafafa;" href="https://www.baidu.com">川ICP备1101XXXX号-10</a>', description='可填写备案信息', isshow=True))
+        self.add_record(Config(name='top_notice', info='稳定版演示站点，公告信息可在后台设置', description='首页公告', isshow=True))
+        self.add_record(Config(name='toast_notice', info='稳定版演示站点，公告信息可在后台设置', description='首页滑动消息设置', isshow=True))
+        # self.add_record(Config(name='top_notice', info='开发版演示站点，公告信息可在后台设置', description='首页公告', isshow=True))
+        # self.add_record(Config(name='toast_notice', info='这里是开发板，每天更新好几次那种', description='首页滑动消息设置', isshow=True))
+        # self.add_record(Config(name='modal_notice', info='【计划中】','全局弹窗信息', isshow=True))
+        self.add_record(Config(name='contact_option', info='0', description='是否启用联系方式查询[0启用，1关闭]', isshow=True))
+        self.add_record(Config(name='theme', info='list', description='主题', isshow=False))
+        self.add_record(Config(name='kamiFaka', info='https://www.baidu.com', description='Github项目地址，用于手动检测新版', isshow=False))
+        self.add_record(Config(name='kamiFaka_v', info='1.88', description='Github项目地址，用于手动检测新版', isshow=False))
 
-            # 订单信息【测试环境】
-            session.add(Order(out_order_id='演示订单可删除', name='普通商品演示', payment='支付宝当面付', contact='472835979', contact_txt='请求尽快发货', price=9.99, num=1, total_price=0.9, card='账号：xxxxx；密码：xxxx', status=None, updatetime=None))
-            session.add(Order(out_order_id='演示订单可删除2', name='普通商品演示', payment='虎皮椒微信', contact='458721@qq.com', contact_txt='非常感谢', price=9.99, num=3, total_price=1.97, card=None, status=None, updatetime=None))  # 卡密为None或‘’空都可以
-            session.add(Order(out_order_id='Order_1608107857954q7kyldyg', name='普通商品演示', payment='虎皮椒支付宝', contact='demo@gmail.com', contact_txt='不错', price=9.99, num=1, total_price=0.9, card='此处为卡密', status=None, updatetime=None))
-            session.add(Order(out_order_id='演示订单4457', name='普通商品演示', payment='虎皮椒支付宝', contact='472835979', contact_txt='不错', price=9.99, num=1, total_price=1.9, card='TG卡密DEMO', status=None, updatetime=None))
+        # 通知渠道 ：名称；对管理员开关；对用户开关；对管理员需要管理员账号；用户无；名称+config+管理员+admin_switch+user_switch
+        self.add_record(Notice(name='邮箱通知', config="{'sendname':'no_replay','sendmail':'demo@gmail.com','smtp_address':'smtp.163.com','smtp_port':'465','smtp_pwd':'ZZZZZZZ'}", admin_account='demo@qq.com', admin_switch=False, user_switch=False))
+        self.add_record(Notice(name='微信通知', config="{'token':'AT_nvlYDjev89gV96hBAvUX5HR3idWQwLlA'}", admin_account='xxxxxxxxxxxxxxxx', admin_switch=False, user_switch=False))
+        self.add_record(Notice(name='TG通知', config="{'TG_TOKEN':'1290570937:AAHaXA2uOvDoGKbGeY4xVIi5kR7K55saXhs'}", admin_account='445545444', admin_switch=False, user_switch=False))
+        self.add_record(Notice(name='短信通知', config="{'username':'XXXXXX','password':'YYYYY','tokenYZM':'必填','templateid':'必填'}", admin_account='15347875415', admin_switch=False, user_switch=False))
+        self.add_record(Notice(name='QQ通知', config="{'Key':'null'}", admin_account='格式：您的KEY@已添加的QQ号,示例：abc@123', admin_switch=False, user_switch=False))
 
-            # 插件配置信息
-            session.add(Plugin(name='TG发卡', config="{'TG_TOKEN':'1488086653:AAHihuO0JuvmiDNZtsYcDBpUhL1rTDO6o1C'}", about='### 示例 \n请在管理后台--》Telegram里设置，支持HTML格式', switch=False))
-            session.add(Plugin(name='微信公众号', config="{'PID':'xxxxxxxxxxxx'}", about='<p>示例，请在管理后台>>Telegram里设置，支持HTML格式</p>', switch=False))
+        # 订单信息【测试环境】
+        self.add_record(Order(out_order_id='演示订单可删除', name='普通商品演示', payment='支付宝当面付', contact='472835979', contact_txt='请求尽快发货', price=9.99, num=1, total_price=0.9, card='账号：xxxxx；密码：xxxx', status=None))
+        self.add_record(Order(out_order_id='演示订单可删除2', name='普通商品演示', payment='虎皮椒微信', contact='458721@qq.com', contact_txt='非常感谢', price=9.99, num=3, total_price=1.97, card=None, status=None))  # 卡密为None或‘’空都可以
+        self.add_record(Order(out_order_id='Order_1608107857954q7kyldyg', name='普通商品演示', payment='虎皮椒支付宝', contact='demo@gmail.com', contact_txt='不错', price=9.99, num=1, total_price=0.9, card='此处为卡密', status=None))
+        self.add_record(Order(out_order_id='演示订单4457', name='普通商品演示', payment='虎皮椒支付宝', contact='472835979', contact_txt='不错', price=9.99, num=1, total_price=1.9, card='TG卡密DEMO', status=None))
 
-            # 临时订单
-            session.add(TempOrder(out_order_id='id44454', name='重复卡密演示', payment='alipay', contact='154311', contact_txt='', price=10, status=False, updatetime=None))
-            session.add(TempOrder(out_order_id='id44454', name='批发商品演示', payment='alipay', contact='154311', contact_txt='', price=22, status=False, updatetime=None))
+        # 插件配置信息
+        self.add_record(Plugin(name='TG发卡', config="{'TG_TOKEN':'1488086653:AAHihuO0JuvmiDNZtsYcDBpUhL1rTDO6o1C'}", about='### 示例 \n请在管理后台--》Telegram里设置，支持HTML格式', switch=False))
+        self.add_record(Plugin(name='微信公众号', config="{'PID':'xxxxxxxxxxxx'}", about='<p>示例，请在管理后台>>Telegram里设置，支持HTML格式</p>', switch=False))
 
+        # 临时订单
+        self.add_record(TempOrder(out_order_id='id44454', name='重复卡密演示', payment='alipay', contact='154311', contact_txt='', price=10, status=False))
+        self.add_record(TempOrder(out_order_id='id44454', name='批发商品演示', payment='alipay', contact='154311', contact_txt='', price=22, status=False))
 
     def drop_tables(self):
         """删除数据库表"""
