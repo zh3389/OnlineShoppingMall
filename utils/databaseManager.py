@@ -77,7 +77,7 @@ class Order(Base):
     total_price = Column(Float, nullable=False)  # 总价
     card = Column(Text, nullable=True)  # 卡密
     status = Column(Boolean, nullable=True, default=True)  # 订单状态
-    updatetime = Column(DateTime, nullable=False)  # 交易时间
+    updatetime = Column(DateTime, nullable=False, default=datetime.utcnow() + timedelta(hours=8))  # 存储当前时间
 
 
 class TempOrder(Base):
@@ -114,7 +114,7 @@ class Order2(Base):
     total_price = Column(Float, nullable=False)  # 总价
     card = Column(Text, nullable=True)  # 卡密
     status = Column(Boolean, nullable=True, default=True)  # 订单状态
-    updatetime = Column(DateTime, nullable=False)  # 交易时间
+    updatetime = Column(DateTime, nullable=False, default=datetime.utcnow() + timedelta(hours=8))  # 交易时间
 
 
 class Card(Base):
@@ -299,8 +299,8 @@ class Database:
         self.add_record(Plugin(name='微信公众号', config="{'PID':'xxxxxxxxxxxx'}", about='<p>示例，请在管理后台>>Telegram里设置，支持HTML格式</p>', switch=False))
 
         # 临时订单
-        self.add_record(TempOrder(out_order_id='id44454', name='重复卡密演示', payment='alipay', contact='154311', contact_txt='', price=10, status=False))
-        self.add_record(TempOrder(out_order_id='id44454', name='批发商品演示', payment='alipay', contact='154311', contact_txt='', price=22, status=False))
+        # self.add_record(TempOrder(out_order_id='id44454', name='重复卡密演示', payment='alipay', contact='154311', contact_txt='', price=10, status=False))
+        # self.add_record(TempOrder(out_order_id='id44454', name='批发商品演示', payment='alipay', contact='154311', contact_txt='', price=22, status=False))
 
     def drop_tables(self):
         """删除数据库表"""
