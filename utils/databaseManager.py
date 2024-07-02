@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from sqlalchemy import create_engine, Column, Integer, String, Sequence, DateTime, Text, Boolean, Float
+from sqlalchemy import create_engine, Column, Integer, String, Sequence, DateTime, Text, Boolean, Float, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
@@ -359,6 +359,16 @@ class Database:
         self.engine = self._create_engine(new_db_url)
         self.Session = sessionmaker(bind=self.engine)
 
+    def searchModelData(self, model):
+        """指定表 所有示例数据"""
+        print("-" * 100)
+        with db.session_scope() as session:
+            datas = session.query(model).all()
+            print("len:", len(datas))
+            for data in datas:
+                print(data.__dict__)
+        return
+
 
 # 示例用法
 if __name__ == "__main__":
@@ -375,11 +385,7 @@ if __name__ == "__main__":
         print(f"Retrieved User: {user.username}, {user.password}")
     # 测试更新示例数据
     db.update_record(User, 1, username="admin", password="123")
-    # 测试获取所有示例数据
-    with db.session_scope() as session:
-        users = session.query(User).all()
-        for user in users:
-            print(f"User: {user.username}, {user.password}")
+
     # # 测试删除示例数据
     # db.delete_record(User, 1)
     # # 测试清空示例数据
