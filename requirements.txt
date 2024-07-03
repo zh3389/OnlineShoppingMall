@@ -1,0 +1,7 @@
+-i https://pypi.tuna.tsinghua.edu.cn/simple
+pydantic
+sqlalchemy
+fastapi
+uvicorn
+fastapi-users[sqlalchemy]
+aiosqlite

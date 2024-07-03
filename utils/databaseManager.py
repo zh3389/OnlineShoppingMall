@@ -191,7 +191,7 @@ class Database:
        使用 switch_database 方法切换到其他数据库。
     """
 
-    def __init__(self, db_url):
+    def __init__(self, db_url='sqlite:///utils/database.db'):
         self.db_url = db_url
         self.engine = self._create_engine(db_url)
         self.Session = sessionmaker(bind=self.engine)
@@ -372,7 +372,7 @@ class Database:
 
 # 示例用法
 if __name__ == "__main__":
-    db = Database('sqlite:///database.db')  # 使用 SQLite 数据库
+    db = Database()  # 使用 SQLite 数据库
     db.create_tables()
 
     db.create_example_data()

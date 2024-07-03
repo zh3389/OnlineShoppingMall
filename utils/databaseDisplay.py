@@ -1,6 +1,43 @@
+from datetime import datetime
+from sqlalchemy import func
 from utils.databaseManager import Database
 from utils.databaseManager import Order, Card, ProdCag
 
+
+class Statistical(Database):
+
+    def get_daily_stats(self, model):
+        """按天统计订单"""
+        with self.session_scope() as session:
+            today = datetime.now().date()
+            stats = (
+                session.query(func.date(model.updatetime), func.count(model.id)).group_by(func.date(model.updatetime)).all()
+            )
+        return stats
+
+    @staticmethod
+    def get_weekly_stats():
+        stats = (
+            db.query(func.strftime("%Y-%W", Order.created_at), func.count(Order.id))
+            .group_by(func.strftime("%Y-%W", Order.created_at))
+            .all()
+        )
+        return stats
+
+    @staticmethod
+    # 按月统计订单
+    def get_monthly_stats(db):
+        stats = (
+            db.query(func.strftime("%Y-%m", Order.created_at), func.count(Order.id))
+            .group_by(func.strftime("%Y-%m", Order.created_at))
+            .all()
+        )
+        return stats
+
+
+Statistical().get_daily_stats(Order)
+
+exit()
 
 class DisplayDataQuery(Database):
     def query_dashboard_data(self, show=True):
@@ -37,6 +74,6 @@ class DisplayDataQuery(Database):
 
 if __name__ == '__main__':
     # 测试获取所有dashboard数据
-    ddq = DisplayDataQuery('sqlite:///utils/database.db')
+    ddq = DisplayDataQuery()
     ddq.query_dashboard_data()
     ddq.query_classification_management()
