@@ -4,8 +4,9 @@ from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, Request, Response, Depends, Form
 from contextlib import asynccontextmanager
 from utils.users import User, create_db_and_tables, UserCreate, UserRead, UserUpdate, auth_backend, current_active_user, fastapi_users
+from utils.users import current_user, current_active_user, current_active_verified_user, current_superuser
 from fastapi.middleware.cors import CORSMiddleware
-from utils.databaseDisplay import DisplayDataQuery, ProdCag
+from utils.databaseInteractive import DisplayDataQuery, ProdCag
 
 ddq = DisplayDataQuery('sqlite:///./utils/database.db')
 
@@ -40,17 +41,18 @@ app.add_middleware(CORSMiddleware,
 
 # 仪表盘
 @app.get("/api/backend/dashboard", tags=["backend"])
-async def get_dashboard():
+async def get_dashboard(user: User = Depends(current_superuser)):
     """
     获取仪表盘数据
     """
     result = ddq.query_dashboard_data()
+    print("admin login:", user.email)
     return result
 
 
 # 分类管理
 @app.get("/api/backend/classification", tags=["backend"])
-async def get_classification():
+async def get_classification(user: User = Depends(current_superuser)):
     """
     获取分类列表
     """
@@ -63,7 +65,7 @@ class Classification(BaseModel):
 
 
 @app.post("/api/backend/class_add", tags=["backend"])
-async def add_classification(classification: Classification):
+async def add_classification(classification: Classification, user: User = Depends(current_superuser)):
     """
     新增分类
     """
@@ -71,7 +73,7 @@ async def add_classification(classification: Classification):
 
 
 @app.patch("/api/backend/class_update", tags=["backend"])
-async def update_classification(classification: Classification):
+async def update_classification(classification: Classification, user: User = Depends(current_superuser)):
     """
     修改分类
     """
@@ -79,7 +81,7 @@ async def update_classification(classification: Classification):
 
 
 @app.delete("/api/backend/class_delete", tags=["backend"])
-async def delete_classification(class_id: int):
+async def delete_classification(class_id: int, user: User = Depends(current_superuser)):
     """
     删除分类
     """
@@ -88,7 +90,7 @@ async def delete_classification(class_id: int):
 
 # 商品管理
 @app.get("/api/backend/product", tags=["backend"])
-async def get_products():
+async def get_products(user: User = Depends(current_superuser)):
     """
     获取商品列表
     """
@@ -102,7 +104,7 @@ class Product(BaseModel):
 
 
 @app.post("/api/backend/product_add", tags=["backend"])
-async def add_product(product: Product):
+async def add_product(product: Product, user: User = Depends(current_superuser)):
     """
     新增商品
     """
@@ -110,7 +112,7 @@ async def add_product(product: Product):
 
 
 @app.patch("/api/backend/product_update", tags=["backend"])
-async def update_product(product: Product):
+async def update_product(product: Product, user: User = Depends(current_superuser)):
     """
     修改商品
     """
@@ -118,7 +120,7 @@ async def update_product(product: Product):
 
 
 @app.delete("/api/backend/product_delete", tags=["backend"])
-async def delete_product(product_id: int):
+async def delete_product(product_id: int, user: User = Depends(current_superuser)):
     """
     删除商品
     """
@@ -127,7 +129,7 @@ async def delete_product(product_id: int):
 
 # 卡密管理
 @app.get("/api/backend/cami", tags=["backend"])
-async def get_cami():
+async def get_cami(user: User = Depends(current_superuser)):
     """
     获取卡密列表
     """
@@ -140,7 +142,7 @@ class Cami(BaseModel):
 
 
 @app.post("/api/backend/cami_add", tags=["backend"])
-async def add_cami(cami: Cami):
+async def add_cami(cami: Cami, user: User = Depends(current_superuser)):
     """
     新增卡密
     """
@@ -148,7 +150,7 @@ async def add_cami(cami: Cami):
 
 
 @app.patch("/api/backend/cami_update", tags=["backend"])
-async def update_cami(cami: Cami):
+async def update_cami(cami: Cami, user: User = Depends(current_superuser)):
     """
     修改卡密
     """
@@ -156,7 +158,7 @@ async def update_cami(cami: Cami):
 
 
 @app.delete("/api/backend/cami_delete", tags=["backend"])
-async def delete_cami(cami_id: int):
+async def delete_cami(cami_id: int, user: User = Depends(current_superuser)):
     """
     删除卡密
     """
@@ -165,7 +167,7 @@ async def delete_cami(cami_id: int):
 
 # 优惠券管理
 @app.get("/api/backend/coupon", tags=["backend"])
-async def get_coupons():
+async def get_coupons(user: User = Depends(current_superuser)):
     """
     获取优惠券列表
     """
@@ -179,7 +181,7 @@ class Coupon(BaseModel):
 
 
 @app.post("/api/backend/coupon_add", tags=["backend"])
-async def add_coupon(coupon: Coupon):
+async def add_coupon(coupon: Coupon, user: User = Depends(current_superuser)):
     """
     新增优惠券
     """
@@ -187,7 +189,7 @@ async def add_coupon(coupon: Coupon):
 
 
 @app.patch("/api/backend/coupon_update", tags=["backend"])
-async def update_coupon(coupon: Coupon):
+async def update_coupon(coupon: Coupon, user: User = Depends(current_superuser)):
     """
     修改优惠券
     """
@@ -195,7 +197,7 @@ async def update_coupon(coupon: Coupon):
 
 
 @app.delete("/api/backend/coupon_delete", tags=["backend"])
-async def delete_coupon(coupon_id: int):
+async def delete_coupon(coupon_id: int, user: User = Depends(current_superuser)):
     """
     删除优惠券
     """
@@ -204,7 +206,7 @@ async def delete_coupon(coupon_id: int):
 
 # 订单管理
 @app.get("/api/backend/order", tags=["backend"])
-async def get_orders():
+async def get_orders(user: User = Depends(current_superuser)):
     """
     获取订单列表
     """
@@ -212,7 +214,7 @@ async def get_orders():
 
 
 @app.get("/api/backend/order_search", tags=["backend"])
-async def search_orders(keyword: str):
+async def search_orders(keyword: str, user: User = Depends(current_superuser)):
     """
     搜索订单
     """
@@ -220,7 +222,7 @@ async def search_orders(keyword: str):
 
 
 @app.delete("/api/backend/order_delete", tags=["backend"])
-async def delete_order(order_id: int):
+async def delete_order(order_id: int, user: User = Depends(current_superuser)):
     """
     删除订单
     """
@@ -229,7 +231,7 @@ async def delete_order(order_id: int):
 
 # 用户管理
 @app.get("/api/backend/user", tags=["backend"])
-async def get_users():
+async def get_users(user: User = Depends(current_superuser)):
     """
     获取用户列表
     """
@@ -237,7 +239,7 @@ async def get_users():
 
 
 @app.get("/api/backend/user_search", tags=["backend"])
-async def search_users(keyword: str):
+async def search_users(keyword: str, user: User = Depends(current_superuser)):
     """
     搜索用户
     """
@@ -245,7 +247,7 @@ async def search_users(keyword: str):
 
 
 @app.patch("/api/backend/user_reset", tags=["backend"])
-async def reset_user_password(user_id: int):
+async def reset_user_password(user_id: int, user: User = Depends(current_superuser)):
     """
     重置用户密码
     """
@@ -253,7 +255,7 @@ async def reset_user_password(user_id: int):
 
 
 @app.delete("/api/backend/user_delete", tags=["backend"])
-async def delete_user(user_id: int):
+async def delete_user(user_id: int, user: User = Depends(current_superuser)):
     """
     删除用户
     """
@@ -262,7 +264,7 @@ async def delete_user(user_id: int):
 
 # 图床管理
 @app.get("/api/backend/drawingbed", tags=["backend"])
-async def get_drawingbed():
+async def get_drawingbed(user: User = Depends(current_superuser)):
     """
     获取图床列表
     """
@@ -275,7 +277,7 @@ class Drawingbed(BaseModel):
 
 
 @app.post("/api/backend/drawingbed_add", tags=["backend"])
-async def add_drawingbed(drawingbed: Drawingbed):
+async def add_drawingbed(drawingbed: Drawingbed, user: User = Depends(current_superuser)):
     """
     新增图床
     """
@@ -283,7 +285,7 @@ async def add_drawingbed(drawingbed: Drawingbed):
 
 
 @app.delete("/api/backend/drawingbed_delete", tags=["backend"])
-async def delete_drawingbed(drawingbed_id: int):
+async def delete_drawingbed(drawingbed_id: int, user: User = Depends(current_superuser)):
     """
     删除图床
     """
@@ -292,7 +294,7 @@ async def delete_drawingbed(drawingbed_id: int):
 
 # 佣金记录
 @app.get("/api/backend/invite", tags=["backend"])
-async def get_invite():
+async def get_invite(user: User = Depends(current_superuser)):
     """
     获取佣金记录列表
     """
@@ -300,7 +302,7 @@ async def get_invite():
 
 
 @app.get("/api/backend/invite_search", tags=["backend"])
-async def search_invite(keyword: str):
+async def search_invite(keyword: str, user: User = Depends(current_superuser)):
     """
     搜索佣金记录
     """
@@ -308,7 +310,7 @@ async def search_invite(keyword: str):
 
 
 @app.delete("/api/backend/invite_delete", tags=["backend"])
-async def delete_invite(invite_id: int):
+async def delete_invite(invite_id: int, user: User = Depends(current_superuser)):
     """
     删除佣金记录
     """
@@ -317,7 +319,7 @@ async def delete_invite(invite_id: int):
 
 # 主题设置
 @app.get("/api/backend/theme", tags=["backend"])
-async def get_theme():
+async def get_theme(user: User = Depends(current_superuser)):
     """
     获取主题设置
     """
@@ -330,7 +332,7 @@ class Theme(BaseModel):
 
 
 @app.patch("/api/backend/theme_update", tags=["backend"])
-async def update_theme(theme: Theme):
+async def update_theme(theme: Theme, user: User = Depends(current_superuser)):
     """
     更新主题设置
     """
@@ -339,7 +341,7 @@ async def update_theme(theme: Theme):
 
 # 支付接口
 @app.get("/api/backend/payment", tags=["backend"])
-async def get_payment():
+async def get_payment(user: User = Depends(current_superuser)):
     """
     获取支付接口设置
     """
@@ -347,7 +349,7 @@ async def get_payment():
 
 
 @app.patch("/api/backend/payment_update", tags=["backend"])
-async def update_payment(payment: dict):
+async def update_payment(payment: dict, user: User = Depends(current_superuser)):
     """
     更新支付接口设置
     """
@@ -356,7 +358,7 @@ async def update_payment(payment: dict):
 
 # 消息通知
 @app.get("/api/backend/message", tags=["backend"])
-async def get_message():
+async def get_message(user: User = Depends(current_superuser)):
     """
     获取消息通知设置
     """
@@ -364,7 +366,7 @@ async def get_message():
 
 
 @app.post("/api/backend/message_smtp_test", tags=["backend"])
-async def send_smtp():
+async def send_smtp(user: User = Depends(current_superuser)):
     """
     测试SMTP
     """
@@ -372,7 +374,7 @@ async def send_smtp():
 
 
 @app.patch("/api/backend/message_smtp_save", tags=["backend"])
-async def save_smtp_settings(settings: dict):
+async def save_smtp_settings(settings: dict,user: User = Depends(current_superuser)):
     """
     保存SMTP设置
     """
@@ -380,7 +382,7 @@ async def save_smtp_settings(settings: dict):
 
 
 @app.post("/api/backend/message_admin_test", tags=["backend"])
-async def send_admin_message():
+async def send_admin_message(user: User = Depends(current_superuser)):
     """
     测试Admin消息
     """
@@ -388,7 +390,7 @@ async def send_admin_message():
 
 
 @app.patch("/api/backend/message_admin_set", tags=["backend"])
-async def set_admin_message(settings: dict):
+async def set_admin_message(settings: dict, user: User = Depends(current_superuser)):
     """
     设置Admin消息
     """
@@ -396,7 +398,7 @@ async def set_admin_message(settings: dict):
 
 
 @app.patch("/api/backend/message_switch", tags=["backend"])
-async def switch_message(status: bool):
+async def switch_message(status: bool, user: User = Depends(current_superuser)):
     """
     切换消息开关
     """
@@ -405,7 +407,7 @@ async def switch_message(status: bool):
 
 # 综合设置
 @app.get("/api/backend/other", tags=["backend"])
-async def get_other():
+async def get_other(user: User = Depends(current_superuser)):
     """
     获取综合设置
     """
@@ -413,7 +415,7 @@ async def get_other():
 
 
 @app.patch("/api/backend/shop_notice", tags=["backend"])
-async def update_shop_notice(notice: str):
+async def update_shop_notice(notice: str, user: User = Depends(current_superuser)):
     """
     更新店铺公告
     """
@@ -421,7 +423,7 @@ async def update_shop_notice(notice: str):
 
 
 @app.patch("/api/backend/icp", tags=["backend"])
-async def update_icp(icp_info: str):
+async def update_icp(icp_info: str, user: User = Depends(current_superuser)):
     """
     更新底部备案
     """
@@ -429,7 +431,7 @@ async def update_icp(icp_info: str):
 
 
 @app.patch("/api/backend/other_optional", tags=["backend"])
-async def update_other_optional(options: dict):
+async def update_other_optional(options: dict, user: User = Depends(current_superuser)):
     """
     更新可选参数
     """
@@ -437,7 +439,7 @@ async def update_other_optional(options: dict):
 
 
 @app.patch("/api/backend/admin_reset", tags=["backend"])
-async def reset_admin_account(admin_info: dict):
+async def reset_admin_account(admin_info: dict, user: User = Depends(current_superuser)):
     """
     管理员账密修改
     """
@@ -446,7 +448,7 @@ async def reset_admin_account(admin_info: dict):
 
 # 返回商店主页
 @app.get("/api/backend/home", tags=["backend"])
-async def return_home():
+async def return_home(user: User = Depends(current_superuser)):
     """
     返回商店主页
     """
@@ -455,7 +457,7 @@ async def return_home():
 
 # 退出登录
 @app.get("/api/backend/logout", tags=["backend"])
-async def logout():
+async def logout(user: User = Depends(current_superuser)):
     """
     退出登录，清除COOKIE
     """
@@ -534,7 +536,7 @@ async def user_forget_password(user: UserForgetPasswordModel):
 
 # 邀请好友
 @app.get("/api/frontend/user_invitation", tags=["frontend"])
-async def user_invitation():
+async def user_invitation(user: User = Depends(current_active_verified_user)):
     """
     获取邀请好友信息接口
     """
@@ -543,7 +545,7 @@ async def user_invitation():
 
 # 个人中心
 @app.get("/api/frontend/user_center", tags=["frontend"])
-async def user_center():
+async def user_center(user: User = Depends(current_active_user)):
     """
     获取个人中心信息接口
     """
@@ -552,7 +554,7 @@ async def user_center():
 
 # 我的钱包
 @app.get("/api/frontend/user_wallet", tags=["frontend"])
-async def user_wallet():
+async def user_wallet(user: User = Depends(current_active_user)):
     """
     获取我的钱包信息接口
     """
@@ -573,7 +575,7 @@ async def user_reset_password(user: UserResetPasswordModel):
 
 # 订单中心
 @app.get("/api/frontend/user_order", tags=["frontend"])
-async def user_order():
+async def user_order(user: User = Depends(current_active_user)):
     """
     获取订单中心信息接口
     """
@@ -582,7 +584,7 @@ async def user_order():
 
 # 订单查询
 @app.get("/api/frontend/user_order_query", tags=["frontend"])
-async def user_order_query(order_id: Optional[int] = None):
+async def user_order_query(order_id: Optional[int] = None, user: User = Depends(current_active_verified_user)):
     """
     查询订单信息接口
     """
@@ -593,7 +595,7 @@ async def user_order_query(order_id: Optional[int] = None):
 
 # 退出登录
 @app.get("/api/frontend/logout", tags=["frontend"])
-async def logout(response: Response):
+async def logout(response: Response, user: User = Depends(current_active_user)):
     """
     用户退出登录接口，清除COOKIE
     """

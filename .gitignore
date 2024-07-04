@@ -3,7 +3,7 @@
 .DS_Store
 Desktop.ini
 .idea
-./utils/database.db
+utils/database.db
 
 # Thumbnail cache files
 ._*

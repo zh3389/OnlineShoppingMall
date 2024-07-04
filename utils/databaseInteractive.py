@@ -35,9 +35,9 @@ class Statistical(Database):
         return stats
 
 
-Statistical().get_daily_stats(Order)
+# Statistical().get_daily_stats(Order)
 
-exit()
+# exit()
 
 class DisplayDataQuery(Database):
     def query_dashboard_data(self, show=True):
