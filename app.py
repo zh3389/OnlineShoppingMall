@@ -3,8 +3,8 @@ from typing import Optional, List
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, Request, Response, Depends, Form
 from contextlib import asynccontextmanager
-from utils.users import User, create_db_and_tables, UserCreate, UserRead, UserUpdate, auth_backend, current_active_user, fastapi_users
-from utils.users import current_user, current_active_user, current_active_verified_user, current_superuser
+from utils.usersManager import User, create_db_and_tables, UserCreate, UserRead, UserUpdate, auth_backend, current_active_user, fastapi_users
+from utils.usersManager import current_user, current_active_user, current_active_verified_user, current_superuser
 from fastapi.middleware.cors import CORSMiddleware
 from utils.databaseInteractive import DisplayDataQuery, ProdCag
 
