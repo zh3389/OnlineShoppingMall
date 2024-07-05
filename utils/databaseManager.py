@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from sqlalchemy import create_engine, Column, Integer, String, Sequence, DateTime, Text, Boolean, Float, func
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Boolean, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
@@ -7,14 +7,6 @@ from sqlalchemy.pool import NullPool, QueuePool
 from contextlib import contextmanager
 
 Base = declarative_base()
-
-
-class AdminUser(Base):
-    __tablename__ = 'admin_user'  # 管理员
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    email = Column(String(50), nullable=False)
-    hash = Column(String(70), nullable=False)  # 存储密码,pssql存储过长是由于byte字节导致的
-    updatetime = Column(DateTime, nullable=True, default=datetime.utcnow() + timedelta(hours=8))  # 存储变更时间
 
 
 class AdminLog(Base):
@@ -208,13 +200,7 @@ class Database:
 
     def create_example_data(self):
         """创建示例数据"""
-
         print("=" * 100)
-        # 管理员
-        print("Session opened")
-        self.add_record(AdminUser(email='admin@qq.com', hash='$2b$12$BKSXKYuCgeXjr8IEbK02re0VhkFoAz7f3aHF3kYAMLzYaEiObqPYm'))
-        print("AdminUser added")
-
         # 邮箱配置
         # self.add_record(Smtp('demo@qq.com', '卡密发卡网', 'smtp.qq.com', '465', 'xxxxxxxxx', True))
 
@@ -372,19 +358,17 @@ class Database:
 
 # 示例用法
 if __name__ == "__main__":
-    db = Database()  # 使用 SQLite 数据库
-    db.create_tables()
+    Database().create_tables()  # 使用 SQLite 数据库
+    Database().create_example_data()  # 创建数据样本
 
-    db.create_example_data()
-
-    # 测试插入示例数据
-    db.add_record(AdminUser(email="admin@qq.com", hash="admin"))
-    # 测试查询示例数据
-    with db.session_scope() as session:
-        user = session.query(AdminUser).filter_by(id=1).first()
-        print(f"Retrieved User: {AdminUser.email}, {AdminUser.hash}")
-    # 测试更新示例数据
-    db.update_record(AdminUser, 1, email="admin", hash="123")
+    # # 测试插入示例数据
+    # db.add_record(AdminUser(email="admin@qq.com", hash="admin"))
+    # # 测试查询示例数据
+    # with db.session_scope() as session:
+    #     user = session.query(AdminUser).filter_by(id=1).first()
+    #     print(f"Retrieved User: {AdminUser.email}, {AdminUser.hash}")
+    # # 测试更新示例数据
+    # db.update_record(AdminUser, 1, email="admin", hash="123")
 
     # # 测试删除示例数据
     # db.delete_record(User, 1)

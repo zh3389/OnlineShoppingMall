@@ -1,7 +1,10 @@
+import asyncio
+import contextlib
 import uuid
 from typing import Optional
 from typing import AsyncGenerator
 from fastapi import Depends, Request
+from fastapi_users.exceptions import UserAlreadyExists
 from sqlalchemy.orm import DeclarativeBase
 from fastapi_users import schemas, BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
@@ -21,6 +24,11 @@ class Base(DeclarativeBase):
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
     pass
+
+
+async def init_user_tabel():
+    await create_db_and_tables()  # 创建用户管理数据库
+    await create_user(email="admin@qq.com", password="admin", is_superuser=True)  # 创建管理员账户
 
 
 async def create_db_and_tables():
@@ -140,3 +148,26 @@ class UserUpdate(schemas.BaseUserUpdate):
     pass
 
 
+"""
+创建管理员账户
+"""
+get_async_session_context = contextlib.asynccontextmanager(get_async_session)
+get_user_db_context = contextlib.asynccontextmanager(get_user_db)
+get_user_manager_context = contextlib.asynccontextmanager(get_user_manager)
+
+
+async def create_user(email: str, password: str, is_superuser: bool = False):
+    try:
+        async with get_async_session_context() as session:
+            async with get_user_db_context(session) as user_db:
+                async with get_user_manager_context(user_db) as user_manager:
+                    user = await user_manager.create(UserCreate(email=email, password=password, is_superuser=is_superuser))
+                    print(f"User created {user}")
+                    return user
+    except UserAlreadyExists:
+        print(f"User {email} already exists")
+        raise
+
+
+if __name__ == '__main__':
+    asyncio.run(init_user_tabel())

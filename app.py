@@ -1,34 +1,48 @@
+import os
+import asyncio
 import uvicorn
 from typing import Optional, List
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, Request, Response, Depends, Form
 from contextlib import asynccontextmanager
-from utils.usersManager import User, create_db_and_tables, UserCreate, UserRead, UserUpdate, auth_backend, current_active_user, fastapi_users
+from utils.usersManager import User, UserCreate, UserRead, UserUpdate, auth_backend, fastapi_users, init_user_tabel
 from utils.usersManager import current_user, current_active_user, current_active_verified_user, current_superuser
 from fastapi.middleware.cors import CORSMiddleware
 from utils.databaseInteractive import DisplayDataQuery, ProdCag
-
-ddq = DisplayDataQuery('sqlite:///./utils/database.db')
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """
-    一个上下文管理器，用于处理FastAPI应用程序的使用寿命。
-    它创建了必要的数据库和表。
-    参数：
-        - app: FastAPI - 要使用的FastAPI实例。
-    """
-    # 如果您设置了像Alembic这样的迁移系统，则不需要
-    await create_db_and_tables()
-    yield
+from utils.databaseManager import Database
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
+
+
+"""
+数据库初始化
+"""
+def init_database():
+    from sqlalchemy import create_engine, inspect
+    databaseURL = 'sqlite:///./utils/database.db'
+    engine = create_engine(databaseURL)  # 创建数据库引擎
+    inspector = inspect(engine)  # 使用inspect来检查数据库中的表
+    table_names = inspector.get_table_names()  # 获取所有表名
+    print("数据库表名:", table_names)
+    # 判断表是否存在
+    if 'order' not in table_names:
+        Database(databaseURL).create_tables()
+        Database(databaseURL).create_example_data()
+    if 'user' not in table_names:
+        asyncio.run(init_user_tabel())
+    # db = Database(databaseURL)
+    ddq = DisplayDataQuery(databaseURL)
+    return ddq
+
+
+ddq = init_database()
+
+
 # 配置 CORS
 origins = [
     "http://localhost:5173",
-    "http://127.0.0.1:10000",
+    "http://127.0.0.1:8000",
 ]
 
 app.add_middleware(CORSMiddleware,
