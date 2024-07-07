@@ -31,8 +31,8 @@ class ProdCag(Base):
     __mapper_args__ = {'confirm_deleted_rows': False}
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False, unique=True)  # 名称
-    info = Column(String(100), nullable=False, comment='描述')  # 描述
-    sort = Column(Integer, nullable=True, default=1000)  # 排序id
+    sort = Column(Integer, nullable=True, default=100)  # 排序id
+    state = Column(Boolean, nullable=False, default=False)  # 描述
 
 
 class ProdInfo(Base):
@@ -186,9 +186,9 @@ class Database:
         self.add_record(Payment(name='Stripe微信', icon='微信支付', config="{'key':'sk_xxx','currency':'usd'}", info='stripe.com综合收款系统(aud, cad, eur, gbp, hkd, jpy, sgd, usd)', isactive=False))
 
         # 商品分类
-        self.add_record(ProdCag(name='账户ID', info='虚拟账号类商品', sort='100'))
-        self.add_record(ProdCag(name='激活码', info='单独激活类商品', sort='1000'))
-        self.add_record(ProdCag(name='第三分类', info='单独激活类商品', sort='1000'))
+        self.add_record(ProdCag(name='账户ID', state=True, sort='100'))
+        self.add_record(ProdCag(name='激活码', state=True, sort='100'))
+        self.add_record(ProdCag(name='第三分类', state=True, sort='100'))
 
         # 商品设置
         self.add_record(ProdInfo(cag_name='账户ID', name='普通商品演示', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=True))

@@ -72,8 +72,85 @@ class DisplayDataQuery(Database):
         return items
 
 
+class ProdCagManager(Database):
+    def create(self, name, sort, state):
+        """创建新记录"""
+        newProdCag = ProdCag(name=name, sort=sort, state=state)
+        with self.session_scope() as session:
+            session.add(newProdCag)
+            session.commit()
+
+    def read(self):
+        """获取所有记录"""
+        # TODO 增加分页
+        with self.session_scope() as session:
+            return session.query(ProdCag).all()
+
+    def update(self, item_name, new_name=None, new_sort=None, new_state=None):
+        """更新记录"""
+        with self.session_scope() as session:
+            prod_cag = session.query(ProdCag).filter_by(name=item_name).first()
+            if prod_cag:
+                if new_name:
+                    prod_cag.name = new_name
+                if new_sort:
+                    prod_cag.sort = new_sort
+                if new_state:
+                    prod_cag.state = new_state
+                session.commit()
+
+    def delete(self, item_name):
+        """删除记录"""
+        with self.session_scope() as session:
+            prod_cag = session.query(ProdCag).filter_by(name=item_name).first()
+            if prod_cag:
+                session.delete(prod_cag)
+                session.commit()
+
+    def unit_testing(self):
+        """单元测试"""
+        self.create("unit_test_create", 1, True)
+        self.read()
+        self.update("unit_test_create", new_name="unit_test_update", new_sort=100, new_state=False)
+        self.delete("unit_test_update")
+        print("ProdCagManager 单元测试完成")
+
+# CardManager class
+class CardManager(Database):
+    def create_record(self, model_instance):
+        """创建一条记录"""
+        with self.session_scope() as session:
+            session.add(model_instance)
+            session.commit()
+
+    def get_all_records(self):
+        """获取所有记录"""
+        # TODO 分页配置
+        with self.session_scope() as session:
+            return session.query(Card).all()
+
+    def get_record_by_id(self, card_content):
+        """根据卡密内容获取记录"""
+        with self.session_scope() as session:
+            return session.query(Card).filter_by(card=card_content).first()
+
+    def update_record(self, record_id, **kwargs):
+        """更新记录"""
+        with self.session_scope() as session:
+            record = session.query(Card).filter_by(id=record_id).first()
+            if record:
+                for prod_name, reuse, card in kwargs.items():
+                    setattr(record, prod_name, reuse, card)
+                session.commit()
+
+    def delete_record(self, record_id):
+        """删除记录"""
+        with self.session_scope() as session:
+            record = session.query(Card).filter_by(id=record_id).first()
+            if record:
+                session.delete(record)
+                session.commit()
+
+
 if __name__ == '__main__':
-    # 测试获取所有dashboard数据
-    ddq = DisplayDataQuery()
-    ddq.query_dashboard_data()
-    ddq.query_classification_management()
+    ProdCagManager().unit_testing()
