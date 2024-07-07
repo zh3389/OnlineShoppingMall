@@ -1,5 +1,6 @@
 from datetime import datetime
 from sqlalchemy import func
+from sqlalchemy.future import select
 from utils.databaseManager import Database
 from utils.databaseManager import Order, Card, ProdCag
 
@@ -83,8 +84,9 @@ class ProdCagManager(Database):
     def read(self):
         """获取所有记录"""
         # TODO 增加分页
+        # TODO error
         with self.session_scope() as session:
-            return session.query(ProdCag).all()
+            return session.query(select(ProdCag)).scalars().all()
 
     def update(self, item_name, new_name=None, new_sort=None, new_state=None):
         """更新记录"""

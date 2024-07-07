@@ -8,8 +8,10 @@ from contextlib import asynccontextmanager
 from utils.usersManager import User, UserCreate, UserRead, UserUpdate, auth_backend, fastapi_users, init_user_tabel
 from utils.usersManager import current_user, current_active_user, current_active_verified_user, current_superuser
 from fastapi.middleware.cors import CORSMiddleware
-from utils.databaseInteractive import DisplayDataQuery, ProdCag
-from utils.databaseManager import Database
+from utils.databaseSchemas import ProdCagResponse
+from utils.databaseInteractive import DisplayDataQuery, ProdCagManager
+from utils.databaseManager import Database, ProdCag
+
 
 
 app = FastAPI()
@@ -64,22 +66,23 @@ async def get_dashboard(user: User = Depends(current_superuser)):
     return result
 
 
-# 分类管理
+"""分类管理"""
+# ProdCagManager().unit_testing()
+prdcagManager = ProdCagManager()
+
+
 @app.get("/api/backend/classification", tags=["backend"])
-async def get_classification(user: User = Depends(current_superuser)):
+async def get_classification(response_model=ProdCagResponse):
     """
     获取分类列表
     """
-    return {"message": "分类列表"}
-
-
-class Classification(BaseModel):
-    name: str
-    description: Optional[str] = None
+    prodcags = prdcagManager.read()
+    # TODO error
+    return [ProdCagResponse.from_orm(prodcag) for prodcag in prodcags]
 
 
 @app.post("/api/backend/class_add", tags=["backend"])
-async def add_classification(classification: Classification, user: User = Depends(current_superuser)):
+async def add_classification(user: User = Depends(current_superuser)):
     """
     新增分类
     """
@@ -87,7 +90,7 @@ async def add_classification(classification: Classification, user: User = Depend
 
 
 @app.patch("/api/backend/class_update", tags=["backend"])
-async def update_classification(classification: Classification, user: User = Depends(current_superuser)):
+async def update_classification(user: User = Depends(current_superuser)):
     """
     修改分类
     """
@@ -95,7 +98,7 @@ async def update_classification(classification: Classification, user: User = Dep
 
 
 @app.delete("/api/backend/class_delete", tags=["backend"])
-async def delete_classification(class_id: int, user: User = Depends(current_superuser)):
+async def delete_classification(class_name: str, user: User = Depends(current_superuser)):
     """
     删除分类
     """
