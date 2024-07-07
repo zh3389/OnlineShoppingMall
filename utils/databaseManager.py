@@ -9,8 +9,8 @@ from contextlib import contextmanager
 Base = declarative_base()
 
 
-class AdminLog(Base):
-    __tablename__ = 'admin_login_log'  # 登录日志
+class LoginLog(Base):
+    __tablename__ = 'login_log'  # 登录日志
     id = Column(Integer, primary_key=True, autoincrement=True)
     ip = Column(String(100), nullable=False)
     updatetime = Column(DateTime, nullable=True, default=datetime.utcnow() + timedelta(hours=8))  # 存储变更时间
@@ -72,43 +72,6 @@ class Order(Base):
     updatetime = Column(DateTime, nullable=False, default=datetime.utcnow() + timedelta(hours=8))  # 存储当前时间
 
 
-class TempOrder(Base):
-    # 临时订单信息---商品名称或ID+订单号+数量+支付方式+联系方式+备注；时间信息---》推算价格---》支付状态---》付款【名称、订单号、数量、价格】
-    __tablename__ = 'temporder'
-    __mapper_args__ = {'confirm_deleted_rows': False}
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    out_order_id = Column(String(50), nullable=False)  # 订单ID
-    name = Column(String(50), nullable=False)  # 商品名
-    payment = Column(String(50), nullable=False)  # 支付渠道
-    contact = Column(String(50))  # 联系方式
-    contact_txt = Column(Text, nullable=True)  # 附加信息
-    price = Column(Float, nullable=False)  # 价格--推算步骤
-    num = Column(Integer, nullable=False)  # 数量
-    total_price = Column(Float, nullable=False)  # 总价--推算步骤
-    status = Column(Boolean, nullable=True, default=True)  # 订单状态---False
-    auto = Column(Boolean, nullable=False, default=False)  # 手工或自动发货
-    updatetime = Column(DateTime, nullable=False, default=datetime.utcnow() + timedelta(hours=8))  # 创建时间
-    endtime = Column(DateTime, nullable=True)  # 最后时间
-
-
-class Order2(Base):
-    __bind_key__ = 'order'  # 使用order数据库
-    __tablename__ = 'order2'  # 订单信息
-    __mapper_args__ = {'confirm_deleted_rows': False}
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    out_order_id = Column(String(50), nullable=False)  # 订单ID
-    name = Column(String(50), nullable=False)  # 商品名
-    payment = Column(String(50), nullable=False)  # 支付渠道
-    contact = Column(String(50))  # 联系方式
-    contact_txt = Column(Text, nullable=True)  # 附加信息
-    price = Column(Float, nullable=False)  # 价格
-    num = Column(Integer, nullable=False)  # 数量
-    total_price = Column(Float, nullable=False)  # 总价
-    card = Column(Text, nullable=True)  # 卡密
-    status = Column(Boolean, nullable=True, default=True)  # 订单状态
-    updatetime = Column(DateTime, nullable=False, default=datetime.utcnow() + timedelta(hours=8))  # 交易时间
-
-
 class Card(Base):
     __tablename__ = 'card'  # 卡密
     __mapper_args__ = {'confirm_deleted_rows': False}
@@ -146,13 +109,6 @@ class Notice(Base):
     admin_account = Column(String(100), nullable=False, default=False)  # 150000
     admin_switch = Column(Boolean, nullable=True, default=False)  # 管理员开关
     user_switch = Column(Boolean, nullable=True, default=False)  # 用户开关
-
-
-# class User(Base):
-#     __tablename__ = 'user'
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     username = Column(Text, nullable=False)
-#     password = Column(Text, nullable=False)
 
 
 """
@@ -344,16 +300,6 @@ class Database:
         self.db_url = new_db_url
         self.engine = self._create_engine(new_db_url)
         self.Session = sessionmaker(bind=self.engine)
-
-    def searchModelData(self, model):
-        """指定表 所有示例数据"""
-        print("-" * 100)
-        with db.session_scope() as session:
-            datas = session.query(model).all()
-            print("len:", len(datas))
-            for data in datas:
-                print(data.__dict__)
-        return
 
 
 # 示例用法
