@@ -28,16 +28,16 @@ class ProdCagResponse(ProdCagBase):
 
 class ProdInfoBase(BaseModel):
     name: str  # 必填
-    prod_cag_name: str | None
-    prod_info: str | None
-    prod_img_url: str | None
-    prod_discription: str | None
+    prod_cag_name: str or None
+    prod_info: str or None
+    prod_img_url: str or None
+    prod_discription: str or None
     prod_price: float  # 必填
-    prod_price_wholesale: str | None
-    prod_sales: int | None
-    prod_tag: str | None
+    prod_price_wholesale: str or None
+    prod_sales: int or None
+    prod_tag: str or None
     auto: bool  # 必填
-    sort: int | None
+    sort: int or None
     state: bool  # 必填
 
 

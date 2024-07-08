@@ -114,7 +114,7 @@ class ProdCagManager(Database):
         self.read()
         self.update("unit_test_create", new_name="unit_test_update", new_sort=100, new_state=False)
         self.delete("unit_test_update")
-        print("ProdCagManager 单元测试完成")
+        print("========ProdCagManager 单元测试完成=========")
 
 
 class ProdInfoManager(Database):
@@ -151,43 +151,40 @@ class ProdInfoManager(Database):
                 session.delete(prod_info)
                 session.commit()
 
+    def unit_testing(self):
+        """单元测试"""
+        self.create({"name": "单元测试", "prod_cag_name": "单元测试", "prod_info": "单元测试",
+                     "prod_img_url": "单元测试", "prod_discription": "示例：卡密格式：单元测试",
+                     "prod_price": 9.99, "prod_sales": 0, "prod_tag": "单元测试", "auto": True, "sort": "100",
+                     "state": True})
+        # self.read()
+        self.update({"old_name": "单元测试", "name": "单元测试_修改名称", "prod_cag_name": "单元测试_修改",
+                     "prod_info": "单元测试_修改", "prod_img_url": "单元测试_修改",
+                     "prod_discription": "示例：卡密格式：单元测试_修改", "prod_price": 99.99, "prod_sales": 100,
+                     "prod_tag": "单元测试_修改", "auto": False, "sort": "50", "state": False})
+        self.delete("单元测试_修改名称")
+        print("========ProdInfoManager 单元测试完成=========")
+
 
 # CardManager class
 class CardManager(Database):
-    def create_record(self, model_instance):
-        """创建一条记录"""
-        with self.session_scope() as session:
-            session.add(model_instance)
-            session.commit()
+    def create(self):
+        pass
 
-    def get_all_records(self):
-        """获取所有记录"""
-        # TODO 分页配置
-        with self.session_scope() as session:
-            return session.query(Card).all()
+    def read(self, skip=0, limit=10):
+        pass
 
-    def get_record_by_id(self, card_content):
-        """根据卡密内容获取记录"""
-        with self.session_scope() as session:
-            return session.query(Card).filter_by(card=card_content).first()
+    def update(self):
+        pass
 
-    def update_record(self, record_id, **kwargs):
-        """更新记录"""
-        with self.session_scope() as session:
-            record = session.query(Card).filter_by(id=record_id).first()
-            if record:
-                for prod_name, reuse, card in kwargs.items():
-                    setattr(record, prod_name, reuse, card)
-                session.commit()
+    def delete(self):
+        pass
 
-    def delete_record(self, record_id):
-        """删除记录"""
-        with self.session_scope() as session:
-            record = session.query(Card).filter_by(id=record_id).first()
-            if record:
-                session.delete(record)
-                session.commit()
+    def unit_testing(self):
+        pass
 
 
 if __name__ == '__main__':
     ProdCagManager().unit_testing()
+    ProdInfoManager().unit_testing()
+    CardManager().unit_testing()

@@ -8,8 +8,8 @@ from contextlib import asynccontextmanager
 from utils.usersManager import User, UserCreate, UserRead, UserUpdate, auth_backend, fastapi_users, init_user_tabel
 from utils.usersManager import current_user, current_active_user, current_active_verified_user, current_superuser
 from fastapi.middleware.cors import CORSMiddleware
-from utils.databaseInteractive import DisplayDataQuery, ProdCagManager, ProdInfoManager
-from utils.databaseManager import Database, ProdInfo
+from utils.databaseInteractive import DisplayDataQuery, ProdCagManager, ProdInfoManager, CardManager
+from utils.databaseManager import Database
 
 app = FastAPI()
 
@@ -117,7 +117,7 @@ async def classification_delete(name: str = "new_test"):
 
 
 """商品管理"""
-# ProdInfoManager(fo.unit_testing()
+# ProdInfoManager().unit_testing()
 prodInfoManager = ProdInfoManager()
 
 
@@ -177,41 +177,50 @@ async def product_delete(name: str = "普通商品演示11"):
             }
 
 
-# 卡密管理
-@app.get("/api/backend/cami", tags=["backend"])
-async def get_cami(user: User = Depends(current_superuser)):
+"""卡密管理"""
+# CardManager().unit_testing()
+cardManager = CardManager()
+
+
+@app.get("/api/backend/cami_read", tags=["backend"])
+async def cami_read(skip: int = 0, limit: int = 10):
     """
     获取卡密列表
     """
-    return {"message": "卡密列表"}
+    cards = cardManager.read(skip, limit)
+    return {"code": 200,
+            "data": {"data": cards},
+            "msg": "卡密查询成功"
+            }
 
 
-class Cami(BaseModel):
-    code: str
-    description: Optional[str] = None
-
-
-@app.post("/api/backend/cami_add", tags=["backend"])
-async def add_cami(cami: Cami, user: User = Depends(current_superuser)):
+@app.post("/api/backend/cami_create", tags=["backend"])
+async def cami_create(card: dict = {"prod_name": "普通卡密演示", "card": "卡密简述信息演示XXXX", "reuse": False, "isused": False}):
     """
     新增卡密
     """
-    return {"message": "卡密新增成功"}
+    cardManager.create(card)
+    return {"code": 200,
+            "data": card,
+            "msg": "卡密新增成功"
+            }
 
 
 @app.patch("/api/backend/cami_update", tags=["backend"])
-async def update_cami(cami: Cami, user: User = Depends(current_superuser)):
+async def cami_update():
     """
     修改卡密
     """
+    # TODO 卡密修改 需要借助id
     return {"message": "卡密修改成功"}
 
 
 @app.delete("/api/backend/cami_delete", tags=["backend"])
-async def delete_cami(cami_id: int, user: User = Depends(current_superuser)):
+async def cami_delete():
     """
     删除卡密
     """
+    # TODO 卡密删除 需要借助id
     return {"message": "卡密删除成功"}
 
 
