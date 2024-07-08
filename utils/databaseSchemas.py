@@ -17,9 +17,6 @@ class ProdCagCreate(ProdCagBase):
 
 class ProdCagResponse(ProdCagBase):
     id: int
-    name: str
-    sort: int
-    state: bool
 
     class Config:
         orm_mode = True

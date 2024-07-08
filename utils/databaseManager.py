@@ -146,7 +146,9 @@ class Database:
 
     def _create_engine(self, db_url):
         if 'sqlite' in db_url:
-            return create_engine(db_url, echo=True, poolclass=NullPool)
+            return create_engine(db_url, echo=True,
+                                 # pool_size=5, max_overflow=10, connect_args={'check_same_thread': False, 'timeout': 10}
+                                 )
         else:
             return create_engine(db_url, echo=True, pool_size=20, max_overflow=0)
 

@@ -71,38 +71,52 @@ async def get_dashboard(user: User = Depends(current_superuser)):
 prdcagManager = ProdCagManager()
 
 
-@app.get("/api/backend/classification", tags=["backend"])
-async def get_classification(response_model=ProdCagResponse):
+@app.get("/api/backend/class_read", tags=["backend"], response_model=List[ProdCagResponse])
+async def classification_read(skip: int = 0, limit: int = 10):
     """
     获取分类列表
     """
-    prodcags = prdcagManager.read()
-    # TODO error
-    return [ProdCagResponse.from_orm(prodcag) for prodcag in prodcags]
+    prodcags = prdcagManager.read(skip, limit)
+    return {"code": 200,
+            "data": prodcags,
+            "msg": "分类查询成功"
+            }
 
 
-@app.post("/api/backend/class_add", tags=["backend"])
-async def add_classification(user: User = Depends(current_superuser)):
+@app.post("/api/backend/class_create", tags=["backend"])
+async def classification_create(name: str, sort: int, state: bool):
     """
     新增分类
     """
-    return {"message": "分类新增成功"}
+    prdcagManager.create(name=name, sort=sort, state=state)
+    return {"code": 200,
+            "data": {"name": name, "sort": sort, "state": state},
+            "msg": "分类新增成功"
+            }
 
 
 @app.patch("/api/backend/class_update", tags=["backend"])
-async def update_classification(user: User = Depends(current_superuser)):
+async def classification_update(old_name: str, new_name: str, new_sort: int, new_state: bool):
     """
     修改分类
     """
-    return {"message": "分类修改成功"}
+    prdcagManager.update(old_name, new_name, new_sort, new_state)
+    return {"code": 200,
+            "data": {"name": new_name, "sort": new_sort, "state": new_state},
+            "msg": "分类修改成功"
+            }
 
 
 @app.delete("/api/backend/class_delete", tags=["backend"])
-async def delete_classification(class_name: str, user: User = Depends(current_superuser)):
+async def classification_delete(name: str):
     """
     删除分类
     """
-    return {"message": "分类删除成功"}
+    prdcagManager.delete(name)
+    return {"code": 200,
+            "data": {"name": name},
+            "msg": "分类删除成功"
+            }
 
 
 # 商品管理

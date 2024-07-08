@@ -1,8 +1,8 @@
 from datetime import datetime
 from sqlalchemy import func
 from sqlalchemy.future import select
-from utils.databaseManager import Database
-from utils.databaseManager import Order, Card, ProdCag
+from utils.databaseManager import Database, Order, Card, ProdCag
+from utils.databaseSchemas import ProdCagResponse
 
 
 class Statistical(Database):
@@ -79,14 +79,13 @@ class ProdCagManager(Database):
         newProdCag = ProdCag(name=name, sort=sort, state=state)
         with self.session_scope() as session:
             session.add(newProdCag)
-            session.commit()
 
-    def read(self):
+    def read(self, skip=0, limit=10):
         """获取所有记录"""
-        # TODO 增加分页
-        # TODO error
         with self.session_scope() as session:
-            return session.query(select(ProdCag)).scalars().all()
+            result = session.execute(select(ProdCag).offset(skip).limit(limit))
+            prodcags = result.scalars().all()
+            return [ProdCagResponse.from_orm(prodcag) for prodcag in prodcags]
 
     def update(self, item_name, new_name=None, new_sort=None, new_state=None):
         """更新记录"""
