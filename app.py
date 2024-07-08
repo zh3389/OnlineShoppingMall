@@ -8,11 +8,8 @@ from contextlib import asynccontextmanager
 from utils.usersManager import User, UserCreate, UserRead, UserUpdate, auth_backend, fastapi_users, init_user_tabel
 from utils.usersManager import current_user, current_active_user, current_active_verified_user, current_superuser
 from fastapi.middleware.cors import CORSMiddleware
-from utils.databaseSchemas import ProdCagResponse
-from utils.databaseInteractive import DisplayDataQuery, ProdCagManager
-from utils.databaseManager import Database, ProdCag
-
-
+from utils.databaseInteractive import DisplayDataQuery, ProdCagManager, ProdInfoManager
+from utils.databaseManager import Database, ProdInfo
 
 app = FastAPI()
 
@@ -68,27 +65,27 @@ async def get_dashboard(user: User = Depends(current_superuser)):
 
 """分类管理"""
 # ProdCagManager().unit_testing()
-prdcagManager = ProdCagManager()
+prodcagManager = ProdCagManager()
 
 
-@app.get("/api/backend/class_read", tags=["backend"], response_model=List[ProdCagResponse])
+@app.get("/api/backend/class_read", tags=["backend"])
 async def classification_read(skip: int = 0, limit: int = 10):
     """
     获取分类列表
     """
-    prodcags = prdcagManager.read(skip, limit)
+    prodcags = prodcagManager.read(skip, limit)
     return {"code": 200,
-            "data": prodcags,
+            "data": {"data": prodcags},
             "msg": "分类查询成功"
             }
 
 
 @app.post("/api/backend/class_create", tags=["backend"])
-async def classification_create(name: str, sort: int, state: bool):
+async def classification_create(name: str = "test", sort: int = 50, state: bool = True):
     """
     新增分类
     """
-    prdcagManager.create(name=name, sort=sort, state=state)
+    prodcagManager.create(name=name, sort=sort, state=state)
     return {"code": 200,
             "data": {"name": name, "sort": sort, "state": state},
             "msg": "分类新增成功"
@@ -96,11 +93,11 @@ async def classification_create(name: str, sort: int, state: bool):
 
 
 @app.patch("/api/backend/class_update", tags=["backend"])
-async def classification_update(old_name: str, new_name: str, new_sort: int, new_state: bool):
+async def classification_update(old_name: str = "test", new_name: str = "new_test", new_sort: int = 88, new_state: bool = False):
     """
     修改分类
     """
-    prdcagManager.update(old_name, new_name, new_sort, new_state)
+    prodcagManager.update(old_name, new_name, new_sort, new_state)
     return {"code": 200,
             "data": {"name": new_name, "sort": new_sort, "state": new_state},
             "msg": "分类修改成功"
@@ -108,54 +105,76 @@ async def classification_update(old_name: str, new_name: str, new_sort: int, new
 
 
 @app.delete("/api/backend/class_delete", tags=["backend"])
-async def classification_delete(name: str):
+async def classification_delete(name: str = "new_test"):
     """
     删除分类
     """
-    prdcagManager.delete(name)
+    prodcagManager.delete(name)
     return {"code": 200,
             "data": {"name": name},
             "msg": "分类删除成功"
             }
 
 
-# 商品管理
-@app.get("/api/backend/product", tags=["backend"])
-async def get_products(user: User = Depends(current_superuser)):
+"""商品管理"""
+# ProdInfoManager(fo.unit_testing()
+prodInfoManager = ProdInfoManager()
+
+
+@app.get("/api/backend/product_read", tags=["backend"])
+async def product_read(skip: int = 0, limit: int = 10):
     """
     获取商品列表
     """
-    return {"message": "商品列表"}
+    prodinfos = prodInfoManager.read(skip, limit)
+    return {"code": 200,
+            "data": {"data": prodinfos},
+            "msg": "商品信息查询成功"
+            }
 
 
-class Product(BaseModel):
-    name: str
-    price: float
-    description: Optional[str] = None
-
-
-@app.post("/api/backend/product_add", tags=["backend"])
-async def add_product(product: Product, user: User = Depends(current_superuser)):
+@app.post("/api/backend/product_create", tags=["backend"])
+async def product_create(prodinfo: dict = {"name": "普通商品演示", "prod_cag_name": "账户ID", "prod_info": "商品简述信息演示XXXX",
+                                           "prod_img_url": "prod_img_url", "prod_discription": "示例：卡密格式：账号------密码-----",
+                                           "prod_price": 9.99, "prod_price_wholesale": None, "prod_sales": 0, "prod_tag": "限时优惠",
+                                           "auto": True, "sort": "100", "state": True}
+                         ):
     """
     新增商品
     """
-    return {"message": "商品新增成功"}
+    prodInfoManager.create(prodinfo)
+    return {"code": 200,
+            "data": prodinfo,
+            "msg": "商品信息新增成功"
+            }
 
 
 @app.patch("/api/backend/product_update", tags=["backend"])
-async def update_product(product: Product, user: User = Depends(current_superuser)):
+async def product_update(prodinfo: dict = {"old_name": "普通商品演示", "name": "普通商品演示", "prod_cag_name": "账户ID", "prod_info": "商品简述信息演示XXXX",
+                                           "prod_img_url": "prod_img_url", "prod_discription": "示例：卡密格式：账号------密码-----",
+                                           "prod_price": 9.99, "prod_price_wholesale": None, "prod_sales": 0, "prod_tag": "限时优惠",
+                                           "auto": True, "sort": "100", "state": True}
+                         ):
     """
     修改商品
     """
-    return {"message": "商品修改成功"}
+    prodInfoManager.update(prodinfo)
+    return {"code": 200,
+            "data": prodinfo,
+            "msg": "商品信息修改成功"
+            }
 
 
 @app.delete("/api/backend/product_delete", tags=["backend"])
-async def delete_product(product_id: int, user: User = Depends(current_superuser)):
+async def product_delete(name: str = "普通商品演示11"):
     """
     删除商品
     """
-    return {"message": "商品删除成功"}
+    prodInfoManager.delete(name)
+    return {"code": 200,
+            "data": {"name": name},
+            "msg": "商品信息删除成功"
+            }
 
 
 # 卡密管理

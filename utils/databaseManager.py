@@ -31,7 +31,7 @@ class ProdCag(Base):
     __mapper_args__ = {'confirm_deleted_rows': False}
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False, unique=True)  # 名称
-    sort = Column(Integer, nullable=True, default=100)  # 排序id
+    sort = Column(Integer, nullable=False, default=100)  # 排序id
     state = Column(Boolean, nullable=False, default=False)  # 描述
 
 
@@ -39,20 +39,20 @@ class ProdInfo(Base):
     __tablename__ = 'prod_info'  # 产品信息
     __mapper_args__ = {'confirm_deleted_rows': False}
     id = Column(Integer, primary_key=True, autoincrement=True)
-    # cag_name = Column(String(50),ForeignKey('prod_cag.name'))  #关联后，无法update或删除
-    cag_name = Column(String(50))  # 关联测试
-    name = Column(String(150), nullable=False, unique=True)  #
-    info = Column(String(150), nullable=True)  # 产品一句话描述
-    img_url = Column(String(150), nullable=True)  # 主图
-    sort = Column(Integer, nullable=True, default=1000)  # 排序
-    discription = Column(Text, nullable=True)  # 完整描述
-    price = Column(Float, nullable=False)  # 价格
-    price_wholesale = Column(String(150), nullable=True)  # 折扣
+    name = Column(String(150), nullable=False, unique=True)  # 商品名称
+    prod_cag_name = Column(String(50))  # 所属分类
+    prod_info = Column(String(150), nullable=True)  # 产品一句话描述
+    prod_img_url = Column(String(150), nullable=True)  # 主图
+    prod_discription = Column(Text, nullable=True)  # 完整描述
+    prod_price = Column(Float, nullable=False, default=888)  # 价格
+    prod_price_wholesale = Column(String(150), nullable=True)  # 批发价格
+    prod_sales = Column(Integer, nullable=True, default=0)  # 销量
     # iswholesale = Column(Text, nullable=False,default=False)  #是否启用折扣
+    prod_tag = Column(String(50), nullable=True, default='优惠折扣')  # 产品标签
     auto = Column(Boolean, nullable=False, default=False)  # 手工或自动发货
-    sales = Column(Integer, nullable=True, default=0)  # 销量
-    tag = Column(String(50), nullable=True, default='优惠折扣')  # 标签
-    isactive = Column(Boolean, nullable=False, default=False)  # 激活为1
+    sort = Column(Integer, nullable=True, default=100)  # 排序
+    state = Column(Boolean, nullable=False, default=False)  # 激活为1
+    # 库存 查询数据库卡密数量
 
 
 class Order(Base):
@@ -192,14 +192,14 @@ class Database:
         self.add_record(ProdCag(name='激活码', state=True, sort='100'))
         self.add_record(ProdCag(name='第三分类', state=True, sort='100'))
 
-        # 商品设置
-        self.add_record(ProdInfo(cag_name='账户ID', name='普通商品演示', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=True))
-        # self.add_record(ProdInfo(cag_name='账户ID', name='批发商品演示', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：我是商品描述信息-', price=9.99, price_wholesale='9,100#9.9,8.82,7.7'None, auto=True, sales=0,tag=0,isactive=True))
-        self.add_record(ProdInfo(cag_name='账户ID', name='批发商品演示', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=True))
-        self.add_record(ProdInfo(cag_name='账户ID', name='普通商品DD', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=False, sales=0, tag='请填写邮箱', isactive=False))
-        self.add_record(ProdInfo(cag_name='激活码', name='重复卡密演示', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=True))
-        self.add_record(ProdInfo(cag_name='激活码', name='普通商品CC', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=True))
-        self.add_record(ProdInfo(cag_name='激活码', name='普通商品BB', info='商品简述信息演示XXXX', img_url='images/null.png', sort='100', discription='示例：卡密格式：账号------密码-----', price=9.99, price_wholesale=None, auto=True, sales=0, tag='请填写邮箱', isactive=False))
+        # 商品
+        self.add_record(ProdInfo(name='普通商品演示', prod_cag_name="账户ID", prod_info='商品简述信息演示XXXX', prod_img_url="prod_img_url", prod_discription="示例：卡密格式：账号------密码-----", prod_price=9.99, prod_price_wholesale=None, prod_sales=0, prod_tag="限时优惠", auto=True, sort='100', state=True))
+        self.add_record(ProdInfo(name='普通商品演示', prod_cag_name="账户ID", prod_info='商品简述信息演示XXXX', prod_img_url="prod_img_url", prod_discription="示例：卡密格式：账号------密码-----",  prod_price=9.99, prod_price_wholesale=None, prod_sales=0, prod_tag="限时优惠", auto=True, sort='100',  state=True))
+        self.add_record(ProdInfo(name='批发商品演示', prod_cag_name="账户ID", prod_info='商品简述信息演示XXXX', prod_img_url="images/null.png", prod_discription="示例：卡密格式：账号------密码-----",  prod_price=9.99, prod_price_wholesale=None, prod_sales=0, prod_tag="限时优惠", auto=True, sort='100',  state=True))
+        self.add_record(ProdInfo(name='普通商品DD', prod_cag_name="账户ID", prod_info='商品简述信息演示XXXX', prod_img_url="images/null.png", prod_discription="示例：卡密格式：账号------密码-----",  prod_price=9.99, prod_price_wholesale=None, prod_sales=0, prod_tag="限时优惠", auto=False, sort='100',  state=False))
+        self.add_record(ProdInfo(name='重复卡密演示', prod_cag_name="激活码", prod_info='商品简述信息演示XXXX', prod_img_url="images/null.png", prod_discription="示例：卡密格式：账号------密码-----",  prod_price=9.99, prod_price_wholesale=None, prod_sales=0, prod_tag="限时优惠", auto=True, sort='100',  state=True))
+        self.add_record(ProdInfo(name='普通商品CC', prod_cag_name="激活码", prod_info='商品简述信息演示XXXX', prod_img_url="images/null.png", prod_discription="示例：卡密格式：账号------密码-----",  prod_price=9.99, prod_price_wholesale=None, prod_sales=0, prod_tag="限时优惠", auto=True, sort='100',  state=True))
+        self.add_record(ProdInfo(name='普通商品BB', prod_cag_name="激活码", prod_info='商品简述信息演示XXXX', prod_img_url="images/null.png", prod_discription="示例：卡密格式：账号------密码-----",  prod_price=9.99, prod_price_wholesale=None, prod_sales=0, prod_tag="限时优惠", auto=True, sort='100',  state=False))
 
         # 卡密设置
         self.add_record(Card(prod_name='普通商品演示', card='454545454454545454', reuse=False, isused=False))

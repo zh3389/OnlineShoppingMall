@@ -1,8 +1,8 @@
 from datetime import datetime
 from sqlalchemy import func
 from sqlalchemy.future import select
-from utils.databaseManager import Database, Order, Card, ProdCag
-from utils.databaseSchemas import ProdCagResponse
+from utils.databaseManager import Database, Order, Card, ProdCag, ProdInfo
+from utils.databaseSchemas import ProdCagResponse, ProdInfoResponse
 
 
 class Statistical(Database):
@@ -115,6 +115,42 @@ class ProdCagManager(Database):
         self.update("unit_test_create", new_name="unit_test_update", new_sort=100, new_state=False)
         self.delete("unit_test_update")
         print("ProdCagManager 单元测试完成")
+
+
+class ProdInfoManager(Database):
+    def create(self, attributes):
+        """创建新记录"""
+        prodinfo = ProdInfo()
+        for attr, value in attributes.items():
+            if value:
+                setattr(prodinfo, attr, value)
+        with self.session_scope() as session:
+            session.add(prodinfo)
+
+    def read(self, skip=0, limit=10):
+        """获取所有记录"""
+        with self.session_scope() as session:
+            result = session.execute(select(ProdInfo).offset(skip).limit(limit))
+            prodinfos = result.scalars().all()
+            return [ProdInfoResponse.from_orm(prodinfo) for prodinfo in prodinfos]
+
+    def update(self, attributes):
+        """更新记录"""
+        with self.session_scope() as session:
+            prod_info = session.query(ProdInfo).filter_by(name=attributes["old_name"]).first()
+            for attr, value in attributes.items():
+                if value:
+                    setattr(prod_info, attr, value)
+                session.commit()
+
+    def delete(self, item_name):
+        """删除记录"""
+        with self.session_scope() as session:
+            prod_info = session.query(ProdInfo).filter_by(name=item_name).first()
+            if prod_info:
+                session.delete(prod_info)
+                session.commit()
+
 
 # CardManager class
 class CardManager(Database):
