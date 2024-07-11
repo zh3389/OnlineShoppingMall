@@ -1,7 +1,5 @@
 import os
 import asyncio
-from dataclasses import asdict
-
 import uvicorn
 from typing import Optional, List
 from pydantic import BaseModel, Field
@@ -10,7 +8,6 @@ from contextlib import asynccontextmanager
 from utils.usersManager import User, UserCreate, UserRead, UserUpdate, auth_backend, fastapi_users, init_user_tabel
 from utils.usersManager import current_user, current_active_user, current_active_verified_user, current_superuser
 from fastapi.middleware.cors import CORSMiddleware
-from utils.databaseInteractive import DisplayDataQuery, ProdInfoManager, CardManager
 from utils.databaseManager import Database
 
 
@@ -34,7 +31,6 @@ def init_database():
     if 'user' not in table_names:
         asyncio.run(init_user_tabel())
     db = Database(databaseURL)
-    # ddq = DisplayDataQuery(databaseURL)
     return db
 
 
@@ -61,8 +57,7 @@ async def get_dashboard():
     """
     获取仪表盘数据
     """
-    result = ddq.query_dashboard_data()
-    print("admin login:", user.email)
+    result = db.session_scope()
     return result
 
 
@@ -148,7 +143,6 @@ async def classification_delete(cla: ClassificationDelete):
 ========================================
 """
 # ProdInfoManager().unit_testing()
-prodInfoManager = ProdInfoManager()
 from utils.databaseManager import ProdInfo
 from utils.databaseSchemas import ProdInfoResponse
 
@@ -166,24 +160,6 @@ class ProductCreate(BaseModel):
     auto: bool  # 必填
     sort: Optional[int] = Field(None, description="排序")
     state: bool  # 必填
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "name": "test",
-                "prod_cag_name": "test",
-                "prod_info": "test",
-                "prod_img_url": "test",
-                "prod_discription": "test",
-                "prod_price": 9.99,
-                "prod_price_wholesale": "test",
-                "prod_sales": 0,
-                "prod_tag": "test",
-                "auto": True,
-                "sort": 50,
-                "state": True
-            }
-        }
 
 
 class ProductUpdate(BaseModel):
@@ -258,8 +234,6 @@ async def product_delete(cla: ProductDelete):
 
 
 """卡密管理"""
-# CardManager().unit_testing()
-cardManager = CardManager()
 
 
 @app.get("/api/backend/cami_read", tags=["backend"])
@@ -267,9 +241,8 @@ async def cami_read(skip: int = 0, limit: int = 10):
     """
     获取卡密列表
     """
-    cards = cardManager.read(skip, limit)
     return {"code": 200,
-            "data": {"data": cards},
+            "data": {"data": skip},
             "msg": "卡密查询成功"
             }
 
@@ -279,7 +252,6 @@ async def cami_create(card: dict = {"prod_name": "普通卡密演示", "card": "
     """
     新增卡密
     """
-    cardManager.create(card)
     return {"code": 200,
             "data": card,
             "msg": "卡密新增成功"
