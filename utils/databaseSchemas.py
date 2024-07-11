@@ -90,7 +90,8 @@ class CardID(CardBase):
 
 
 class CardCreate(CardBase):
-    pass
+    prod_name: str  # 必填
+    card: str  # 必填
 
 
 class CardUpdate(CardID):

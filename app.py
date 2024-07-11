@@ -423,7 +423,13 @@ async def drawingbed_delete(drawingbed_id: int, ):
     return {"message": "图床删除成功"}
 
 
-# 佣金记录
+"""
+========================================
+佣金记录
+========================================
+"""
+
+
 @app.get("/api/backend/invite", tags=["backend"])
 async def get_invite():
     """
@@ -448,7 +454,11 @@ async def delete_invite(invite_id: int, ):
     return {"message": "佣金记录删除成功"}
 
 
-"""主题设置"""
+"""
+========================================
+主题设置
+========================================
+"""
 
 
 @app.get("/api/backend/theme", tags=["backend"])
@@ -472,7 +482,11 @@ async def update_theme(theme: Theme, ):
     return {"message": "主题设置更新成功"}
 
 
-"""支付接口设置"""
+"""
+========================================
+支付接口设置
+========================================
+"""
 
 
 @app.get("/api/backend/payment", tags=["backend"])
@@ -491,7 +505,11 @@ async def update_payment(payment: dict, ):
     return {"message": "支付接口设置更新成功"}
 
 
-"""消息通知"""
+"""
+========================================
+消息通知
+========================================
+"""
 
 
 @app.get("/api/backend/message", tags=["backend"])
@@ -542,7 +560,11 @@ async def switch_message(status: bool, ):
     return {"message": "消息开关切换成功"}
 
 
-"""综合设置"""
+"""
+========================================
+综合设置
+========================================
+"""
 
 
 @app.get("/api/backend/other", tags=["backend"])
@@ -585,7 +607,11 @@ async def reset_admin_account(admin_info: dict, ):
     return {"message": "管理员账密修改成功"}
 
 
-"""返回商店主页"""
+"""
+========================================
+返回商店主页
+========================================
+"""
 
 
 @app.get("/api/backend/home", tags=["backend"])
@@ -596,7 +622,11 @@ async def return_home():
     return {"message": "返回商店主页"}
 
 
-"""退出登录"""
+"""
+========================================
+退出登录
+========================================
+"""
 
 
 @app.get("/api/backend/logout", tags=["backend"])
