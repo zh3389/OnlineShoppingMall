@@ -294,16 +294,16 @@ class Database:
         print("model:", model)
         print("dic:", dic)
         with self.session_scope() as session:
-            record = session.query(model).filter_by(id=dic["record_id"]).first()
+            record = session.query(model).filter_by(id=dic["id"]).first()
             for key, value in dic.items():
                 print("key, value:", key, value)
                 setattr(record, key, value)
             session.add(record)
 
-    def delete_data(self, model, record_id):
+    def delete_data(self, model, id):
         """删除记录"""
         with self.session_scope() as session:
-            record = session.query(model).filter_by(id=record_id).first()
+            record = session.query(model).filter_by(id=id).first()
             session.delete(record)
 
     def get_all_records(self, model):

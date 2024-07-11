@@ -2,7 +2,7 @@ import os
 import asyncio
 import uvicorn
 from typing import Optional, List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, Request, Response, Depends, Form
 from contextlib import asynccontextmanager
 from utils.usersManager import User, UserCreate, UserRead, UserUpdate, auth_backend, fastapi_users, init_user_tabel
@@ -67,24 +67,7 @@ async def get_dashboard():
 ========================================
 """
 from utils.databaseManager import ProdCag
-from utils.databaseSchemas import ProdCagResponse
-
-
-class ClassificationCreate(BaseModel):
-    name: str = "test"
-    sort: int = 50
-    state: bool = True
-
-
-class ClassificationUpdate(BaseModel):
-    record_id: int = 1
-    name: Optional[str] = Field(default="测试分类")
-    sort: Optional[int] = Field(default=None)
-    state: Optional[bool] = Field(default=None)
-
-
-class ClassificationDelete(BaseModel):
-    id: int
+from utils.databaseSchemas import ProdCagBase, ProdCagCreate, ProdCagUpdate, ProdCagResponse, ProdCagDelete
 
 
 @app.get("/api/backend/class_read/{skip}/{limit}", tags=["backend"])
@@ -100,7 +83,7 @@ async def classification_read(skip: int = 0, limit: int = 10):
 
 
 @app.post("/api/backend/class_create", tags=["backend"])
-async def classification_create(cla: ClassificationCreate):
+async def classification_create(cla: ProdCagCreate):
     """
     新增分类
     """
@@ -114,7 +97,7 @@ async def classification_create(cla: ClassificationCreate):
 
 
 @app.patch("/api/backend/class_update", tags=["backend"])
-async def classification_update(cla: ClassificationUpdate):
+async def classification_update(cla: ProdCagUpdate):
     """
     修改分类
     """
@@ -127,7 +110,7 @@ async def classification_update(cla: ClassificationUpdate):
 
 
 @app.delete("/api/backend/class_delete", tags=["backend"])
-async def classification_delete(cla: ClassificationDelete):
+async def classification_delete(cla: ProdCagDelete):
     """
     删除分类
     """
@@ -142,44 +125,9 @@ async def classification_delete(cla: ClassificationDelete):
 商品管理
 ========================================
 """
-# ProdInfoManager().unit_testing()
 from utils.databaseManager import ProdInfo
-from utils.databaseSchemas import ProdInfoResponse
+from utils.databaseSchemas import ProdInfoBase, ProdInfoCreate, ProdInfoUpdate, ProdInfoResponse, ProdInfoDelete
 
-
-class ProductCreate(BaseModel):
-    name: str  # 必填
-    prod_cag_name: Optional[str] = Field(None, description="产品分类名称")
-    prod_info: Optional[str] = Field(None, description="产品信息")
-    prod_img_url: Optional[str] = Field(None, description="产品图片url")
-    prod_discription: Optional[str] = Field(None, description="产品描述")
-    prod_price: float  # 必填
-    prod_price_wholesale: Optional[str] = Field(None, description="产品批发价格")
-    prod_sales: Optional[int] = Field(None, description="产品销量")
-    prod_tag: Optional[str] = Field(None, description="产品标签")
-    auto: bool  # 必填
-    sort: Optional[int] = Field(None, description="排序")
-    state: bool  # 必填
-
-
-class ProductUpdate(BaseModel):
-    record_id: int = 1
-    name: Optional[str] = Field(None, description="产品名称")
-    prod_cag_name: Optional[str] = Field(None, description="产品分类名称")
-    prod_info: Optional[str] = Field(None, description="产品信息")
-    prod_img_url: Optional[str] = Field(None, description="产品图片url")
-    prod_discription: Optional[str] = Field(None, description="产品描述")
-    prod_price: Optional[float] = Field(None, description="产品价格")
-    prod_price_wholesale: Optional[str] = Field(None, description="产品批发价格")
-    prod_sales: Optional[int] = Field(None, description="产品销量")
-    prod_tag: Optional[str] = Field(None, description="产品标签")
-    auto: Optional[bool] = Field(None, description="是否自动上架")
-    sort: Optional[int] = Field(None, description="排序")
-    state: Optional[bool] = Field(None, description="是否上架")
-
-
-class ProductDelete(BaseModel):
-    id: int
 
 
 @app.get("/api/backend/product_read/{skip}/{limit}", tags=["backend"])
@@ -195,7 +143,7 @@ async def product_read(skip: int = 0, limit: int = 10):
 
 
 @app.post("/api/backend/product_create", tags=["backend"])
-async def product_create(cla: ProductCreate):
+async def product_create(cla: ProdInfoCreate):
     """
     新增商品
     """
@@ -209,7 +157,7 @@ async def product_create(cla: ProductCreate):
 
 
 @app.patch("/api/backend/product_update", tags=["backend"])
-async def product_update(cla: ProductUpdate):
+async def product_update(cla: ProdInfoUpdate):
     """
     修改商品
     """
@@ -222,7 +170,7 @@ async def product_update(cla: ProductUpdate):
 
 
 @app.delete("/api/backend/product_delete", tags=["backend"])
-async def product_delete(cla: ProductDelete):
+async def product_delete(cla: ProdInfoDelete):
     """
     删除商品
     """
