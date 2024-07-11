@@ -9,6 +9,7 @@ from utils.usersManager import User, UserCreate, UserRead, UserUpdate, auth_back
 from utils.usersManager import current_user, current_active_user, current_active_verified_user, current_superuser
 from fastapi.middleware.cors import CORSMiddleware
 from utils.databaseManager import Database
+from sqlalchemy import or_
 
 
 app = FastAPI()
@@ -129,7 +130,6 @@ from utils.databaseManager import ProdInfo
 from utils.databaseSchemas import ProdInfoBase, ProdInfoCreate, ProdInfoUpdate, ProdInfoResponse, ProdInfoDelete
 
 
-
 @app.get("/api/backend/product_read/{skip}/{limit}", tags=["backend"])
 async def product_read(skip: int = 0, limit: int = 10):
     """
@@ -236,12 +236,19 @@ async def cami_delete(cla: CardDelete):
     删除卡密
     """
     db.delete_data(Card, cla.id)
-    return {"message": "卡密删除成功"}
+    return {"code": 200,
+            "data": {"id": cla.id},
+            "msg": "卡密删除成功"
+            }
 
 # TODO @app 批量新增 搜索 批量删除 一键去重
 
 
-"""优惠券管理"""
+"""
+========================================
+优惠券管理
+========================================
+"""
 
 
 @app.get("/api/backend/coupon_read", tags=["backend"])
@@ -276,31 +283,63 @@ async def coupon_delete():
     return {"message": "优惠券删除成功"}
 
 
-"""订单管理"""
+"""
+========================================
+订单管理
+========================================
+"""
+from utils.databaseManager import Order
+from utils.databaseSchemas import OrderBase, OrderResponse, OrderDelete, OrderSearch
 
 
-@app.get("/api/backend/order_read", tags=["backend"])
-async def order_read():
+@app.get("/api/backend/order_read/{skip}/{limit}", tags=["backend"])
+async def order_read(skip: int = 0, limit: int = 10):
     """
     获取订单列表
     """
-    return {"message": "订单列表"}
+    orders = db.read_data(Order, OrderResponse, skip, limit)
+    return {"code": 200,
+            "data": {"data": orders},
+            "msg": "订单查询成功"
+            }
 
 
-@app.get("/api/backend/order_search", tags=["backend"])
-async def order_search(keyword: str):
+@app.post("/api/backend/order_search", tags=["backend"])
+async def order_search(cla: OrderSearch):
     """
     搜索订单
     """
-    return {"message": "搜索订单"}
+    filter_params = [or_(Order.out_order_id.like(f"%{cla.out_order_id}%"), Order.contact.like(f"%{cla.contact}%"), Order.card.like(f"%{cla.card}%"))]
+    orders = db.search_filter(Order, OrderResponse, filter_params=filter_params)
+    return {"code": 200,
+            "data": {"data": orders},
+            "msg": "订单查询成功"
+            }
 
 
 @app.delete("/api/backend/order_delete", tags=["backend"])
-async def order_delete(order_id: int):
+async def order_delete(cla: OrderDelete):
     """
     删除订单
     """
-    return {"message": "订单删除成功"}
+    db.delete_data(Order, cla.id)
+    return {"code": 200,
+            "data": {"id": cla.id},
+            "msg": "订单删除成功"
+            }
+
+
+# 一键删除未完成订单
+@app.delete("/api/backend/order_delete_all", tags=["backend"])
+async def order_delete_all():
+    """
+    删除订单
+    """
+    db.delete_batch_data(Order, {"status": 0})
+    return {"code": 200,
+            "data": {},
+            "msg": "所有未完成订单删除成功"
+            }
 
 
 """用户管理"""

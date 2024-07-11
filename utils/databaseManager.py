@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Boolean, Float
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Boolean, Float, or_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
@@ -60,17 +60,18 @@ class Order(Base):
     __tablename__ = 'order'  # 订单信息
     __mapper_args__ = {'confirm_deleted_rows': False}
     id = Column(Integer, primary_key=True, autoincrement=True)
+    status = Column(Boolean, nullable=True, default=True)  # 订单状态
     out_order_id = Column(String(50), nullable=False)  # 订单ID
     name = Column(String(50), nullable=False)  # 商品名
     payment = Column(String(50), nullable=False)  # 支付渠道
-    contact = Column(String(50))  # 联系方式
-    contact_txt = Column(Text, nullable=True)  # 附加信息
-    price = Column(Float, nullable=False)  # 价格
     num = Column(Integer, nullable=False)  # 数量
+    price = Column(Float, nullable=False)  # 价格
+    # coupon = Column(String(50), nullable=True)  # TODO 优惠券
     total_price = Column(Float, nullable=False)  # 总价
-    card = Column(Text, nullable=True)  # 卡密
-    status = Column(Boolean, nullable=True, default=True)  # 订单状态
+    contact_txt = Column(Text, nullable=True)  # 附加信息
     updatetime = Column(DateTime, nullable=False, default=datetime.utcnow() + timedelta(hours=8))  # 存储当前时间
+    contact = Column(String(50))  # 联系方式
+    card = Column(Text, nullable=True)  # 卡密
 
 
 class Card(Base):
@@ -305,6 +306,19 @@ class Database:
         with self.session_scope() as session:
             record = session.query(model).filter_by(id=id).first()
             session.delete(record)
+
+    def delete_batch_data(self, model, filter_params):
+        """批量删除记录"""
+        with self.session_scope() as session:
+            records = session.query(model).filter_by(**filter_params).all()
+            for record in records:
+                session.delete(record)
+
+    def search_filter(self, model, output_model, filter_params):
+        """查询记录"""
+        with self.session_scope() as session:
+            records = session.query(model).filter(*filter_params).all()
+            return [output_model.from_orm(record) for record in records]
 
     def get_all_records(self, model):
         """获取所有记录"""

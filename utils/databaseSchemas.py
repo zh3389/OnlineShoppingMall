@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 from typing import Optional
 
@@ -136,4 +138,49 @@ class CardResponse(CardBase):
 
 
 class CardDelete(CardBase):
+    id: int
+
+
+"""
+========================================
+订单信息
+========================================
+"""
+
+
+class OrderBase(BaseModel):
+    out_order_id: str  # 订单ID 必填
+    name: str  # 商品名 必填
+    payment: str  # 支付渠道 必填
+    num: int  # 数量 必填
+    price: float  # 价格 必填
+    total_price: float  # 总价 必填
+
+
+class OrderSearch(OrderBase):
+    out_order_id: Optional[str] = None
+    contact: Optional[str] = None
+    card: Optional[str] = None
+
+
+class OrderResponse(OrderBase):
+    id: int
+    status: Optional[bool] = None
+    out_order_id: Optional[str] = None
+    name: Optional[str] = None
+    payment: Optional[str] = None
+    num: Optional[int] = None
+    price: Optional[float] = None
+    total_price: Optional[float] = None
+    contact_txt: Optional[str] = None
+    contact: Optional[str] = None
+    card: Optional[str] = None
+    updatetime: Optional[datetime] = None
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
+
+
+class OrderDelete(OrderBase):
     id: int
