@@ -12,9 +12,11 @@ from typing import Optional
 
 
 class ProdCagBase(BaseModel):
-    name: str
-    sort: int
-    state: bool
+    pass
+
+
+class ProdCagID(ProdCagBase):
+    id: int = 1
 
 
 class ProdCagCreate(ProdCagBase):
@@ -23,23 +25,14 @@ class ProdCagCreate(ProdCagBase):
     state: bool = True
 
 
-class ProdCagUpdate(ProdCagBase):
-    id: int = 1
-    name: Optional[str] = Field(default="测试分类")
-    sort: Optional[int] = Field(default=None)
-    state: Optional[bool] = Field(default=None)
+class ProdCagUpdate(ProdCagID, ProdCagCreate):
+    pass
 
 
-class ProdCagResponse(ProdCagBase):
-    id: int
-
+class ProdCagResponse(ProdCagID):
     class Config:
         orm_mode = True
         from_attributes = True
-
-
-class ProdCagDelete(ProdCagBase):
-    id: int
 
 
 """
@@ -50,10 +43,11 @@ class ProdCagDelete(ProdCagBase):
 
 
 class ProdInfoBase(BaseModel):
-    name: str  # 必填
-    prod_price: float  # 必填
-    auto: bool  # 必填
-    state: bool  # 必填
+    pass
+
+
+class ProdInfoID(ProdInfoBase):
+    id: int = 1
 
 
 class ProdInfoCreate(ProdInfoBase):
@@ -67,40 +61,17 @@ class ProdInfoCreate(ProdInfoBase):
     sort: Optional[int] = Field(None, description="排序")
 
 
-class ProdInfoUpdate(ProdInfoBase):
-    id: int = 1  # 必填
+class ProdInfoUpdate(ProdInfoCreate, ProdInfoID):
     name: Optional[str] = Field(None, description="产品名称")
-    prod_cag_name: Optional[str] = Field(None, description="产品分类名称")
-    prod_info: Optional[str] = Field(None, description="产品信息")
-    prod_img_url: Optional[str] = Field(None, description="产品图片url")
-    prod_discription: Optional[str] = Field(None, description="产品描述")
     prod_price: Optional[float] = Field(None, description="产品价格")
-    prod_price_wholesale: Optional[str] = Field(None, description="产品批发价格")
-    prod_sales: Optional[int] = Field(None, description="产品销量")
-    prod_tag: Optional[str] = Field(None, description="产品标签")
     auto: Optional[bool] = Field(None, description="是否自动上架")
-    sort: Optional[int] = Field(None, description="排序")
     state: Optional[bool] = Field(None, description="是否上架")
 
 
-class ProdInfoResponse(ProdInfoBase):
-    id: int
-    prod_cag_name: Optional[str] = None
-    prod_info: Optional[str] = None
-    prod_img_url: Optional[str] = None
-    prod_discription: Optional[str] = None
-    prod_price_wholesale: Optional[str] = None
-    prod_sales: Optional[int] = None
-    prod_tag: Optional[str] = None
-    sort: Optional[int] = None
-
+class ProdInfoResponse(ProdInfoCreate, ProdInfoID):
     class Config:
         orm_mode = True
         from_attributes = True
-
-
-class ProdInfoDelete(ProdInfoBase):
-    id: int  # 必填
 
 
 """
@@ -111,34 +82,28 @@ class ProdInfoDelete(ProdInfoBase):
 
 
 class CardBase(BaseModel):
-    prod_name: str  # 必填
-    card: str  # 必填
-    reuse: bool  # 默认False
-    isused: bool  # 默认False
+    pass
+
+
+class CardID(CardBase):
+    id: int
 
 
 class CardCreate(CardBase):
     pass
 
 
-class CardUpdate(CardBase):
-    id: int
-    prod_name: Optional[str] = None
-    card: Optional[str] = None
-    reuse: Optional[bool] = None
-    isused: Optional[bool] = None
+class CardUpdate(CardID):
+    prod_name: Optional[str] = None  # 必填
+    card: Optional[str] = None  # 必填
+    reuse: Optional[bool] = None  # 默认False
+    isused: Optional[bool] = None  # 默认False
 
 
-class CardResponse(CardBase):
-    id: int
-
+class CardResponse(CardID):
     class Config:
         orm_mode = True
         from_attributes = True
-
-
-class CardDelete(CardBase):
-    id: int
 
 
 """
@@ -149,12 +114,7 @@ class CardDelete(CardBase):
 
 
 class OrderBase(BaseModel):
-    out_order_id: str  # 订单ID 必填
-    name: str  # 商品名 必填
-    payment: str  # 支付渠道 必填
-    num: int  # 数量 必填
-    price: float  # 价格 必填
-    total_price: float  # 总价 必填
+    pass
 
 
 class OrderSearch(OrderBase):
@@ -166,12 +126,12 @@ class OrderSearch(OrderBase):
 class OrderResponse(OrderBase):
     id: int
     status: Optional[bool] = None
-    out_order_id: Optional[str] = None
-    name: Optional[str] = None
-    payment: Optional[str] = None
-    num: Optional[int] = None
-    price: Optional[float] = None
-    total_price: Optional[float] = None
+    out_order_id: Optional[str] = None  # 订单ID 必填
+    name: Optional[str] = None  # 商品名 必填
+    payment: Optional[str] = None  # 支付渠道 必填
+    num: Optional[int] = None  # 数量 必填
+    price: Optional[float] = None  # 价格 必填
+    total_price: Optional[float] = None  # 总价 必填
     contact_txt: Optional[str] = None
     contact: Optional[str] = None
     card: Optional[str] = None
@@ -184,3 +144,34 @@ class OrderResponse(OrderBase):
 
 class OrderDelete(OrderBase):
     id: int
+
+
+"""
+========================================
+用户管理
+========================================
+"""
+
+
+class UserBase(BaseModel):
+    pass
+
+
+class UserID(UserBase):
+    id: int
+
+
+class UserSearch(UserBase):
+    email: Optional[str] = None
+
+
+class UserResponse(UserID):
+    name: Optional[str] = None
+    password: Optional[str] = None
+    email: Optional[str] = None
+    state: Optional[bool] = None
+    updatetime: Optional[datetime] = None
+
+    class Config:
+        orm_mode = True
+        from_attributes = True

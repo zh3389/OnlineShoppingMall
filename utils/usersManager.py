@@ -24,6 +24,7 @@ class Base(DeclarativeBase):
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
     pass
+    # TODO 修改数据库存储的信息
 
 
 async def init_user_tabel():

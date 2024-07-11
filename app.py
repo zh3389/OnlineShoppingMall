@@ -68,7 +68,7 @@ async def get_dashboard():
 ========================================
 """
 from utils.databaseManager import ProdCag
-from utils.databaseSchemas import ProdCagBase, ProdCagCreate, ProdCagUpdate, ProdCagResponse, ProdCagDelete
+from utils.databaseSchemas import ProdCagID, ProdCagCreate, ProdCagUpdate, ProdCagResponse
 
 
 @app.get("/api/backend/class_read/{skip}/{limit}", tags=["backend"])
@@ -111,7 +111,7 @@ async def classification_update(cla: ProdCagUpdate):
 
 
 @app.delete("/api/backend/class_delete", tags=["backend"])
-async def classification_delete(cla: ProdCagDelete):
+async def classification_delete(cla: ProdCagID):
     """
     删除分类
     """
@@ -127,7 +127,7 @@ async def classification_delete(cla: ProdCagDelete):
 ========================================
 """
 from utils.databaseManager import ProdInfo
-from utils.databaseSchemas import ProdInfoBase, ProdInfoCreate, ProdInfoUpdate, ProdInfoResponse, ProdInfoDelete
+from utils.databaseSchemas import ProdInfoID, ProdInfoCreate, ProdInfoUpdate, ProdInfoResponse
 
 
 @app.get("/api/backend/product_read/{skip}/{limit}", tags=["backend"])
@@ -170,7 +170,7 @@ async def product_update(cla: ProdInfoUpdate):
 
 
 @app.delete("/api/backend/product_delete", tags=["backend"])
-async def product_delete(cla: ProdInfoDelete):
+async def product_delete(cla: ProdInfoID):
     """
     删除商品
     """
@@ -187,7 +187,7 @@ async def product_delete(cla: ProdInfoDelete):
 ========================================
 """
 from utils.databaseManager import Card
-from utils.databaseSchemas import CardBase, CardCreate, CardUpdate, CardResponse, CardDelete
+from utils.databaseSchemas import CardID, CardCreate, CardUpdate, CardResponse
 
 
 @app.get("/api/backend/cami_read", tags=["backend"])
@@ -231,7 +231,7 @@ async def cami_update(cla: CardUpdate):
 
 
 @app.delete("/api/backend/cami_delete", tags=["backend"])
-async def cami_delete(cla: CardDelete):
+async def cami_delete(cla: CardID):
     """
     删除卡密
     """
@@ -329,7 +329,6 @@ async def order_delete(cla: OrderDelete):
             }
 
 
-# 一键删除未完成订单
 @app.delete("/api/backend/order_delete_all", tags=["backend"])
 async def order_delete_all():
     """
@@ -342,15 +341,25 @@ async def order_delete_all():
             }
 
 
-"""用户管理"""
+"""
+========================================
+用户管理
+========================================
+"""
+from utils.usersManager import User
+from utils.databaseSchemas import UserID, UserSearch, UserResponse
 
 
-@app.get("/api/backend/user_read", tags=["backend"])
-async def user_read():
+@app.get("/api/backend/user_read/{skip}/{limit}", tags=["backend"])
+async def user_read(skip: int = 0, limit: int = 10):
     """
     获取用户列表
     """
-    return {"message": "用户列表"}
+    users = db.read_data(User, UserResponse, skip, limit)
+    return {"code": 200,
+            "data": {"data": users},
+            "msg": "用户查询成功"
+            }
 
 
 @app.get("/api/backend/user_search", tags=["backend"])
@@ -362,22 +371,32 @@ async def user_search(keyword: str):
 
 
 @app.patch("/api/backend/user_reset", tags=["backend"])
-async def user_reset(user_id: int, ):
+async def user_reset(cla: UserID):
     """
     重置用户密码
     """
+    # UserID
+    # db.update_data(User, data)
     return {"message": "用户密码重置成功"}
 
 
 @app.delete("/api/backend/user_delete", tags=["backend"])
-async def user_delete(user_id: int, ):
+async def user_delete(cla: UserID):
     """
     删除用户
     """
-    return {"message": "用户删除成功"}
+    db.delete_data(User, cla.id)
+    return {"code": 200,
+            "data": {"id": cla.id},
+            "msg": "用户删除成功"
+            }
 
 
-"""图床管理"""
+"""
+========================================
+图床管理
+========================================
+"""
 
 
 @app.get("/api/backend/drawingbed_read", tags=["backend"])
