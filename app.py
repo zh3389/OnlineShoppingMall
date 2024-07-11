@@ -181,7 +181,13 @@ async def product_delete(cla: ProdInfoDelete):
             }
 
 
-"""卡密管理"""
+"""
+========================================
+卡密管理
+========================================
+"""
+from utils.databaseManager import Card
+from utils.databaseSchemas import CardBase, CardCreate, CardUpdate, CardResponse, CardDelete
 
 
 @app.get("/api/backend/cami_read", tags=["backend"])
@@ -189,39 +195,50 @@ async def cami_read(skip: int = 0, limit: int = 10):
     """
     获取卡密列表
     """
+    camis = db.read_data(Card, CardResponse, skip, limit)
     return {"code": 200,
-            "data": {"data": skip},
+            "data": {"data": camis},
             "msg": "卡密查询成功"
             }
 
 
 @app.post("/api/backend/cami_create", tags=["backend"])
-async def cami_create(card: dict = {"prod_name": "普通卡密演示", "card": "卡密简述信息演示XXXX", "reuse": False, "isused": False}):
+async def cami_create(cla: CardCreate):
     """
     新增卡密
     """
+    # TODO 批量新增
+    data_dict = dict(cla)
+    data = Card(**data_dict)
+    db.create_data(data)
     return {"code": 200,
-            "data": card,
+            "data": data_dict,
             "msg": "卡密新增成功"
             }
 
 
 @app.patch("/api/backend/cami_update", tags=["backend"])
-async def cami_update():
+async def cami_update(cla: CardUpdate):
     """
     修改卡密
     """
-    # TODO 卡密修改 需要借助id
-    return {"message": "卡密修改成功"}
+    data = dict(cla)
+    db.update_data(Card, data)
+    return {"code": 200,
+            "data": data,
+            "msg": "卡密修改成功"
+            }
 
 
 @app.delete("/api/backend/cami_delete", tags=["backend"])
-async def cami_delete():
+async def cami_delete(cla: CardDelete):
     """
     删除卡密
     """
-    # TODO 卡密删除 需要借助id
+    db.delete_data(Card, cla.id)
     return {"message": "卡密删除成功"}
+
+# TODO @app 批量新增 搜索 批量删除 一键去重
 
 
 """优惠券管理"""

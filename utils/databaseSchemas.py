@@ -21,7 +21,7 @@ class ProdCagCreate(ProdCagBase):
     state: bool = True
 
 
-class ProdCagUpdate(BaseModel):
+class ProdCagUpdate(ProdCagBase):
     id: int = 1
     name: Optional[str] = Field(default="测试分类")
     sort: Optional[int] = Field(default=None)
@@ -36,7 +36,7 @@ class ProdCagResponse(ProdCagBase):
         from_attributes = True
 
 
-class ProdCagDelete(BaseModel):
+class ProdCagDelete(ProdCagBase):
     id: int
 
 
@@ -65,7 +65,7 @@ class ProdInfoCreate(ProdInfoBase):
     sort: Optional[int] = Field(None, description="排序")
 
 
-class ProdInfoUpdate(BaseModel):
+class ProdInfoUpdate(ProdInfoBase):
     id: int = 1  # 必填
     name: Optional[str] = Field(None, description="产品名称")
     prod_cag_name: Optional[str] = Field(None, description="产品分类名称")
@@ -97,5 +97,43 @@ class ProdInfoResponse(ProdInfoBase):
         from_attributes = True
 
 
-class ProdInfoDelete(BaseModel):
+class ProdInfoDelete(ProdInfoBase):
     id: int  # 必填
+
+
+"""
+========================================
+卡密信息
+========================================
+"""
+
+
+class CardBase(BaseModel):
+    prod_name: str  # 必填
+    card: str  # 必填
+    reuse: bool  # 默认False
+    isused: bool  # 默认False
+
+
+class CardCreate(CardBase):
+    pass
+
+
+class CardUpdate(CardBase):
+    id: int
+    prod_name: Optional[str] = None
+    card: Optional[str] = None
+    reuse: Optional[bool] = None
+    isused: Optional[bool] = None
+
+
+class CardResponse(CardBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
+
+
+class CardDelete(CardBase):
+    id: int
