@@ -1,8 +1,13 @@
 from utils.databaseManager import ProdCag
 from pydantic import BaseModel
+from typing import Optional
 
 
-"""产品分类 数据的验证和序列化"""
+"""
+========================================
+产品分类 数据的验证和序列化
+========================================
+"""
 
 
 class ProdCagBase(BaseModel):
@@ -23,21 +28,25 @@ class ProdCagResponse(ProdCagBase):
         from_attributes = True
 
 
-"""产品信息 数据的验证和序列化"""
+"""
+========================================
+产品信息 数据的验证和序列化
+========================================
+"""
 
 
 class ProdInfoBase(BaseModel):
     name: str  # 必填
-    prod_cag_name: str or None
-    prod_info: str or None
-    prod_img_url: str or None
-    prod_discription: str or None
+    prod_cag_name: Optional[str] = None
+    prod_info: Optional[str] = None
+    prod_img_url: Optional[str] = None
+    prod_discription: Optional[str] = None
     prod_price: float  # 必填
-    prod_price_wholesale: str or None
-    prod_sales: int or None
-    prod_tag: str or None
+    prod_price_wholesale: Optional[str] = None
+    prod_sales: Optional[int] = None
+    prod_tag: Optional[str] = None
     auto: bool  # 必填
-    sort: int or None
+    sort: Optional[int] = None
     state: bool  # 必填
 
 

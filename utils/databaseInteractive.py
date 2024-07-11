@@ -74,12 +74,6 @@ class DisplayDataQuery(Database):
 
 
 class ProdCagManager(Database):
-    def create(self, name, sort, state):
-        """创建新记录"""
-        newProdCag = ProdCag(name=name, sort=sort, state=state)
-        with self.session_scope() as session:
-            session.add(newProdCag)
-
     def read(self, skip=0, limit=10):
         """获取所有记录"""
         with self.session_scope() as session:
@@ -110,7 +104,6 @@ class ProdCagManager(Database):
 
     def unit_testing(self):
         """单元测试"""
-        self.create("unit_test_create", 1, True)
         self.read()
         self.update("unit_test_create", new_name="unit_test_update", new_sort=100, new_state=False)
         self.delete("unit_test_update")
@@ -118,12 +111,8 @@ class ProdCagManager(Database):
 
 
 class ProdInfoManager(Database):
-    def create(self, attributes):
+    def create(self, prodinfo):
         """创建新记录"""
-        prodinfo = ProdInfo()
-        for attr, value in attributes.items():
-            if value:
-                setattr(prodinfo, attr, value)
         with self.session_scope() as session:
             session.add(prodinfo)
 
