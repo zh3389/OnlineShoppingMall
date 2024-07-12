@@ -53,7 +53,7 @@ app.add_middleware(CORSMiddleware,
 
 
 # 仪表盘
-@app.get("/api/backend/dashboard", tags=["backend"])
+@app.get("/api/backend/dashboard", tags=["TodoBackend"])
 async def get_dashboard():
     """
     获取仪表盘数据
@@ -287,7 +287,7 @@ async def cami_delete(cla: CardID):
 """
 
 
-@app.get("/api/backend/coupon_read", tags=["backend"])
+@app.get("/api/backend/coupon_read", tags=["TodoBackend"])
 async def coupon_read():
     """
     获取优惠券列表
@@ -295,7 +295,7 @@ async def coupon_read():
     return {"message": "优惠券列表"}
 
 
-@app.post("/api/backend/coupon_create", tags=["backend"])
+@app.post("/api/backend/coupon_create", tags=["TodoBackend"])
 async def coupon_create():
     """
     新增优惠券
@@ -303,7 +303,7 @@ async def coupon_create():
     return {"message": "优惠券新增成功"}
 
 
-@app.patch("/api/backend/coupon_update", tags=["backend"])
+@app.patch("/api/backend/coupon_update", tags=["TodoBackend"])
 async def coupon_update():
     """
     修改优惠券
@@ -311,7 +311,7 @@ async def coupon_update():
     return {"message": "优惠券修改成功"}
 
 
-@app.delete("/api/backend/coupon_delete", tags=["backend"])
+@app.delete("/api/backend/coupon_delete", tags=["TodoBackend"])
 async def coupon_delete():
     """
     删除优惠券
@@ -386,7 +386,7 @@ from utils.usersManager import User
 from utils.databaseSchemas import UserID, UserSearch, UserResponse
 
 
-@app.get("/api/backend/user_read/{skip}/{limit}", tags=["backend"])
+@app.get("/api/backend/user_read/{skip}/{limit}", tags=["TodoBackend"])
 async def user_read(skip: int = 0, limit: int = 10):
     """
     获取用户列表
@@ -398,7 +398,7 @@ async def user_read(skip: int = 0, limit: int = 10):
             }
 
 
-@app.get("/api/backend/user_search", tags=["backend"])
+@app.get("/api/backend/user_search", tags=["TodoBackend"])
 async def user_search(keyword: str):
     """
     搜索用户
@@ -406,7 +406,7 @@ async def user_search(keyword: str):
     return {"message": "搜索用户"}
 
 
-@app.patch("/api/backend/user_reset", tags=["backend"])
+@app.patch("/api/backend/user_reset", tags=["TodoBackend"])
 async def user_reset(cla: UserID):
     """
     重置用户密码
@@ -416,7 +416,7 @@ async def user_reset(cla: UserID):
     return {"message": "用户密码重置成功"}
 
 
-@app.delete("/api/backend/user_delete", tags=["backend"])
+@app.delete("/api/backend/user_delete", tags=["TodoBackend"])
 async def user_delete(cla: UserID):
     """
     删除用户
@@ -435,7 +435,7 @@ async def user_delete(cla: UserID):
 """
 
 
-@app.get("/api/backend/drawingbed_read", tags=["backend"])
+@app.get("/api/backend/drawingbed_read", tags=["TodoBackend"])
 async def get_drawingbed():
     """
     获取图床列表
@@ -443,7 +443,7 @@ async def get_drawingbed():
     return {"message": "图床列表"}
 
 
-@app.post("/api/backend/drawingbed_create", tags=["backend"])
+@app.post("/api/backend/drawingbed_create", tags=["TodoBackend"])
 async def drawingbed_create():
     """
     新增图床
@@ -451,7 +451,7 @@ async def drawingbed_create():
     return {"message": "图床新增成功"}
 
 
-@app.delete("/api/backend/drawingbed_delete", tags=["backend"])
+@app.delete("/api/backend/drawingbed_delete", tags=["TodoBackend"])
 async def drawingbed_delete(drawingbed_id: int, ):
     """
     删除图床
@@ -466,7 +466,7 @@ async def drawingbed_delete(drawingbed_id: int, ):
 """
 
 
-@app.get("/api/backend/invite", tags=["backend"])
+@app.get("/api/backend/invite", tags=["TodoBackend"])
 async def get_invite():
     """
     获取佣金记录列表
@@ -474,7 +474,7 @@ async def get_invite():
     return {"message": "佣金记录列表"}
 
 
-@app.get("/api/backend/invite_search", tags=["backend"])
+@app.get("/api/backend/invite_search", tags=["TodoBackend"])
 async def search_invite(keyword: str, ):
     """
     搜索佣金记录
@@ -482,7 +482,7 @@ async def search_invite(keyword: str, ):
     return {"message": "搜索佣金记录"}
 
 
-@app.delete("/api/backend/invite_delete", tags=["backend"])
+@app.delete("/api/backend/invite_delete", tags=["TodoBackend"])
 async def delete_invite(invite_id: int, ):
     """
     删除佣金记录
@@ -497,7 +497,7 @@ async def delete_invite(invite_id: int, ):
 """
 
 
-@app.get("/api/backend/theme", tags=["backend"])
+@app.get("/api/backend/theme", tags=["TodoBackend"])
 async def get_theme():
     """
     获取主题设置
@@ -510,7 +510,7 @@ class Theme(BaseModel):
     description: Optional[str] = None
 
 
-@app.patch("/api/backend/theme_update", tags=["backend"])
+@app.patch("/api/backend/theme_update", tags=["TodoBackend"])
 async def update_theme(theme: Theme, ):
     """
     更新主题设置
@@ -525,7 +525,7 @@ async def update_theme(theme: Theme, ):
 """
 
 
-@app.get("/api/backend/payment", tags=["backend"])
+@app.get("/api/backend/payment", tags=["TodoBackend"])
 async def get_payment():
     """
     获取支付接口设置
@@ -533,7 +533,7 @@ async def get_payment():
     return {"message": "支付接口设置"}
 
 
-@app.patch("/api/backend/payment_update", tags=["backend"])
+@app.patch("/api/backend/payment_update", tags=["TodoBackend"])
 async def update_payment(payment: dict, ):
     """
     更新支付接口设置
@@ -548,7 +548,7 @@ async def update_payment(payment: dict, ):
 """
 
 
-@app.get("/api/backend/message", tags=["backend"])
+@app.get("/api/backend/message", tags=["TodoBackend"])
 async def get_message():
     """
     获取消息通知设置
@@ -556,7 +556,7 @@ async def get_message():
     return {"message": "消息通知设置"}
 
 
-@app.post("/api/backend/message_smtp_test", tags=["backend"])
+@app.post("/api/backend/message_smtp_test", tags=["TodoBackend"])
 async def send_smtp():
     """
     测试SMTP
@@ -564,7 +564,7 @@ async def send_smtp():
     return {"message": "SMTP测试成功"}
 
 
-@app.patch("/api/backend/message_smtp_save", tags=["backend"])
+@app.patch("/api/backend/message_smtp_save", tags=["TodoBackend"])
 async def save_smtp_settings(settings: dict,):
     """
     保存SMTP设置
@@ -572,7 +572,7 @@ async def save_smtp_settings(settings: dict,):
     return {"message": "SMTP设置保存成功"}
 
 
-@app.post("/api/backend/message_admin_test", tags=["backend"])
+@app.post("/api/backend/message_admin_test", tags=["TodoBackend"])
 async def send_admin_message():
     """
     测试Admin消息
@@ -580,7 +580,7 @@ async def send_admin_message():
     return {"message": "Admin消息测试成功"}
 
 
-@app.patch("/api/backend/message_admin_set", tags=["backend"])
+@app.patch("/api/backend/message_admin_set", tags=["TodoBackend"])
 async def set_admin_message(settings: dict, ):
     """
     设置Admin消息
@@ -588,7 +588,7 @@ async def set_admin_message(settings: dict, ):
     return {"message": "Admin消息设置成功"}
 
 
-@app.patch("/api/backend/message_switch", tags=["backend"])
+@app.patch("/api/backend/message_switch", tags=["TodoBackend"])
 async def switch_message(status: bool, ):
     """
     切换消息开关
@@ -603,7 +603,7 @@ async def switch_message(status: bool, ):
 """
 
 
-@app.get("/api/backend/other", tags=["backend"])
+@app.get("/api/backend/other", tags=["TodoBackend"])
 async def get_other():
     """
     获取综合设置
@@ -611,7 +611,7 @@ async def get_other():
     return {"message": "综合设置"}
 
 
-@app.patch("/api/backend/shop_notice", tags=["backend"])
+@app.patch("/api/backend/shop_notice", tags=["TodoBackend"])
 async def update_shop_notice(notice: str, ):
     """
     更新店铺公告
@@ -619,7 +619,7 @@ async def update_shop_notice(notice: str, ):
     return {"message": "店铺公告更新成功"}
 
 
-@app.patch("/api/backend/icp", tags=["backend"])
+@app.patch("/api/backend/icp", tags=["TodoBackend"])
 async def update_icp(icp_info: str, ):
     """
     更新底部备案
@@ -627,7 +627,7 @@ async def update_icp(icp_info: str, ):
     return {"message": "底部备案更新成功"}
 
 
-@app.patch("/api/backend/other_optional", tags=["backend"])
+@app.patch("/api/backend/other_optional", tags=["TodoBackend"])
 async def update_other_optional(options: dict, ):
     """
     更新可选参数
@@ -635,7 +635,7 @@ async def update_other_optional(options: dict, ):
     return {"message": "可选参数更新成功"}
 
 
-@app.patch("/api/backend/admin_reset", tags=["backend"])
+@app.patch("/api/backend/admin_reset", tags=["TodoBackend"])
 async def reset_admin_account(admin_info: dict, ):
     """
     管理员账密修改
@@ -650,7 +650,7 @@ async def reset_admin_account(admin_info: dict, ):
 """
 
 
-@app.get("/api/backend/home", tags=["backend"])
+@app.get("/api/backend/home", tags=["TodoBackend"])
 async def return_home():
     """
     返回商店主页
@@ -665,7 +665,7 @@ async def return_home():
 """
 
 
-@app.get("/api/backend/logout", tags=["backend"])
+@app.get("/api/backend/logout", tags=["TodoBackend"])
 async def logout():
     """
     退出登录，清除COOKIE
@@ -699,7 +699,7 @@ class UserResetPasswordModel(BaseModel):
     new_password: str
 
 
-@app.get("/api/frontend/home", tags=["frontend"])
+@app.get("/api/frontend/home", tags=["TodoFrontend"])
 async def get_home():
     """
     获取首页数据
@@ -728,7 +728,7 @@ async def user_login(user: UserLoginModel):
     return {"message": "登录成功"}
 
 
-@app.post("/api/frontend/user_forgetpassword", tags=["frontend"])
+@app.post("/api/frontend/user_forgetpassword", tags=["TodoFrontend"])
 async def user_forget_password(user: UserForgetPasswordModel):
     """
     用户忘记密码接口
@@ -739,7 +739,7 @@ async def user_forget_password(user: UserForgetPasswordModel):
     raise HTTPException(status_code=404, detail="邮箱未注册")
 
 
-@app.get("/api/frontend/user_invitation", tags=["frontend"])
+@app.get("/api/frontend/user_invitation", tags=["TodoFrontend"])
 async def user_invitation(user: User = Depends(current_active_verified_user)):
     """
     获取邀请好友信息接口
@@ -747,7 +747,7 @@ async def user_invitation(user: User = Depends(current_active_verified_user)):
     return {"message": "邀请好友"}
 
 
-@app.get("/api/frontend/user_center", tags=["frontend"])
+@app.get("/api/frontend/user_center", tags=["TodoFrontend"])
 async def user_center(user: User = Depends(current_active_user)):
     """
     获取个人中心信息接口
@@ -755,7 +755,7 @@ async def user_center(user: User = Depends(current_active_user)):
     return {"message": "个人中心"}
 
 
-@app.get("/api/frontend/user_wallet", tags=["frontend"])
+@app.get("/api/frontend/user_wallet", tags=["TodoFrontend"])
 async def user_wallet(user: User = Depends(current_active_user)):
     """
     获取我的钱包信息接口
@@ -763,7 +763,7 @@ async def user_wallet(user: User = Depends(current_active_user)):
     return {"message": "我的钱包"}
 
 
-@app.patch("/api/frontend/user_reset", tags=["frontend"])
+@app.patch("/api/frontend/user_reset", tags=["TodoFrontend"])
 async def user_reset_password(user: UserResetPasswordModel):
     """
     用户重置密码接口
@@ -774,7 +774,7 @@ async def user_reset_password(user: UserResetPasswordModel):
     return {"message": "密码重置成功"}
 
 
-@app.get("/api/frontend/user_order", tags=["frontend"])
+@app.get("/api/frontend/user_order", tags=["TodoFrontend"])
 async def user_order(user: User = Depends(current_active_user)):
     """
     获取订单中心信息接口
@@ -782,7 +782,7 @@ async def user_order(user: User = Depends(current_active_user)):
     return {"message": "订单中心"}
 
 
-@app.get("/api/frontend/user_order_query", tags=["frontend"])
+@app.get("/api/frontend/user_order_query", tags=["TodoFrontend"])
 async def user_order_query(order_id: Optional[int] = None, user: User = Depends(current_active_verified_user)):
     """
     查询订单信息接口
@@ -792,7 +792,7 @@ async def user_order_query(order_id: Optional[int] = None, user: User = Depends(
     return {"message": "订单查询"}
 
 
-@app.get("/api/frontend/logout", tags=["frontend"])
+@app.get("/api/frontend/logout", tags=["TodoFrontend"])
 async def logout(response: Response, user: User = Depends(current_active_user)):
     """
     用户退出登录接口，清除COOKIE
