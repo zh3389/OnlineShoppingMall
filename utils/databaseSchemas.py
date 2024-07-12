@@ -92,19 +92,24 @@ class CardID(CardBase):
 class CardCreate(CardBase):
     prod_name: str  # 必填
     card: str  # 必填
+    reuse: Optional[bool] = False  # 默认False
 
 
 class CardUpdate(CardID):
     prod_name: Optional[str] = None  # 必填
     card: Optional[str] = None  # 必填
     reuse: Optional[bool] = None  # 默认False
-    isused: Optional[bool] = None  # 默认False
 
 
-class CardResponse(CardID):
+class CardResponse(CardID, CardCreate):
     class Config:
         orm_mode = True
         from_attributes = True
+
+
+class CardFilterDelete(CardBase):
+    prod_name: Optional[str] = None
+    isused: Optional[bool] = None
 
 
 """

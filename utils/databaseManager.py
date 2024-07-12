@@ -1,6 +1,7 @@
+from typing import TypeVar, List
 from datetime import datetime, timedelta
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Boolean, Float, or_
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
@@ -8,6 +9,7 @@ from sqlalchemy import func
 from sqlalchemy.pool import NullPool, QueuePool
 from contextlib import contextmanager
 
+T = TypeVar('T', bound=DeclarativeMeta)
 Base = declarative_base()
 
 
@@ -315,6 +317,11 @@ class Database:
             record = session.query(model).filter_by(id=id).first()
             session.delete(record)
 
+    def create_batch_data(self, records: List[T]):
+        """批量添加记录"""
+        with self.session_scope() as session:
+            session.add_all(records)
+
     def delete_batch_data(self, model, filter_params):
         """批量删除记录"""
         with self.session_scope() as session:
@@ -322,11 +329,29 @@ class Database:
             for record in records:
                 session.delete(record)
 
+    def delete_card_duplicates(self):
+        with self.session_scope() as session:
+            distinct_cards = session.execute(select(Card).distinct(Card.card)).scalars().all()  # 查询所有卡片，按 card 列去重
+            distinct_card_ids = {card.id for card in distinct_cards}  # 获取所有卡片的 ID
+            session.query(Card).filter(Card.id.notin_(distinct_card_ids)).delete(synchronize_session='fetch')  # 删除重复的卡片
+
     def search_filter(self, model, output_model, filter_params):
         """查询记录"""
         with self.session_scope() as session:
             records = session.query(model).filter(*filter_params).all()
             return [output_model.from_orm(record) for record in records]
+
+    def search_filter_page_turning(self, model, output_model, filter_params, page: int, page_size: int):
+        """查询记录"""
+        with self.session_scope() as session:
+            query = session.query(model).filter(*filter_params)
+            total_elements = query.count()
+            records = query.offset((page - 1) * page_size).limit(page_size).all()
+            # 计算总页数和当前页
+            total_pages = (total_elements + page_size - 1) // page_size
+            current_page = page
+            data = [output_model.from_orm(record) for record in records]
+            return {"data": data, "pager": {"page": current_page, "pageSize": total_pages, "total": total_elements}}
 
     def get_all_records(self, model):
         """获取所有记录"""

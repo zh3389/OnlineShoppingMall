@@ -187,10 +187,10 @@ async def product_delete(cla: ProdInfoID):
 ========================================
 """
 from utils.databaseManager import Card
-from utils.databaseSchemas import CardID, CardCreate, CardUpdate, CardResponse
+from utils.databaseSchemas import CardID, CardCreate, CardUpdate, CardResponse, CardFilterDelete
 
 
-@app.get("/api/backend/cami_read", tags=["backend"])
+@app.get("/api/backend/cami_read/{skip}/{limit}", tags=["backend"])
 async def cami_read(skip: int = 0, limit: int = 10):
     """
     获取卡密列表
@@ -207,12 +207,11 @@ async def cami_create(cla: CardCreate):
     """
     新增卡密
     """
-    # TODO 批量新增
-    data_dict = dict(cla)
-    data = Card(**data_dict)
-    db.create_data(data)
+    lines = cla.card.splitlines()
+    data_list = [Card(prod_name=cla.prod_name, card=line, reuse=cla.reuse) for line in lines]
+    db.create_batch_data(data_list)
     return {"code": 200,
-            "data": data_dict,
+            "data": "数据太多暂不展示",
             "msg": "卡密新增成功"
             }
 
@@ -230,6 +229,45 @@ async def cami_update(cla: CardUpdate):
             }
 
 
+@app.get("/api/backend/cami_search/{cardstr}/{skip}/{limit}", tags=["backend"])
+async def cami_search(cardstr: str, skip: int, limit: int):
+    """
+    搜索卡密
+    """
+    camis = db.search_filter_page_turning(Card, CardResponse, {Card.card.like(f"%{cardstr}%")}, skip, limit)
+    return {"code": 200,
+            "data": camis,
+            "msg": "卡密搜索成功"
+            }
+
+
+@app.delete("/api/backend/cami_batch_delete", tags=["backend"])
+async def cami_batch_delete(cla: CardFilterDelete):
+    """
+    批量删除卡密
+    """
+    dic = {}
+    for key, value in dict(cla).items():
+        if value is not None:
+            dic[key] = value
+    print("=" * 100)
+    print(dic)
+    db.delete_batch_data(Card, dic)
+    return {"message": "卡密删除成功"}
+
+
+@app.delete("/api/backend/cami_clear_duplicates", tags=["backend"])
+async def cami_clear_duplicates():
+    """
+    一键卡密去重
+    """
+    db.delete_card_duplicates()
+    return {"code": 200,
+            "data": "无需展示数据",
+            "msg": "重复卡密清理成功"
+            }
+
+
 @app.delete("/api/backend/cami_delete", tags=["backend"])
 async def cami_delete(cla: CardID):
     """
@@ -240,8 +278,6 @@ async def cami_delete(cla: CardID):
             "data": {"id": cla.id},
             "msg": "卡密删除成功"
             }
-
-# TODO @app 批量新增 搜索 批量删除 一键去重
 
 
 """
@@ -305,12 +341,12 @@ async def order_read(skip: int = 0, limit: int = 10):
 
 
 @app.post("/api/backend/order_search", tags=["backend"])
-async def order_search(cla: OrderSearch):
+async def order_search(cla: OrderSearch, skip: int = 0, limit: int = 10):
     """
     搜索订单
     """
     filter_params = [or_(Order.out_order_id.like(f"%{cla.out_order_id}%"), Order.contact.like(f"%{cla.contact}%"), Order.card.like(f"%{cla.card}%"))]
-    orders = db.search_filter(Order, OrderResponse, filter_params=filter_params)
+    orders = db.search_filter_page_turning(Order, OrderResponse, filter_params, skip, limit)
     return {"code": 200,
             "data": {"data": orders},
             "msg": "订单查询成功"
