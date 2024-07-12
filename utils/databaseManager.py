@@ -4,6 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import func
 from sqlalchemy.pool import NullPool, QueuePool
 from contextlib import contextmanager
 
@@ -285,9 +286,16 @@ class Database:
     def read_data(self, input_model, output_model, skip=0, limit=10):
         """获取所有记录"""
         with self.session_scope() as session:
+            # 获取总记录数
+            total_elements = session.execute(select(func.count(input_model.id))).scalar()
+            # 获取记录
             result = session.execute(select(input_model).offset(skip).limit(limit))
             infos = result.scalars().all()
-            return [output_model.from_orm(info) for info in infos]
+            # 计算总页数
+            total_pages = (total_elements + limit - 1) // limit
+            current_page = (skip // limit) + 1
+            data = [output_model.from_orm(info) for info in infos]
+            return {"data": data, "page": current_page, "pageSize": total_pages, "total": total_elements}
 
     def update_data(self, model, dic):
         """更新记录"""
