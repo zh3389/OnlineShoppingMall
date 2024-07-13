@@ -5,6 +5,7 @@ Desktop.ini
 .idea
 utils/database.db
 /test
+/drawingbed
 
 # Thumbnail cache files
 ._*

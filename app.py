@@ -1,9 +1,15 @@
 import os
+import shutil
+from pathlib import Path
+import datetime
+import random
+import string
 import asyncio
 import uvicorn
 from typing import Optional, List
 from pydantic import BaseModel
-from fastapi import FastAPI, HTTPException, Request, Response, Depends, Form
+from fastapi import FastAPI, HTTPException, Request, Response, Depends, Form, File, UploadFile, Query
+from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 from utils.usersManager import User, UserCreate, UserRead, UserUpdate, auth_backend, fastapi_users, init_user_tabel
 from utils.usersManager import current_user, current_active_user, current_active_verified_user, current_superuser
@@ -448,28 +454,79 @@ async def user_delete(cla: UserID):
 """
 
 
-@app.get("/api/backend/drawingbed_read", tags=["TodoBackend"])
-async def get_drawingbed():
-    """
-    获取图床列表
-    """
-    return {"message": "图床列表"}
+UPLOAD_DIR = "drawingbed"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
-@app.post("/api/backend/drawingbed_create", tags=["TodoBackend"])
-async def drawingbed_create():
+def generate_random_filename(extension: str) -> str:
+    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    random_str = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+    return f"{timestamp}_{random_str}.{extension}"
+
+
+@app.get("/api/backend/drawingbed_read/", tags=["backend"])
+async def drawingbed_read(skip: int = 0, limit: int = 10):
+    files = list(Path(UPLOAD_DIR).iterdir())
+    total_files = len(files)
+    start = skip * limit
+    end = start + limit
+    files_on_page = files[start:end]
+    file_names = [file.name for file in files_on_page]
+    data = []
+    for file_name in file_names:
+        file_location = Path(UPLOAD_DIR) / file_name
+        data.append({"filename": file_name, "file_location": file_location})
+    return {"code": 200,
+            "data": {"data": data, "pager": {"page": skip, "pageSize": limit, "total": total_files}},
+            "msg": "图像查询成功"
+            }
+
+
+@app.get("/api/backend/drawingbed_show/{filename}", tags=["backend"])
+async def drawingbed_show(filename: str):
+    file_location = Path(UPLOAD_DIR) / filename
+    if file_location.exists():
+        return FileResponse(file_location)
+    else:
+        return {"code": 404,
+                "data": {"file_location": file_location},
+                "msg": "找不到文件"
+                }
+
+
+@app.post("/api/backend/drawingbed_create", tags=["backend"])
+async def drawingbed_create(file: UploadFile = File(...)):
     """
     新增图床
     """
-    return {"message": "图床新增成功"}
+    extension = file.filename.split(".")[-1]
+    filename = generate_random_filename(extension)
+    file_location = Path(UPLOAD_DIR) / filename
+    with open(file_location, "wb") as f:
+        shutil.copyfileobj(file.file, f)
+    return {"code": 200,
+            "data": {"filename": filename, "file_location": file_location},
+            "msg": "图像上传成功"
+            }
 
 
-@app.delete("/api/backend/drawingbed_delete", tags=["TodoBackend"])
-async def drawingbed_delete(drawingbed_id: int, ):
+@app.delete("/api/backend/drawingbed_delete/{filename}", tags=["backend"])
+async def drawingbed_delete(filename: str):
     """
     删除图床
     """
-    return {"message": "图床删除成功"}
+    file_location = Path(UPLOAD_DIR) / filename
+    if file_location.exists():
+        os.remove(file_location)
+        return {"code": 200,
+                "data": {"file_location": file_location},
+                "msg": "图像删除成功"
+                }
+    else:
+        return {"code": 404,
+                "data": {"file_location": file_location},
+                "msg": "找不到文件"
+                }
 
 
 """
