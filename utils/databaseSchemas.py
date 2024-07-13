@@ -151,33 +151,3 @@ class OrderResponse(OrderBase):
 class OrderDelete(OrderBase):
     id: int
 
-
-"""
-========================================
-用户管理
-========================================
-"""
-
-
-class UserBase(BaseModel):
-    pass
-
-
-class UserID(UserBase):
-    id: int
-
-
-class UserSearch(UserBase):
-    email: Optional[str] = None
-
-
-class UserResponse(UserID):
-    name: Optional[str] = None
-    password: Optional[str] = None
-    email: Optional[str] = None
-    state: Optional[bool] = None
-    updatetime: Optional[datetime] = None
-
-    class Config:
-        orm_mode = True
-        from_attributes = True

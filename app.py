@@ -319,6 +319,14 @@ async def coupon_delete():
     return {"message": "优惠券删除成功"}
 
 
+@app.patch("/api/backend/coupon_switch", tags=["TodoBackend"])
+async def coupon_switch():
+    """
+    开关优惠券
+    """
+    return {"message": "优惠券开关成功"}
+
+
 """
 ========================================
 订单管理
@@ -382,11 +390,10 @@ async def order_delete_all():
 用户管理
 ========================================
 """
-from utils.usersManager import User
-from utils.databaseSchemas import UserID, UserSearch, UserResponse
+from utils.usersManager import User, UserID, UserResponse, UserUpdate
 
 
-@app.get("/api/backend/user_read/{skip}/{limit}", tags=["TodoBackend"])
+@app.get("/api/backend/user_read/{skip}/{limit}", tags=["backend"])
 async def user_read(skip: int = 0, limit: int = 10):
     """
     获取用户列表
@@ -398,25 +405,31 @@ async def user_read(skip: int = 0, limit: int = 10):
             }
 
 
-@app.get("/api/backend/user_search", tags=["TodoBackend"])
-async def user_search(keyword: str):
+@app.get("/api/backend/user_search/{skip}/{limit}", tags=["backend"])
+async def user_search(userstr: str, skip: int = 0, limit: int = 10):
     """
     搜索用户
     """
-    return {"message": "搜索用户"}
+    filter_params = [or_(User.email.like(f"%{userstr}%"))]
+    users = db.search_filter_page_turning(User, UserResponse, filter_params, skip, limit)
+    return {"code": 200,
+            "data": {"data": users},
+            "msg": "搜索用户成功"
+            }
 
 
-@app.patch("/api/backend/user_reset", tags=["TodoBackend"])
+@app.patch("/api/backend/user_reset", tags=["backend"])
 async def user_reset(cla: UserID):
     """
     重置用户密码
     """
-    # UserID
-    # db.update_data(User, data)
-    return {"message": "用户密码重置成功"}
+    return {"code": 200,
+            "data": {"data": cla.id},
+            "msg": "用户密码重置成功(暂未实现)"
+            }
 
 
-@app.delete("/api/backend/user_delete", tags=["TodoBackend"])
+@app.delete("/api/backend/user_delete", tags=["backend"])
 async def user_delete(cla: UserID):
     """
     删除用户
@@ -673,70 +686,12 @@ async def logout():
     return {"message": "退出登录成功"}
 
 
-# 模拟数据库
-users_db = {}
-orders_db = {}
-
-
-# 请求数据模型
-class UserRegisterModel(BaseModel):
-    username: str
-    password: str
-    email: str
-
-
-class UserLoginModel(BaseModel):
-    username: str
-    password: str
-
-
-class UserForgetPasswordModel(BaseModel):
-    email: str
-
-
-class UserResetPasswordModel(BaseModel):
-    username: str
-    new_password: str
-
-
 @app.get("/api/frontend/home", tags=["TodoFrontend"])
 async def get_home():
     """
     获取首页数据
     """
     return {"message": "欢迎来到首页"}
-
-
-@app.post("/api/frontend/user_register", tags=["frontend"])
-async def user_register(user: UserRegisterModel):
-    """
-    用户注册接口
-    """
-    if user.username in users_db:
-        raise HTTPException(status_code=400, detail="用户名已存在")
-    users_db[user.username] = {"password": user.password, "email": user.email}
-    return {"message": "注册成功"}
-
-
-@app.post("/api/frontend/user_login", tags=["frontend"])
-async def user_login(user: UserLoginModel):
-    """
-    用户登录接口
-    """
-    if user.username not in users_db or users_db[user.username]["password"] != user.password:
-        raise HTTPException(status_code=400, detail="用户名或密码错误")
-    return {"message": "登录成功"}
-
-
-@app.post("/api/frontend/user_forgetpassword", tags=["TodoFrontend"])
-async def user_forget_password(user: UserForgetPasswordModel):
-    """
-    用户忘记密码接口
-    """
-    for username, info in users_db.items():
-        if info["email"] == user.email:
-            return {"message": "重置密码邮件已发送"}
-    raise HTTPException(status_code=404, detail="邮箱未注册")
 
 
 @app.get("/api/frontend/user_invitation", tags=["TodoFrontend"])
@@ -761,17 +716,6 @@ async def user_wallet(user: User = Depends(current_active_user)):
     获取我的钱包信息接口
     """
     return {"message": "我的钱包"}
-
-
-@app.patch("/api/frontend/user_reset", tags=["TodoFrontend"])
-async def user_reset_password(user: UserResetPasswordModel):
-    """
-    用户重置密码接口
-    """
-    if user.username not in users_db:
-        raise HTTPException(status_code=404, detail="用户未注册")
-    users_db[user.username]["password"] = user.new_password
-    return {"message": "密码重置成功"}
 
 
 @app.get("/api/frontend/user_order", tags=["TodoFrontend"])

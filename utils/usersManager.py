@@ -1,10 +1,13 @@
 import asyncio
 import contextlib
 import uuid
+from datetime import datetime, timedelta
 from typing import Optional
 from typing import AsyncGenerator
 from fastapi import Depends, Request
 from fastapi_users.exceptions import UserAlreadyExists
+from pydantic import BaseModel
+from sqlalchemy import Column, Float, Integer, DateTime
 from sqlalchemy.orm import DeclarativeBase
 from fastapi_users import schemas, BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
@@ -23,13 +26,20 @@ class Base(DeclarativeBase):
 
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
-    pass
-    # TODO 修改数据库存储的信息
+    money = Column(Float, default=0, nullable=False)
+    numinvitpeople = Column(Integer, default=0, nullable=False)
+    totalrebate = Column(Float, default=0, nullable=False)
+    updatetime = Column(DateTime, nullable=False, default=datetime.utcnow() + timedelta(hours=8))  # 存储当前时间
 
 
 async def init_user_tabel():
     await create_db_and_tables()  # 创建用户管理数据库
     await create_user(email="admin@qq.com", password="admin", is_superuser=True)  # 创建管理员账户
+    await create_user(email="test1@qq.com", password="test", is_superuser=True)
+    await create_user(email="test2@qq.com", password="test", is_superuser=True)
+    await create_user(email="test3@qq.com", password="test", is_superuser=True)
+    await create_user(email="test4@qq.com", password="test", is_superuser=True)
+    await create_user(email="test5@qq.com", password="test", is_superuser=True)
 
 
 async def create_db_and_tables():
@@ -135,6 +145,26 @@ current_superuser = fastapi_users.current_user(active=True, superuser=True)
 """
 schemas模块包含了一些用户模型的基本结构，如UserRead，UserCreate，UserUpdate。
 """
+
+
+class UserBase(BaseModel):
+    pass
+
+
+class UserID(UserBase):
+    id: uuid.UUID
+
+
+class UserResponse(UserID):
+    email: Optional[str] = None
+    money: Optional[float] = None
+    numinvitpeople: Optional[int] = None
+    totalrebate: Optional[float] = None
+    updatetime: Optional[datetime] = None
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
 
 
 class UserRead(schemas.BaseUser[uuid.UUID]):
