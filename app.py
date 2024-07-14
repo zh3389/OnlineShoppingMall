@@ -64,7 +64,7 @@ async def get_dashboard():
     """
     获取仪表盘数据
     """
-    result = db.session_scope()
+    result = db.search_dashboard()
     return result
 
 

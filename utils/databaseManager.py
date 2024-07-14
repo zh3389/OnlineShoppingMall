@@ -1,13 +1,14 @@
 from typing import TypeVar, List
 from datetime import datetime, timedelta
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Boolean, Float, or_
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Boolean, Float
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import func
+from sqlalchemy import func, desc, and_, cast, Date, extract, case, or_
 from sqlalchemy.pool import NullPool, QueuePool
 from contextlib import contextmanager
+from utils.usersManager import User
 
 T = TypeVar('T', bound=DeclarativeMeta)
 Base = declarative_base()
@@ -330,10 +331,86 @@ class Database:
                 session.delete(record)
 
     def delete_card_duplicates(self):
+        """定制: 删除重复的卡片"""
         with self.session_scope() as session:
             distinct_cards = session.execute(select(Card).distinct(Card.card)).scalars().all()  # 查询所有卡片，按 card 列去重
             distinct_card_ids = {card.id for card in distinct_cards}  # 获取所有卡片的 ID
             session.query(Card).filter(Card.id.notin_(distinct_card_ids)).delete(synchronize_session='fetch')  # 删除重复的卡片
+
+    def search_dashboard(self):
+        """获取所有记录"""
+        with self.session_scope() as session:
+            now = datetime.now()
+            today = now.date()
+            start_of_day = now - timedelta(days=1)
+            start_of_week = now - timedelta(days=7)
+            start_of_month = now - timedelta(days=30)
+            start_of_year = now - timedelta(days=365)
+
+            # 成交订单数
+            total_orders = session.query(func.count(Order.id)).filter(Order.status==True).scalar()
+            # 总收益
+            total_revenue = session.query(func.sum(Order.total_price)).scalar()
+            # 总用户
+            total_users = session.query(func.count(User.id)).scalar()
+            # 剩余库存
+            total_stock = session.query(func.count(Card.id)).scalar()
+
+            # # 订单统计 天 周 月 年 | 总计
+            # def get_completed_orders(start_time, end_time, group_by):
+            #     return session.query(cast(func.date_trunc(group_by, Order.updatetime), Date).label(group_by),
+            #                          func.sum(Order.total_price).label('total_price')
+            #     ).filter(and_(Order.updatetime >= start_time, Order.updatetime < end_time, Order.status == True
+            #         )).group_by(cast(func.date_trunc(group_by, Order.updatetime), Date)).all()
+            #
+            # # Day statistics
+            # day_orders = get_completed_orders(start_of_day, now, func.date_trunc('hour', Order.updatetime))
+            # day_stats = {str(hour).zfill(2): total_price for hour, total_price in day_orders}
+            # day_money = sum(total_price for hour, total_price in day_orders)
+            #
+            # # Week statistics
+            # week_orders = get_completed_orders(start_of_week, now, func.date_trunc('day', Order.updatetime))
+            # week_stats = {date.strftime('%m-%d'): total_price for date, total_price in week_orders}
+            # week_money = sum(total_price for date, total_price in week_orders)
+            #
+            # # Month statistics
+            # month_orders = get_completed_orders(start_of_month, now, func.date_trunc('day', Order.updatetime))
+            # month_stats = {date.strftime('%m-%d'): total_price for date, total_price in month_orders}
+            # month_money = sum(total_price for date, total_price in month_orders)
+            #
+            # # Year statistics
+            # year_orders = get_completed_orders(start_of_year, now, func.date_trunc('month', Order.updatetime))
+            # year_stats = {str(month).zfill(2): total_price for month, total_price in year_orders}
+            # year_money = sum(total_price for month, total_price in year_orders)
+            #
+            # order_statistics = {"day": day_stats,
+            #                     "day_money": day_money,
+            #                     "week": week_stats,
+            #                     "week_money": week_money,
+            #                     "month": month_stats,
+            #                     "month_money": month_money,
+            #                     "year": year_stats,
+            #                     "year_money": year_money}
+
+            # 热销榜单 前五销量名称 及 销售数量
+            top_5_products = session.query(Order.name,
+                                           func.count(Order.id).label('sales_count')).filter(Order.status == True
+                                          ).group_by(Order.name).order_by(desc('sales_count')).limit(5).all()
+            top_5_products = {product: count for product, count in top_5_products}
+
+            # 今日订单数
+            today_orders = session.query(func.count(Order.id)).filter(Order.status==True, Order.updatetime.between(today, now)).scalar()
+            # 今日收益
+            today_revenue = session.query(func.sum(Order.total_price)).filter(Order.status==True, Order.updatetime.between(today, now)).scalar()
+            # 本月订单数
+            month_orders = session.query(func.count(Order.id)).filter(Order.status==True, Order.updatetime.between(start_of_month, now)).scalar()
+            # 本月收益
+            month_revenue = session.query(func.sum(Order.total_price)).filter(Order.status==True, Order.updatetime.between(start_of_month, now)).scalar()
+
+            return {"total_orders": total_orders, "total_revenue": total_revenue, "total_users": total_users, "total_stock": total_stock,
+                    # "order_statistics": order_statistics,
+                    "today_orders": today_orders, "today_revenue": today_revenue, "month_orders": month_orders, "month_revenue": month_revenue,
+                    "top_5_products": top_5_products}
 
     def search_filter(self, model, output_model, filter_params):
         """查询记录"""
