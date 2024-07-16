@@ -671,46 +671,70 @@ async def switch_message(status: bool, ):
 综合设置
 ========================================
 """
+from utils.databaseManager import Config
+from utils.databaseSchemas import ConfigResponse
 
 
-@app.get("/api/backend/other", tags=["TodoBackend"])
-async def get_other():
+@app.get("/api/backend/get_other_config", tags=["backend"])
+async def get_other_config():
     """
     获取综合设置
     """
-    return {"message": "综合设置"}
+    result = db.search_filter(Config, ConfigResponse, {})
+    return {"code": 200,
+            "data": result,
+            "msg": "综合设置查询成功"
+            }
 
 
-@app.patch("/api/backend/shop_notice", tags=["TodoBackend"])
-async def update_shop_notice(notice: str, ):
+@app.patch("/api/backend/home_notice", tags=["backend"])
+async def update_home_notice(home_notice: str):
     """
     更新店铺公告
     """
-    return {"message": "店铺公告更新成功"}
+    dic = {"name": "home_notice", "info": home_notice, "description": "首页公告", "isshow": True}
+    db.update_data_name(Config, dic)
+    return {"code": 200,
+            "data": dic,
+            "msg": "店铺公告更新成功"
+            }
 
 
-@app.patch("/api/backend/icp", tags=["TodoBackend"])
-async def update_icp(icp_info: str, ):
+@app.patch("/api/backend/icp", tags=["backend"])
+async def update_icp(icp: str):
     """
     更新底部备案
     """
-    return {"message": "底部备案更新成功"}
+    dic = {"name": "icp", "info": icp, "description": "底部备案", "isshow": True}
+    db.update_data_name(Config, dic)
+    return {"code": 200,
+            "data": dic,
+            "msg": "底部备案更新成功"
+            }
 
 
-@app.patch("/api/backend/other_optional", tags=["TodoBackend"])
-async def update_other_optional(options: dict, ):
+@app.patch("/api/backend/other_optional", tags=["backend"])
+async def update_other_optional(other_optional: dict={"login_mode": 1, "tourist_orders": 1, "front_desk_inventory_display": 1, "front_end_sales_display": 1, "sales_statistics": 1}):
     """
     更新可选参数
     """
-    return {"message": "可选参数更新成功"}
+    dic = {"name": "other_optional", "info": str(other_optional), "description": "可选参数", "isshow": True}
+    db.update_data_name(Config, dic)
+    return {"code": 200,
+            "data": dic,
+            "msg": "可选参数更新成功"
+            }
 
 
 @app.patch("/api/backend/admin_reset", tags=["TodoBackend"])
-async def reset_admin_account(admin_info: dict, ):
+async def reset_admin_account(cla: dict):
     """
     管理员账密修改
     """
-    return {"message": "管理员账密修改成功"}
+    return {"code": 200,
+            "data": "暂未实现",
+            "msg": "管理员账密修改成功"
+            }
 
 
 """

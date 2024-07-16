@@ -229,17 +229,17 @@ class Database:
         self.create_data(Card(prod_name='重复卡密演示', card='666666666666666666', reuse=True, isused=False))
 
         # 系统配置
+        self.create_data(Config(name='icp', info='<a style="color: #fafafa;" href="https://www.baidu.com">川ICP备1101XXXX号-10</a>', description='可填写备案信息', isshow=True))
+        self.create_data(Config(name='home_notice', info='稳定版演示站点，公告信息可在后台设置', description='首页公告', isshow=True))
+        self.create_data(Config(name='other_optional', info='{"login_mode": 1, "tourist_orders": 1, "front_desk_inventory_display": 1, "front_end_sales_display": 1, "sales_statistics": 1}', description='[1左边按钮，0右边按钮] 强制登录|允许游客下单; 开|关; 文字【少量、缺货或充足】 数字0-9999 ; 是|否 ; 自动统计|仅限手工修改', isshow=True))
+
         self.create_data(Config(name='web_name', info='KAMIFAKA', description='网站名称', isshow=True))
         self.create_data(Config(name='web_keyword', info='关键词、收录词汇', description='网站关键词', isshow=True))
         self.create_data(Config(name='description', info='网站描述信息。。。', description='网站描述', isshow=True))
         self.create_data(Config(name='web_url', info='http://localhost:80', description='必填，网站实际地址', isshow=True))
         self.create_data(Config(name='web_bg_url', info='https://cdn.jsdelivr.net/gh/Baiyuetribe/yyycode@dev/colorfull.jpg', description='网站背景图片', isshow=True))
         self.create_data(Config(name='contact_us', info='<p>示例，请在管理后台>>网站设置里修改，支持HTML格式</p>', description='首页-联系我们', isshow=True))
-        self.create_data(Config(name='web_footer', info='<a style="color: #fafafa;" href="https://www.baidu.com">川ICP备1101XXXX号-10</a>', description='可填写备案信息', isshow=True))
-        self.create_data(Config(name='top_notice', info='稳定版演示站点，公告信息可在后台设置', description='首页公告', isshow=True))
         self.create_data(Config(name='toast_notice', info='稳定版演示站点，公告信息可在后台设置', description='首页滑动消息设置', isshow=True))
-        # self.create_data(Config(name='top_notice', info='开发版演示站点，公告信息可在后台设置', description='首页公告', isshow=True))
-        # self.create_data(Config(name='toast_notice', info='这里是开发板，每天更新好几次那种', description='首页滑动消息设置', isshow=True))
         # self.create_data(Config(name='modal_notice', info='【计划中】','全局弹窗信息', isshow=True))
         self.create_data(Config(name='contact_option', info='0', description='是否启用联系方式查询[0启用，1关闭]', isshow=True))
         self.create_data(Config(name='theme', info='list', description='主题', isshow=False))
@@ -262,11 +262,6 @@ class Database:
         # 插件配置信息
         self.create_data(Plugin(name='TG发卡', config="{'TG_TOKEN':'1488086653:AAHihuO0JuvmiDNZtsYcDBpUhL1rTDO6o1C'}", about='### 示例 \n请在管理后台--》Telegram里设置，支持HTML格式', switch=False))
         self.create_data(Plugin(name='微信公众号', config="{'PID':'xxxxxxxxxxxx'}", about='<p>示例，请在管理后台>>Telegram里设置，支持HTML格式</p>', switch=False))
-
-        # 临时订单
-        # self.create_data(TempOrder(out_order_id='id44454', name='重复卡密演示', payment='alipay', contact='154311', contact_txt='', price=10, status=False))
-        # self.create_data(TempOrder(out_order_id='id44454', name='批发商品演示', payment='alipay', contact='154311', contact_txt='', price=22, status=False))
-
 
     @contextmanager
     def session_scope(self):
@@ -309,6 +304,14 @@ class Database:
             record = session.query(model).filter_by(id=dic["id"]).first()
             for key, value in dic.items():
                 print("key, value:", key, value)
+                setattr(record, key, value)
+            session.add(record)
+
+    def update_data_name(self, model, dic):
+        """更新记录"""
+        with self.session_scope() as session:
+            record = session.query(model).filter_by(name=dic["name"]).first()
+            for key, value in dic.items():
                 setattr(record, key, value)
             session.add(record)
 

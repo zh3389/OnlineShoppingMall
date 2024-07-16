@@ -151,3 +151,25 @@ class OrderResponse(OrderBase):
 class OrderDelete(OrderBase):
     id: int
 
+
+"""
+========================================
+综合设置
+========================================
+"""
+
+
+class ConfigBase(BaseModel):
+    pass
+
+
+class ConfigResponse(ConfigBase):
+    id: int
+    name: str
+    info: str
+    description: str
+    isshow: bool
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
