@@ -173,3 +173,27 @@ class ConfigResponse(ConfigBase):
     class Config:
         orm_mode = True
         from_attributes = True
+
+
+"""
+========================================
+系统通知
+========================================
+"""
+
+
+class NoticeBase(BaseModel):
+    pass
+
+
+class NoticeResponse(NoticeBase):
+    id: int
+    name: str
+    config: str
+    admin_account: str
+    admin_switch: bool
+    user_switch: bool
+
+    class Config:
+        orm_mode = True
+        from_attributes = True

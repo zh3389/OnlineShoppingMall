@@ -1,4 +1,5 @@
 import os
+import ast
 import shutil
 from pathlib import Path
 import datetime
@@ -616,6 +617,9 @@ async def update_payment(payment: dict, ):
 消息通知
 ========================================
 """
+from utils.databaseManager import Notice
+from utils.databaseSchemas import NoticeResponse
+from utils.utils import EmailManager
 
 
 @app.get("/api/backend/message", tags=["TodoBackend"])
@@ -626,20 +630,38 @@ async def get_message():
     return {"message": "消息通知设置"}
 
 
-@app.post("/api/backend/message_smtp_test", tags=["TodoBackend"])
-async def send_smtp():
+@app.post("/api/backend/send_email_test", tags=["backend"])
+async def send_email(addressee: str = 'admin@qq.com', subject: str = '测试邮件', content: str = '今日报告已生成，请查收。'):
     """
     测试SMTP
     """
-    return {"message": "SMTP测试成功"}
+    email_param = db.search_data(Notice, NoticeResponse, [Notice.name == '邮箱通知'])
+    email_param = ast.literal_eval(email_param.config)
+    emailM = EmailManager(smtp_address=email_param['smtp_address'], sendmail=email_param['sendmail'], send_name=email_param['sendmail'], smtp_pwd=email_param['smtp_pwd'], smtp_port=email_param['smtp_port'])
+    emailM.send_email(addressee, subject, content)
+    return {"code": 200,
+            "data": email_param,
+            "msg": "SMTP测试成功"
+            }
 
 
-@app.patch("/api/backend/message_smtp_save", tags=["TodoBackend"])
-async def save_smtp_settings(settings: dict,):
+@app.patch("/api/backend/save_email_settings", tags=["backend"])
+async def save_email_settings(config: dict ={'sendname':'no_replay','sendmail':'demo@gmail.com','smtp_address':'smtp.163.com','smtp_port':'465','smtp_pwd':'ZZZZZZZ'}):
     """
     保存SMTP设置
     """
-    return {"message": "SMTP设置保存成功"}
+    try:
+        dic = {}
+        dic["name"] = "邮箱通知"
+        dic["config"] = str(config)
+        dic["admin_account"] = "admin@qq.com"
+        db.update_data_name(Notice, dic)
+    except Exception as e:
+        db.create_data(Notice(name="邮箱通知", config=str(config), admin_account="admin@qq.com"))
+    return {"code": 200,
+            "data": config,
+            "msg": "SMTP设置保存成功"
+            }
 
 
 @app.post("/api/backend/message_admin_test", tags=["TodoBackend"])
@@ -765,14 +787,6 @@ async def logout():
     退出登录，清除COOKIE
     """
     return {"message": "退出登录成功"}
-
-
-@app.get("/api/frontend/home", tags=["TodoFrontend"])
-async def get_home():
-    """
-    获取首页数据
-    """
-    return {"message": "欢迎来到首页"}
 
 
 @app.get("/api/frontend/user_invitation", tags=["TodoFrontend"])

@@ -415,6 +415,12 @@ class Database:
                     "today_orders": today_orders, "today_revenue": today_revenue, "month_orders": month_orders, "month_revenue": month_revenue,
                     "top_5_products": top_5_products}
 
+    def search_data(self, model, output_model, filter_params):
+        """查询记录"""
+        with self.session_scope() as session:
+            record = session.query(model).filter(*filter_params).first()
+            return output_model.from_orm(record)
+
     def search_filter(self, model, output_model, filter_params):
         """查询记录"""
         with self.session_scope() as session:
