@@ -55,8 +55,7 @@ app.add_middleware(CORSMiddleware,
                    allow_origins=origins,
                    allow_credentials=True,
                    allow_methods=["*"],
-                   allow_headers=["*"],
-)
+                   allow_headers=["*"])
 
 
 # 仪表盘
@@ -594,22 +593,48 @@ async def update_theme(theme: Theme, ):
 支付接口设置
 ========================================
 """
+from utils.databaseManager import Payment
+from utils.databaseSchemas import PayUpdate, PayResponse
 
 
-@app.get("/api/backend/payment", tags=["TodoBackend"])
-async def get_payment():
+@app.get("/api/backend/payment_read/{skip}/{limit}", tags=["backend"])
+async def payment_read(skip: int = 0, limit: int = 10):
     """
     获取支付接口设置
     """
-    return {"message": "支付接口设置"}
+    temp_dic = {}
+    payments = db.read_data(Payment, PayResponse, skip, limit)
+    temp_dic["pager"] = payments['pager']
+    data = [payment.dict() for payment in payments['data']]
+    return {"code": 200,
+            "data": {"data": data, "pager": temp_dic['pager']},
+            "msg": "支付接口查询成功"}
 
 
-@app.patch("/api/backend/payment_update", tags=["TodoBackend"])
-async def update_payment(payment: dict, ):
+@app.patch("/api/backend/payment_update", tags=["backend"])
+async def payment_update(cla: PayUpdate):
     """
     更新支付接口设置
     """
-    return {"message": "支付接口设置更新成功"}
+    cla.config = str(cla.config)
+    data = dict(cla)
+    db.update_data(Payment, data)
+    return {"code": 200,
+            "data": data,
+            "msg": "支付接口设置更新成功"
+            }
+
+
+@app.patch("/api/backend/payment_callback_update", tags=["backend"])
+async def payment_callback_update(callback: str):
+    """
+    更新支付接口设置
+    """
+    db.create_data(Config(name="支付回调地址", info=callback, description="支付回调地址", isshow=True))
+    return {"code": 200,
+            "data": callback,
+            "msg": "支付回调地址保存成功"
+            }
 
 
 """
@@ -664,16 +689,16 @@ async def save_email_settings(config: dict ={'sendname':'no_replay','sendmail':'
             }
 
 
-@app.post("/api/backend/message_admin_test", tags=["TodoBackend"])
-async def send_admin_message():
+@app.post("/api/backend/save_admin_setting", tags=["TodoBackend"])
+async def save_admin_setting():
     """
     测试Admin消息
     """
     return {"message": "Admin消息测试成功"}
 
 
-@app.patch("/api/backend/message_admin_set", tags=["TodoBackend"])
-async def set_admin_message(settings: dict, ):
+@app.patch("/api/backend/test_admin_message", tags=["TodoBackend"])
+async def test_admin_message(settings: dict):
     """
     设置Admin消息
     """
@@ -681,7 +706,7 @@ async def set_admin_message(settings: dict, ):
 
 
 @app.patch("/api/backend/message_switch", tags=["TodoBackend"])
-async def switch_message(status: bool, ):
+async def switch_message(status: bool):
     """
     切换消息开关
     """
@@ -736,7 +761,9 @@ async def update_icp(icp: str):
 
 
 @app.patch("/api/backend/other_optional", tags=["backend"])
-async def update_other_optional(other_optional: dict={"login_mode": 1, "tourist_orders": 1, "front_desk_inventory_display": 1, "front_end_sales_display": 1, "sales_statistics": 1}):
+async def update_other_optional(other_optional: dict = {"login_mode": 1, "tourist_orders": 1,
+                                                        "front_desk_inventory_display": 1, "front_end_sales_display": 1,
+                                                        "sales_statistics": 1}):
     """
     更新可选参数
     """

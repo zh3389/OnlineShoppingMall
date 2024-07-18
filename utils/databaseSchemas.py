@@ -1,7 +1,7 @@
 from datetime import datetime
-
+import ast
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Dict
 
 
 """
@@ -169,6 +169,47 @@ class ConfigResponse(ConfigBase):
     info: str
     description: str
     isshow: bool
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
+
+
+"""
+========================================
+支付接口
+========================================
+"""
+
+
+class PayBase(BaseModel):
+    pass
+
+
+class PyaId(PayBase):
+    id: int
+
+
+class PayUpdate(PyaId):
+    config: Optional[Dict] = None
+    isactive: Optional[bool] = None
+
+
+class PayResponse(PyaId):
+    name: str
+    icon: str
+    config: str
+    info: str
+    isactive: bool
+
+    def dict(self, *args, **kwargs):
+        data = super().dict(*args, **kwargs)
+        try:
+            data['config'] = ast.literal_eval(data['config'])
+        except Exception as e:
+            raise ValueError("config field must be a valid JSON string")
+        return data
+
 
     class Config:
         orm_mode = True
