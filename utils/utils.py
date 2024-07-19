@@ -3,7 +3,8 @@ from email.mime.text import MIMEText
 
 
 class EmailManager:
-    def __init__(self, smtp_address='smtp.qq.com', sendmail='productivitypro@foxmail.com', send_name='no_replay', smtp_pwd='', smtp_port=587):
+    def __init__(self, smtp_address='smtp.qq.com', sendmail='productivitypro@foxmail.com', send_name='no_replay',
+                 smtp_pwd='', smtp_port=587):
         self.smtp_address = smtp_address
         self.sendmail = sendmail
         self.send_name = send_name
@@ -24,9 +25,9 @@ class EmailManager:
 
 
 def test_email():
-    emailM = EmailManager()
+    email_manager = EmailManager()
     # 使用示例：
-    emailM.send_email('1257074159@qq.com', '每日报告提醒', '今日报告已生成，请查收。')
+    email_manager.send_email('1257074159@qq.com', '每日报告提醒', '今日报告已生成，请查收。')
 
 
 if __name__ == '__main__':

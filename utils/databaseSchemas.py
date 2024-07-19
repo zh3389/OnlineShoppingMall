@@ -206,10 +206,9 @@ class PayResponse(PyaId):
         data = super().dict(*args, **kwargs)
         try:
             data['config'] = ast.literal_eval(data['config'])
-        except Exception as e:
+        except Exception:
             raise ValueError("config field must be a valid JSON string")
         return data
-
 
     class Config:
         orm_mode = True

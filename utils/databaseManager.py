@@ -5,8 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import func, desc, and_, cast, Date, extract, case, or_
-from sqlalchemy.pool import NullPool, QueuePool
+from sqlalchemy import func, desc
 from contextlib import contextmanager
 from utils.usersManager import User
 
@@ -153,7 +152,9 @@ class Database:
     def _create_engine(self, db_url):
         if 'sqlite' in db_url:
             return create_engine(db_url, echo=True,
-                                 # pool_size=5, max_overflow=10, connect_args={'check_same_thread': False, 'timeout': 10}
+                                 # pool_size=5,
+                                 # max_overflow=10,
+                                 # connect_args={'check_same_thread': False, 'timeout': 10}
                                  )
         else:
             return create_engine(db_url, echo=True, pool_size=20, max_overflow=0)
@@ -315,10 +316,10 @@ class Database:
                 setattr(record, key, value)
             session.add(record)
 
-    def delete_data(self, model, id):
+    def delete_data(self, model, uid):
         """删除记录"""
         with self.session_scope() as session:
-            record = session.query(model).filter_by(id=id).first()
+            record = session.query(model).filter_by(id=uid).first()
             session.delete(record)
 
     def create_batch_data(self, records: List[T]):
@@ -351,7 +352,7 @@ class Database:
             start_of_year = now - timedelta(days=365)
 
             # 成交订单数
-            total_orders = session.query(func.count(Order.id)).filter(Order.status==True).scalar()
+            total_orders = session.query(func.count(Order.id)).filter(Order.status == True).scalar()
             # 总收益
             total_revenue = session.query(func.sum(Order.total_price)).scalar()
             # 总用户

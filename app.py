@@ -7,38 +7,46 @@ import random
 import string
 import asyncio
 import uvicorn
-from typing import Optional, List
-from pydantic import BaseModel
-from fastapi import FastAPI, HTTPException, Request, Response, Depends, Form, File, UploadFile, Query
-from fastapi.responses import FileResponse
-from contextlib import asynccontextmanager
-from utils.usersManager import User, UserCreate, UserRead, UserUpdate, auth_backend, fastapi_users, init_user_tabel
-from utils.usersManager import current_user, current_active_user, current_active_verified_user, current_superuser
-from fastapi.middleware.cors import CORSMiddleware
-from utils.databaseManager import Database
 from sqlalchemy import or_
+from typing import Optional
+from pydantic import BaseModel
+from fastapi import FastAPI, Response, Depends, File, UploadFile
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+from utils.usersManager import (User, UserCreate, UserRead, UserID, UserResponse, UserUpdate, auth_backend,
+                                fastapi_users, init_user_tabel, current_user, current_active_user,
+                                current_active_verified_user, current_superuser)
+from utils.databaseManager import Database, ProdCag, ProdInfo, Card, Order, Payment, Notice, Config
+from utils.databaseSchemas import ProdCagID, ProdCagCreate, ProdCagUpdate, ProdCagResponse  # 分类管理
+from utils.databaseSchemas import ProdInfoID, ProdInfoCreate, ProdInfoUpdate, ProdInfoResponse  # 商品管理
+from utils.databaseSchemas import CardID, CardCreate, CardUpdate, CardResponse, CardFilterDelete  # 卡密管理
+from utils.databaseSchemas import OrderResponse, OrderDelete, OrderSearch  # 订单管理
+from utils.databaseSchemas import PayUpdate, PayResponse  # 支付接口设置
+from utils.databaseSchemas import NoticeResponse  # 消息通知
+from utils.databaseSchemas import ConfigResponse  # 综合设置
+from utils.utils import EmailManager
 
 
 app = FastAPI()
 
 
-"""
-数据库初始化
-"""
 def init_database():
+    """
+    数据库初始化
+    """
     from sqlalchemy import create_engine, inspect
-    databaseURL = 'sqlite:///./utils/database.db'
-    engine = create_engine(databaseURL)  # 创建数据库引擎
+    database_url = 'sqlite:///./utils/database.db'
+    engine = create_engine(database_url)  # 创建数据库引擎
     inspector = inspect(engine)  # 使用inspect来检查数据库中的表
     table_names = inspector.get_table_names()  # 获取所有表名
     print("数据库表名:", table_names)
     # 判断表是否存在
     if 'order' not in table_names:
-        Database(databaseURL).create_tables()
-        Database(databaseURL).create_example_data()
+        Database(database_url).create_tables()
+        Database(database_url).create_example_data()
     if 'user' not in table_names:
         asyncio.run(init_user_tabel())
-    db = Database(databaseURL)
+    db = Database(database_url)
     return db
 
 
@@ -73,8 +81,6 @@ async def get_dashboard():
 分类管理
 ========================================
 """
-from utils.databaseManager import ProdCag
-from utils.databaseSchemas import ProdCagID, ProdCagCreate, ProdCagUpdate, ProdCagResponse
 
 
 @app.get("/api/backend/class_read/{skip}/{limit}", tags=["backend"])
@@ -132,8 +138,6 @@ async def classification_delete(cla: ProdCagID):
 商品管理
 ========================================
 """
-from utils.databaseManager import ProdInfo
-from utils.databaseSchemas import ProdInfoID, ProdInfoCreate, ProdInfoUpdate, ProdInfoResponse
 
 
 @app.get("/api/backend/product_read/{skip}/{limit}", tags=["backend"])
@@ -192,8 +196,6 @@ async def product_delete(cla: ProdInfoID):
 卡密管理
 ========================================
 """
-from utils.databaseManager import Card
-from utils.databaseSchemas import CardID, CardCreate, CardUpdate, CardResponse, CardFilterDelete
 
 
 @app.get("/api/backend/cami_read/{skip}/{limit}", tags=["backend"])
@@ -338,8 +340,6 @@ async def coupon_switch():
 订单管理
 ========================================
 """
-from utils.databaseManager import Order
-from utils.databaseSchemas import OrderBase, OrderResponse, OrderDelete, OrderSearch
 
 
 @app.get("/api/backend/order_read/{skip}/{limit}", tags=["backend"])
@@ -359,7 +359,9 @@ async def order_search(cla: OrderSearch, skip: int = 0, limit: int = 10):
     """
     搜索订单
     """
-    filter_params = [or_(Order.out_order_id.like(f"%{cla.out_order_id}%"), Order.contact.like(f"%{cla.contact}%"), Order.card.like(f"%{cla.card}%"))]
+    filter_params = [or_(Order.out_order_id.like(f"%{cla.out_order_id}%"),
+                         Order.contact.like(f"%{cla.contact}%"),
+                         Order.card.like(f"%{cla.card}%"))]
     orders = db.search_filter_page_turning(Order, OrderResponse, filter_params, skip, limit)
     return {"code": 200,
             "data": {"data": orders},
@@ -396,7 +398,6 @@ async def order_delete_all():
 用户管理
 ========================================
 """
-from utils.usersManager import User, UserID, UserResponse, UserUpdate
 
 
 @app.get("/api/backend/user_read/{skip}/{limit}", tags=["backend"])
@@ -545,7 +546,7 @@ async def get_invite():
 
 
 @app.get("/api/backend/invite_search", tags=["TodoBackend"])
-async def search_invite(keyword: str, ):
+async def search_invite():
     """
     搜索佣金记录
     """
@@ -553,7 +554,7 @@ async def search_invite(keyword: str, ):
 
 
 @app.delete("/api/backend/invite_delete", tags=["TodoBackend"])
-async def delete_invite(invite_id: int, ):
+async def delete_invite():
     """
     删除佣金记录
     """
@@ -581,7 +582,7 @@ class Theme(BaseModel):
 
 
 @app.patch("/api/backend/theme_update", tags=["TodoBackend"])
-async def update_theme(theme: Theme, ):
+async def update_theme():
     """
     更新主题设置
     """
@@ -593,8 +594,6 @@ async def update_theme(theme: Theme, ):
 支付接口设置
 ========================================
 """
-from utils.databaseManager import Payment
-from utils.databaseSchemas import PayUpdate, PayResponse
 
 
 @app.get("/api/backend/payment_read/{skip}/{limit}", tags=["backend"])
@@ -642,9 +641,6 @@ async def payment_callback_update(callback: str):
 消息通知
 ========================================
 """
-from utils.databaseManager import Notice
-from utils.databaseSchemas import NoticeResponse
-from utils.utils import EmailManager
 
 
 @app.get("/api/backend/message", tags=["TodoBackend"])
@@ -662,8 +658,12 @@ async def send_email(addressee: str = 'admin@qq.com', subject: str = '测试邮�
     """
     email_param = db.search_data(Notice, NoticeResponse, [Notice.name == '邮箱通知'])
     email_param = ast.literal_eval(email_param.config)
-    emailM = EmailManager(smtp_address=email_param['smtp_address'], sendmail=email_param['sendmail'], send_name=email_param['sendmail'], smtp_pwd=email_param['smtp_pwd'], smtp_port=email_param['smtp_port'])
-    emailM.send_email(addressee, subject, content)
+    email_manager = EmailManager(smtp_address=email_param['smtp_address'],
+                                 sendmail=email_param['sendmail'],
+                                 send_name=email_param['sendmail'],
+                                 smtp_pwd=email_param['smtp_pwd'],
+                                 smtp_port=email_param['smtp_port'])
+    email_manager.send_email(addressee, subject, content)
     return {"code": 200,
             "data": email_param,
             "msg": "SMTP测试成功"
@@ -671,17 +671,19 @@ async def send_email(addressee: str = 'admin@qq.com', subject: str = '测试邮�
 
 
 @app.patch("/api/backend/save_email_settings", tags=["backend"])
-async def save_email_settings(config: dict ={'sendname':'no_replay','sendmail':'demo@gmail.com','smtp_address':'smtp.163.com','smtp_port':'465','smtp_pwd':'ZZZZZZZ'}):
+async def save_email_settings(config: dict = {'sendname': 'no_replay', 'sendmail': 'demo@gmail.com',
+                                              'smtp_address': 'smtp.163.com', 'smtp_port': '465',
+                                              'smtp_pwd': 'ZZZZZZZ'}):
     """
     保存SMTP设置
     """
     try:
-        dic = {}
+        dic = dict()
         dic["name"] = "邮箱通知"
         dic["config"] = str(config)
         dic["admin_account"] = "admin@qq.com"
         db.update_data_name(Notice, dic)
-    except Exception as e:
+    except Exception:
         db.create_data(Notice(name="邮箱通知", config=str(config), admin_account="admin@qq.com"))
     return {"code": 200,
             "data": config,
@@ -698,7 +700,7 @@ async def save_admin_setting():
 
 
 @app.patch("/api/backend/test_admin_message", tags=["TodoBackend"])
-async def test_admin_message(settings: dict):
+async def test_admin_message():
     """
     设置Admin消息
     """
@@ -706,7 +708,7 @@ async def test_admin_message(settings: dict):
 
 
 @app.patch("/api/backend/message_switch", tags=["TodoBackend"])
-async def switch_message(status: bool):
+async def switch_message():
     """
     切换消息开关
     """
@@ -718,8 +720,6 @@ async def switch_message(status: bool):
 综合设置
 ========================================
 """
-from utils.databaseManager import Config
-from utils.databaseSchemas import ConfigResponse
 
 
 @app.get("/api/backend/get_other_config", tags=["backend"])
@@ -776,7 +776,7 @@ async def update_other_optional(other_optional: dict = {"login_mode": 1, "touris
 
 
 @app.patch("/api/backend/admin_reset", tags=["TodoBackend"])
-async def reset_admin_account(cla: dict):
+async def reset_admin_account():
     """
     管理员账密修改
     """
@@ -817,7 +817,7 @@ async def logout():
 
 
 @app.get("/api/frontend/user_invitation", tags=["TodoFrontend"])
-async def user_invitation(user: User = Depends(current_active_verified_user)):
+async def user_invitation():
     """
     获取邀请好友信息接口
     """
@@ -825,7 +825,7 @@ async def user_invitation(user: User = Depends(current_active_verified_user)):
 
 
 @app.get("/api/frontend/user_center", tags=["TodoFrontend"])
-async def user_center(user: User = Depends(current_active_user)):
+async def user_center():
     """
     获取个人中心信息接口
     """
@@ -833,7 +833,7 @@ async def user_center(user: User = Depends(current_active_user)):
 
 
 @app.get("/api/frontend/user_wallet", tags=["TodoFrontend"])
-async def user_wallet(user: User = Depends(current_active_user)):
+async def user_wallet():
     """
     获取我的钱包信息接口
     """
@@ -841,7 +841,7 @@ async def user_wallet(user: User = Depends(current_active_user)):
 
 
 @app.get("/api/frontend/user_order", tags=["TodoFrontend"])
-async def user_order(user: User = Depends(current_active_user)):
+async def user_order():
     """
     获取订单中心信息接口
     """
@@ -849,17 +849,15 @@ async def user_order(user: User = Depends(current_active_user)):
 
 
 @app.get("/api/frontend/user_order_query", tags=["TodoFrontend"])
-async def user_order_query(order_id: Optional[int] = None, user: User = Depends(current_active_verified_user)):
+async def user_order_query():
     """
     查询订单信息接口
     """
-    if order_id is not None and order_id in orders_db:
-        return orders_db[order_id]
     return {"message": "订单查询"}
 
 
 @app.get("/api/frontend/logout", tags=["TodoFrontend"])
-async def logout(response: Response, user: User = Depends(current_active_user)):
+async def logout(response: Response):
     """
     用户退出登录接口，清除COOKIE
     """
