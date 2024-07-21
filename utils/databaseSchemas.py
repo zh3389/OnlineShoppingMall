@@ -175,6 +175,14 @@ class ConfigResponse(ConfigBase):
         from_attributes = True
 
 
+class ConfigResponseName(ConfigBase):
+    info: str
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
+
+
 """
 ========================================
 支付接口

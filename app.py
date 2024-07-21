@@ -23,7 +23,7 @@ from utils.databaseSchemas import CardID, CardCreate, CardUpdate, CardResponse, 
 from utils.databaseSchemas import OrderResponse, OrderDelete, OrderSearch  # 订单管理
 from utils.databaseSchemas import PayUpdate, PayResponse  # 支付接口设置
 from utils.databaseSchemas import NoticeResponse  # 消息通知
-from utils.databaseSchemas import ConfigResponse  # 综合设置
+from utils.databaseSchemas import ConfigResponse, ConfigResponseName  # 综合设置
 from utils.utils import EmailManager
 
 
@@ -67,7 +67,7 @@ app.add_middleware(CORSMiddleware,
 
 
 # 仪表盘
-@app.get("/api/backend/dashboard", tags=["TodoBackend"])
+@app.get("/api/backend/dashboard", tags=["backend"])
 async def get_dashboard():
     """
     获取仪表盘数据
@@ -793,12 +793,16 @@ async def reset_admin_account():
 """
 
 
-@app.get("/api/backend/home", tags=["TodoBackend"])
-async def return_home():
+@app.get("/api/backend/back_store", tags=["backend"])
+async def back_store():
     """
     返回商店主页
     """
-    return {"message": "返回商店主页"}
+    store_url = db.search_data(Config, ConfigResponseName, [Config.name == 'store_url'])
+    return {"code": 200,
+            "data": store_url,
+            "msg": "返回商店主页URL获取成功"
+            }
 
 
 """
@@ -808,12 +812,16 @@ async def return_home():
 """
 
 
-@app.get("/api/backend/logout", tags=["TodoBackend"])
-async def logout():
+@app.get("/api/backend/logout", tags=["backend"])
+async def logout(response: Response):
     """
     退出登录，清除COOKIE
     """
-    return {"message": "退出登录成功"}
+    response.delete_cookie(key="session")
+    return {"code": 200,
+            "data": "无数据返回",
+            "msg": "退出登录成功"
+            }
 
 
 @app.get("/api/frontend/user_invitation", tags=["TodoFrontend"])

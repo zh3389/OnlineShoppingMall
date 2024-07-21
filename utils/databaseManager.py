@@ -244,8 +244,8 @@ class Database:
         # self.create_data(Config(name='modal_notice', info='【计划中】','全局弹窗信息', isshow=True))
         self.create_data(Config(name='contact_option', info='0', description='是否启用联系方式查询[0启用，1关闭]', isshow=True))
         self.create_data(Config(name='theme', info='list', description='主题', isshow=False))
-        self.create_data(Config(name='kamiFaka', info='https://www.baidu.com', description='Github项目地址，用于手动检测新版', isshow=False))
-        self.create_data(Config(name='kamiFaka_v', info='1.88', description='Github项目地址，用于手动检测新版', isshow=False))
+        self.create_data(Config(name='store_url', info='https://www.baidu.com', description='Github项目地址，用于手动检测新版', isshow=False))
+        self.create_data(Config(name='store_v', info='0.1.0', description='Github项目地址，用于手动检测新版', isshow=False))
 
         # 通知渠道 ：名称；对管理员开关；对用户开关；对管理员需要管理员账号；用户无；名称+config+管理员+admin_switch+user_switch
         self.create_data(Notice(name='邮箱通知', config="{'sendname':'no_replay','sendmail':'demo@gmail.com','smtp_address':'smtp.163.com','smtp_port':'465','smtp_pwd':'ZZZZZZZ'}", admin_account='demo@qq.com', admin_switch=False, user_switch=False))
@@ -346,10 +346,7 @@ class Database:
         with self.session_scope() as session:
             now = datetime.now()
             today = now.date()
-            start_of_day = now - timedelta(days=1)
-            start_of_week = now - timedelta(days=7)
             start_of_month = now - timedelta(days=30)
-            start_of_year = now - timedelta(days=365)
 
             # 成交订单数
             total_orders = session.query(func.count(Order.id)).filter(Order.status == True).scalar()
@@ -360,41 +357,76 @@ class Database:
             # 剩余库存
             total_stock = session.query(func.count(Card.id)).scalar()
 
-            # # 订单统计 天 周 月 年 | 总计
-            # def get_completed_orders(start_time, end_time, group_by):
-            #     return session.query(cast(func.date_trunc(group_by, Order.updatetime), Date).label(group_by),
-            #                          func.sum(Order.total_price).label('total_price')
-            #     ).filter(and_(Order.updatetime >= start_time, Order.updatetime < end_time, Order.status == True
-            #         )).group_by(cast(func.date_trunc(group_by, Order.updatetime), Date)).all()
-            #
-            # # Day statistics
-            # day_orders = get_completed_orders(start_of_day, now, func.date_trunc('hour', Order.updatetime))
-            # day_stats = {str(hour).zfill(2): total_price for hour, total_price in day_orders}
-            # day_money = sum(total_price for hour, total_price in day_orders)
-            #
-            # # Week statistics
-            # week_orders = get_completed_orders(start_of_week, now, func.date_trunc('day', Order.updatetime))
-            # week_stats = {date.strftime('%m-%d'): total_price for date, total_price in week_orders}
-            # week_money = sum(total_price for date, total_price in week_orders)
-            #
-            # # Month statistics
-            # month_orders = get_completed_orders(start_of_month, now, func.date_trunc('day', Order.updatetime))
-            # month_stats = {date.strftime('%m-%d'): total_price for date, total_price in month_orders}
-            # month_money = sum(total_price for date, total_price in month_orders)
-            #
-            # # Year statistics
-            # year_orders = get_completed_orders(start_of_year, now, func.date_trunc('month', Order.updatetime))
-            # year_stats = {str(month).zfill(2): total_price for month, total_price in year_orders}
-            # year_money = sum(total_price for month, total_price in year_orders)
-            #
-            # order_statistics = {"day": day_stats,
-            #                     "day_money": day_money,
-            #                     "week": week_stats,
-            #                     "week_money": week_money,
-            #                     "month": month_stats,
-            #                     "month_money": month_money,
-            #                     "year": year_stats,
-            #                     "year_money": year_money}
+            """订单统计 天 周 月 年 | 总计"""
+            def get_hourly_intervals(last_24_hours):
+                intervals = []
+                for i in range(24):
+                    hour = last_24_hours + timedelta(hours=i)
+                    intervals.append(hour.strftime('%Y-%m-%d %H:00:00'))
+                return intervals
+
+            def get_daily_intervals(last_n_days, n):
+                intervals = []
+                for i in range(n):
+                    day = last_n_days + timedelta(days=i)
+                    intervals.append(day.strftime('%Y-%m-%d'))
+                return intervals
+
+            def get_monthly_intervals(last_12_months):
+                intervals = []
+                for i in range(12):
+                    month = last_12_months + timedelta(days=30 * i)  # 粗略的近似
+                    intervals.append(month.strftime('%Y-%m'))
+                return intervals
+
+            # 前24小时，每小时的销售金额总和
+            last_24_hours = now - timedelta(hours=24)
+            hourly_sum = session.query(
+                func.strftime('%Y-%m-%d %H:00:00', Order.updatetime).label('hour'),
+                func.sum(Order.total_price).label('sum_price')
+            ).filter(Order.updatetime >= last_24_hours).group_by('hour').all()
+            hourly_sum_dict = {hour: sum_price for hour, sum_price in hourly_sum}
+            all_hours = get_hourly_intervals(last_24_hours)
+            hourly_sum_dict = {hour: hourly_sum_dict.get(hour, 0) for hour in all_hours}
+
+            # 前7天，每天的销售金额总和
+            last_7_days = now - timedelta(days=7)
+            daily_sum_last_7_days = session.query(
+                func.strftime('%Y-%m-%d', Order.updatetime).label('day'),
+                func.sum(Order.total_price).label('sum_price')
+            ).filter(Order.updatetime >= last_7_days).group_by('day').all()
+            daily_sum_last_7_days_dict = {day: sum_price for day, sum_price in daily_sum_last_7_days}
+            all_days_last_7_days = get_daily_intervals(last_7_days, 7)
+            daily_sum_last_7_days_dict = {day: daily_sum_last_7_days_dict.get(day, 0) for day in all_days_last_7_days}
+
+            # 前30天，每天的销售金额总和
+            last_30_days = now - timedelta(days=30)
+            daily_sum_last_30_days = session.query(
+                func.strftime('%Y-%m-%d', Order.updatetime).label('day'),
+                func.sum(Order.total_price).label('sum_price')
+            ).filter(Order.updatetime >= last_30_days).group_by('day').all()
+            daily_sum_last_30_days_dict = {day: sum_price for day, sum_price in daily_sum_last_30_days}
+            all_days_last_30_days = get_daily_intervals(last_30_days, 30)
+            daily_sum_last_30_days_dict = {day: daily_sum_last_30_days_dict.get(day, 0) for day in all_days_last_30_days}
+
+            # 前12个月，每月的销售金额总和
+            last_12_months = now - timedelta(days=365)  # 粗略的近似
+            monthly_sum = session.query(
+                func.strftime('%Y-%m', Order.updatetime).label('month'),
+                func.sum(Order.total_price).label('sum_price')
+            ).filter(Order.updatetime >= last_12_months).group_by('month').all()
+            monthly_sum_dict = {month: sum_price for month, sum_price in monthly_sum}
+            all_months = get_monthly_intervals(last_12_months)
+            monthly_sum_dict = {month: monthly_sum_dict.get(month, 0) for month in all_months}
+
+            order_statistics = {"day": hourly_sum_dict,
+                                "day_money": sum(hourly_sum_dict.values()),
+                                "week": daily_sum_last_7_days_dict,
+                                "week_money": sum(daily_sum_last_7_days_dict.values()),
+                                "month": daily_sum_last_30_days_dict,
+                                "month_money": sum(daily_sum_last_30_days_dict.values()),
+                                "year": monthly_sum_dict,
+                                "year_money": sum(monthly_sum_dict.values())}
 
             # 热销榜单 前五销量名称 及 销售数量
             top_5_products = session.query(Order.name,
@@ -412,7 +444,7 @@ class Database:
             month_revenue = session.query(func.sum(Order.total_price)).filter(Order.status==True, Order.updatetime.between(start_of_month, now)).scalar()
 
             return {"total_orders": total_orders, "total_revenue": total_revenue, "total_users": total_users, "total_stock": total_stock,
-                    # "order_statistics": order_statistics,
+                    "order_statistics": order_statistics,
                     "today_orders": today_orders, "today_revenue": today_revenue, "month_orders": month_orders, "month_revenue": month_revenue,
                     "top_5_products": top_5_products}
 
