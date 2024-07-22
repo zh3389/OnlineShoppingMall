@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from fastapi import FastAPI, Response, Depends, File, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from utils.usersManager import (User, UserCreate, UserRead, UserID, UserResponse, UserUpdate, auth_backend,
+from utils.usersManager import (User, UserCreate, UserRead, UserID, UserResponse, UserMoney, UserUpdate, auth_backend,
                                 fastapi_users, init_user_tabel, current_user, current_active_user,
                                 current_active_verified_user, current_superuser)
 from utils.databaseManager import Database, ProdCag, ProdInfo, Card, Order, Payment, Notice, Config
@@ -699,8 +699,8 @@ async def save_admin_setting():
     return {"message": "Admin消息测试成功"}
 
 
-@app.patch("/api/backend/test_admin_message", tags=["TodoBackend"])
-async def test_admin_message():
+@app.patch("/api/backend/admin_message_test", tags=["TodoBackend"])
+async def admin_message_test():
     """
     设置Admin消息
     """
@@ -824,6 +824,25 @@ async def logout(response: Response):
             }
 
 
+"""
+========================================
+以下为前台页面
+========================================
+"""
+
+
+@app.get("/api/frontend/home/{skip}/{limit}", tags=["TodoFrontend"])
+async def home(skip: int = 0, limit: int = 10):
+    """
+    获取首页商品信息
+    """
+    prodinfos = db.read_data(ProdInfo, ProdInfoResponse, skip, limit)
+    return {"code": 200,
+            "data": prodinfos,
+            "msg": "获取首页商品信息成功"
+            }
+
+
 @app.get("/api/frontend/user_invitation", tags=["TodoFrontend"])
 async def user_invitation():
     """
@@ -832,12 +851,28 @@ async def user_invitation():
     return {"message": "邀请好友"}
 
 
-@app.get("/api/frontend/user_center", tags=["TodoFrontend"])
-async def user_center():
+@app.get("/api/frontend/user_order/{skip}/{limit}", tags=["TodoFrontend"])
+async def user_order(skip: int = 0, limit: int = 10):
     """
-    获取个人中心信息接口
+    获取个人中心信息接口 返回最近订单
     """
-    return {"message": "个人中心"}
+    orders = db.read_data(Order, OrderResponse, skip, limit)
+    return {"code": 200,
+            "data": orders,
+            "msg": "最近订单信息查询成功"
+            }
+
+
+@app.get("/api/frontend/user_payment_details/{skip}/{limit}", tags=["TodoFrontend"])
+async def user_payment_details(skip: int = 0, limit: int = 10):
+    """
+    获取订单中心信息接口
+    """
+    orders = db.read_data(Order, OrderResponse, skip, limit)
+    return {"code": 200,
+            "data": orders,
+            "msg": "用户支付明细查询成功"
+            }
 
 
 @app.get("/api/frontend/user_wallet", tags=["TodoFrontend"])
@@ -845,15 +880,12 @@ async def user_wallet():
     """
     获取我的钱包信息接口
     """
-    return {"message": "我的钱包"}
-
-
-@app.get("/api/frontend/user_order", tags=["TodoFrontend"])
-async def user_order():
-    """
-    获取订单中心信息接口
-    """
-    return {"message": "订单中心"}
+    # Token 获取User email
+    wallet_balance = db.search_data(User, UserMoney, [User.email == 'admin@qq.com'])
+    return {"code": 200,
+            "data": wallet_balance,
+            "msg": "我的钱包余额查询成功"
+            }
 
 
 @app.get("/api/frontend/user_order_query", tags=["TodoFrontend"])

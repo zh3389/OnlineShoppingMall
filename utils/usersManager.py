@@ -166,6 +166,14 @@ class UserResponse(UserID):
         from_attributes = True
 
 
+class UserMoney(UserBase):
+    money: Optional[float] = None
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
+
+
 class UserRead(schemas.BaseUser[uuid.UUID]):
     pass
 
