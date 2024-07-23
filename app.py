@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from fastapi import FastAPI, Response, Depends, File, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer
 from utils.usersManager import (User, UserCreate, UserRead, UserID, UserResponse, UserMoney, UserUpdate, auth_backend,
                                 fastapi_users, init_user_tabel, current_user, current_active_user,
                                 current_active_verified_user, current_superuser)
@@ -28,6 +29,7 @@ from utils.utils import EmailManager
 
 
 app = FastAPI()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def init_database():
@@ -911,7 +913,7 @@ async def logout(response: Response):
 是否需要验证用户。默认为False。
 """
 app.include_router(fastapi_users.get_auth_router(auth_backend),
-                   prefix="/api/frontend",
+                   prefix="/auth/jwt",
                    tags=["auth"])
 
 """
@@ -920,7 +922,7 @@ app.include_router(fastapi_users.get_auth_router(auth_backend),
 ：param UserCreate：用于创建用户的Pydantic架构。
 """
 app.include_router(fastapi_users.get_register_router(UserRead, UserCreate),
-                   prefix="/api/frontend",
+                   prefix="/auth/jwt",
                    tags=["auth"],
                    )
 
@@ -928,7 +930,7 @@ app.include_router(fastapi_users.get_register_router(UserRead, UserCreate),
 返回重置密码过程路由器。
 """
 app.include_router(fastapi_users.get_reset_password_router(),
-                   prefix="/api/frontend",
+                   prefix="/auth/jwt",
                    tags=["auth"],
                    )
 
@@ -937,7 +939,7 @@ app.include_router(fastapi_users.get_reset_password_router(),
 ：param UserRead：公共用户的Pydantic架构。
 """
 app.include_router(fastapi_users.get_verify_router(UserRead),
-                   prefix="/api/frontend",
+                   prefix="/auth/jwt",
                    tags=["auth"],
                    )
 
@@ -947,7 +949,7 @@ app.include_router(fastapi_users.get_verify_router(UserRead),
 ：param UserUpdate：用于更新用户的Pydantic架构。
 """
 app.include_router(fastapi_users.get_users_router(UserRead, UserUpdate),
-                   prefix="/api/frontend",
+                   prefix="/auth/jwt",
                    tags=["users"],
                    )
 
