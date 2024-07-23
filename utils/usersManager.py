@@ -94,7 +94,8 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         """
         reset_api = "http://localhost:8000/auth/jwt/change-password"
         print(f"User {user.id} has forgot their password. Reset token: {token}")
-        print(f"URL: {reset_api}/{token}")
+        print(f"URL: {reset_api}?token={token}")
+        # TODO 发送邮件重置密码页面给用户
 
     async def on_after_request_verify(
             self, user: User, token: str, request: Optional[Request] = None
@@ -103,6 +104,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         对整个函数、在请求后验证。
         """
         print(f"Verification requested for user {user.id}. Verification token: {token}")
+        reset_api = "http://localhost:8000/auth/jwt/verify-email"
+        print(f"URL: {reset_api}?token={token}")
+        # TODO 发送邮件验证页面给用户
 
 
 async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):

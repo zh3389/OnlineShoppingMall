@@ -5,7 +5,6 @@ from pathlib import Path
 import datetime
 import random
 import string
-import asyncio
 import uvicorn
 from sqlalchemy import or_
 from typing import Optional
@@ -13,46 +12,22 @@ from pydantic import BaseModel
 from fastapi import FastAPI, Response, Depends, File, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import OAuth2PasswordBearer
 from utils.usersManager import (User, UserCreate, UserRead, UserID, UserResponse, UserMoney, UserUpdate, auth_backend,
-                                fastapi_users, init_user_tabel, current_user, current_active_user,
-                                current_active_verified_user, current_superuser)
+                                fastapi_users, current_user, current_active_user, current_active_verified_user,
+                                current_superuser)
 from utils.databaseManager import Database, ProdCag, ProdInfo, Card, Order, Payment, Notice, Config
 from utils.databaseSchemas import ProdCagID, ProdCagCreate, ProdCagUpdate, ProdCagResponse  # 分类管理
 from utils.databaseSchemas import ProdInfoID, ProdInfoCreate, ProdInfoUpdate, ProdInfoResponse  # 商品管理
 from utils.databaseSchemas import CardID, CardCreate, CardUpdate, CardResponse, CardFilterDelete  # 卡密管理
 from utils.databaseSchemas import OrderResponse, OrderDelete, OrderSearch  # 订单管理
 from utils.databaseSchemas import PayUpdate, PayResponse  # 支付接口设置
-from utils.databaseSchemas import NoticeResponse  # 消息通知
 from utils.databaseSchemas import ConfigResponse, ConfigResponseName  # 综合设置
-from utils.utils import EmailManager
+from utils.systemInit import System_Init
 
 
 app = FastAPI()
-
-
-def init_database():
-    """
-    数据库初始化
-    """
-    from sqlalchemy import create_engine, inspect
-    database_url = 'sqlite:///./utils/database.db'
-    engine = create_engine(database_url)  # 创建数据库引擎
-    inspector = inspect(engine)  # 使用inspect来检查数据库中的表
-    table_names = inspector.get_table_names()  # 获取所有表名
-    print("数据库表名:", table_names)
-    # 判断表是否存在
-    if 'order' not in table_names:
-        Database(database_url).create_tables()
-        Database(database_url).create_example_data()
-    if 'user' not in table_names:
-        # asyncio.run(init_user_tabel())
-        asyncio.create_task(init_user_tabel())
-    db = Database(database_url)
-    return db
-
-
-db = init_database()
+db = System_Init().db
+email_manager = System_Init().create_email_manager()
 
 
 # 配置 CORS
@@ -664,16 +639,9 @@ async def send_email(addressee: str = 'admin@qq.com', subject: str = '测试邮�
     """
     测试SMTP
     """
-    email_param = db.search_data(Notice, NoticeResponse, [Notice.name == '邮箱通知'])
-    email_param = ast.literal_eval(email_param.config)
-    email_manager = EmailManager(smtp_address=email_param['smtp_address'],
-                                 sendmail=email_param['sendmail'],
-                                 send_name=email_param['sendmail'],
-                                 smtp_pwd=email_param['smtp_pwd'],
-                                 smtp_port=email_param['smtp_port'])
     email_manager.send_email(addressee, subject, content)
     return {"code": 200,
-            "data": email_param,
+            "data": f"测试邮件已发送给{addressee}",
             "msg": "SMTP测试成功"
             }
 
