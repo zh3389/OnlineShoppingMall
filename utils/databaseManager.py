@@ -298,9 +298,6 @@ class Database:
 
     def update_data(self, model, dic):
         """更新记录"""
-        print("=" * 100)
-        print("model:", model)
-        print("dic:", dic)
         with self.session_scope() as session:
             record = session.query(model).filter_by(id=dic["id"]).first()
             for key, value in dic.items():

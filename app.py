@@ -29,7 +29,6 @@ from utils.utils import EmailManager
 
 
 app = FastAPI()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def init_database():
@@ -47,6 +46,7 @@ def init_database():
         Database(database_url).create_tables()
         Database(database_url).create_example_data()
     if 'user' not in table_names:
+        # asyncio.run(init_user_tabel())
         asyncio.create_task(init_user_tabel())
     db = Database(database_url)
     return db
@@ -69,7 +69,7 @@ app.add_middleware(CORSMiddleware,
 
 
 # 仪表盘
-@app.get("/api/backend/dashboard", tags=["backend"])
+@app.get("/api/backend/dashboard", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def get_dashboard():
     """
     获取仪表盘数据
@@ -85,7 +85,7 @@ async def get_dashboard():
 """
 
 
-@app.get("/api/backend/class_read/{skip}/{limit}", tags=["backend"])
+@app.get("/api/backend/class_read/{skip}/{limit}", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def classification_read(skip: int = 0, limit: int = 10):
     """
     获取分类列表
@@ -97,7 +97,7 @@ async def classification_read(skip: int = 0, limit: int = 10):
             }
 
 
-@app.post("/api/backend/class_create", tags=["backend"])
+@app.post("/api/backend/class_create", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def classification_create(cla: ProdCagCreate):
     """
     新增分类
@@ -111,7 +111,7 @@ async def classification_create(cla: ProdCagCreate):
             }
 
 
-@app.patch("/api/backend/class_update", tags=["backend"])
+@app.patch("/api/backend/class_update", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def classification_update(cla: ProdCagUpdate):
     """
     修改分类
@@ -124,7 +124,7 @@ async def classification_update(cla: ProdCagUpdate):
             }
 
 
-@app.delete("/api/backend/class_delete", tags=["backend"])
+@app.delete("/api/backend/class_delete", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def classification_delete(cla: ProdCagID):
     """
     删除分类
@@ -142,7 +142,7 @@ async def classification_delete(cla: ProdCagID):
 """
 
 
-@app.get("/api/backend/product_read/{skip}/{limit}", tags=["backend"])
+@app.get("/api/backend/product_read/{skip}/{limit}", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def product_read(skip: int = 0, limit: int = 10):
     """
     获取商品列表
@@ -154,7 +154,7 @@ async def product_read(skip: int = 0, limit: int = 10):
             }
 
 
-@app.post("/api/backend/product_create", tags=["backend"])
+@app.post("/api/backend/product_create", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def product_create(cla: ProdInfoCreate):
     """
     新增商品
@@ -168,7 +168,7 @@ async def product_create(cla: ProdInfoCreate):
             }
 
 
-@app.patch("/api/backend/product_update", tags=["backend"])
+@app.patch("/api/backend/product_update", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def product_update(cla: ProdInfoUpdate):
     """
     修改商品
@@ -181,7 +181,7 @@ async def product_update(cla: ProdInfoUpdate):
             }
 
 
-@app.delete("/api/backend/product_delete", tags=["backend"])
+@app.delete("/api/backend/product_delete", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def product_delete(cla: ProdInfoID):
     """
     删除商品
@@ -200,7 +200,7 @@ async def product_delete(cla: ProdInfoID):
 """
 
 
-@app.get("/api/backend/cami_read/{skip}/{limit}", tags=["backend"])
+@app.get("/api/backend/cami_read/{skip}/{limit}", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def cami_read(skip: int = 0, limit: int = 10):
     """
     获取卡密列表
@@ -212,7 +212,7 @@ async def cami_read(skip: int = 0, limit: int = 10):
             }
 
 
-@app.post("/api/backend/cami_create", tags=["backend"])
+@app.post("/api/backend/cami_create", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def cami_create(cla: CardCreate):
     """
     新增卡密
@@ -226,20 +226,26 @@ async def cami_create(cla: CardCreate):
             }
 
 
-@app.patch("/api/backend/cami_update", tags=["backend"])
+@app.patch("/api/backend/cami_update", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def cami_update(cla: CardUpdate):
     """
     修改卡密
     """
     data = dict(cla)
-    db.update_data(Card, data)
+    try:
+        db.update_data(Card, data)
+    except Exception:
+        return {"code": 500,
+                "data": "找不到指定的数据",
+                "msg": "卡密修改失败"
+                }
     return {"code": 200,
             "data": data,
             "msg": "卡密修改成功"
             }
 
 
-@app.get("/api/backend/cami_search/{cardstr}/{skip}/{limit}", tags=["backend"])
+@app.get("/api/backend/cami_search/{cardstr}/{skip}/{limit}", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def cami_search(cardstr: str, skip: int, limit: int):
     """
     搜索卡密
@@ -251,7 +257,7 @@ async def cami_search(cardstr: str, skip: int, limit: int):
             }
 
 
-@app.delete("/api/backend/cami_batch_delete", tags=["backend"])
+@app.delete("/api/backend/cami_batch_delete", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def cami_batch_delete(cla: CardFilterDelete):
     """
     批量删除卡密
@@ -266,7 +272,7 @@ async def cami_batch_delete(cla: CardFilterDelete):
     return {"message": "卡密删除成功"}
 
 
-@app.delete("/api/backend/cami_clear_duplicates", tags=["backend"])
+@app.delete("/api/backend/cami_clear_duplicates", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def cami_clear_duplicates():
     """
     一键卡密去重
@@ -278,7 +284,7 @@ async def cami_clear_duplicates():
             }
 
 
-@app.delete("/api/backend/cami_delete", tags=["backend"])
+@app.delete("/api/backend/cami_delete", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def cami_delete(cla: CardID):
     """
     删除卡密
@@ -297,7 +303,7 @@ async def cami_delete(cla: CardID):
 """
 
 
-@app.get("/api/backend/coupon_read", tags=["TodoBackend"])
+@app.get("/api/backend/coupon_read", tags=["TodoBackend"], dependencies=[Depends(current_superuser)])
 async def coupon_read():
     """
     获取优惠券列表
@@ -305,7 +311,7 @@ async def coupon_read():
     return {"message": "优惠券列表"}
 
 
-@app.post("/api/backend/coupon_create", tags=["TodoBackend"])
+@app.post("/api/backend/coupon_create", tags=["TodoBackend"], dependencies=[Depends(current_superuser)])
 async def coupon_create():
     """
     新增优惠券
@@ -313,7 +319,7 @@ async def coupon_create():
     return {"message": "优惠券新增成功"}
 
 
-@app.patch("/api/backend/coupon_update", tags=["TodoBackend"])
+@app.patch("/api/backend/coupon_update", tags=["TodoBackend"], dependencies=[Depends(current_superuser)])
 async def coupon_update():
     """
     修改优惠券
@@ -321,7 +327,7 @@ async def coupon_update():
     return {"message": "优惠券修改成功"}
 
 
-@app.delete("/api/backend/coupon_delete", tags=["TodoBackend"])
+@app.delete("/api/backend/coupon_delete", tags=["TodoBackend"], dependencies=[Depends(current_superuser)])
 async def coupon_delete():
     """
     删除优惠券
@@ -329,7 +335,7 @@ async def coupon_delete():
     return {"message": "优惠券删除成功"}
 
 
-@app.patch("/api/backend/coupon_switch", tags=["TodoBackend"])
+@app.patch("/api/backend/coupon_switch", tags=["TodoBackend"], dependencies=[Depends(current_superuser)])
 async def coupon_switch():
     """
     开关优惠券
@@ -344,7 +350,7 @@ async def coupon_switch():
 """
 
 
-@app.get("/api/backend/order_read/{skip}/{limit}", tags=["backend"])
+@app.get("/api/backend/order_read/{skip}/{limit}", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def order_read(skip: int = 0, limit: int = 10):
     """
     获取订单列表
@@ -356,7 +362,7 @@ async def order_read(skip: int = 0, limit: int = 10):
             }
 
 
-@app.post("/api/backend/order_search", tags=["backend"])
+@app.post("/api/backend/order_search", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def order_search(cla: OrderSearch, skip: int = 0, limit: int = 10):
     """
     搜索订单
@@ -371,7 +377,7 @@ async def order_search(cla: OrderSearch, skip: int = 0, limit: int = 10):
             }
 
 
-@app.delete("/api/backend/order_delete", tags=["backend"])
+@app.delete("/api/backend/order_delete", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def order_delete(cla: OrderDelete):
     """
     删除订单
@@ -383,7 +389,7 @@ async def order_delete(cla: OrderDelete):
             }
 
 
-@app.delete("/api/backend/order_delete_all", tags=["backend"])
+@app.delete("/api/backend/order_delete_all", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def order_delete_all():
     """
     删除订单
@@ -402,7 +408,7 @@ async def order_delete_all():
 """
 
 
-@app.get("/api/backend/user_read/{skip}/{limit}", tags=["backend"])
+@app.get("/api/backend/user_read/{skip}/{limit}", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def user_read(skip: int = 0, limit: int = 10):
     """
     获取用户列表
@@ -414,7 +420,7 @@ async def user_read(skip: int = 0, limit: int = 10):
             }
 
 
-@app.get("/api/backend/user_search/{skip}/{limit}", tags=["backend"])
+@app.get("/api/backend/user_search/{skip}/{limit}", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def user_search(userstr: str, skip: int = 0, limit: int = 10):
     """
     搜索用户
@@ -427,7 +433,7 @@ async def user_search(userstr: str, skip: int = 0, limit: int = 10):
             }
 
 
-@app.patch("/api/backend/user_reset", tags=["backend"])
+@app.patch("/api/backend/user_reset", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def user_reset(cla: UserID):
     """
     重置用户密码
@@ -438,7 +444,7 @@ async def user_reset(cla: UserID):
             }
 
 
-@app.delete("/api/backend/user_delete", tags=["backend"])
+@app.delete("/api/backend/user_delete", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def user_delete(cla: UserID):
     """
     删除用户
@@ -467,7 +473,7 @@ def generate_random_filename(extension: str) -> str:
     return f"{timestamp}_{random_str}.{extension}"
 
 
-@app.get("/api/backend/drawingbed_read/", tags=["backend"])
+@app.get("/api/backend/drawingbed_read/", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def drawingbed_read(skip: int = 0, limit: int = 10):
     files = list(Path(UPLOAD_DIR).iterdir())
     total_files = len(files)
@@ -485,7 +491,7 @@ async def drawingbed_read(skip: int = 0, limit: int = 10):
             }
 
 
-@app.get("/api/backend/drawingbed_show/{filename}", tags=["backend"])
+@app.get("/api/backend/drawingbed_show/{filename}", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def drawingbed_show(filename: str):
     file_location = Path(UPLOAD_DIR) / filename
     if file_location.exists():
@@ -497,7 +503,7 @@ async def drawingbed_show(filename: str):
                 }
 
 
-@app.post("/api/backend/drawingbed_create", tags=["backend"])
+@app.post("/api/backend/drawingbed_create", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def drawingbed_create(file: UploadFile = File(...)):
     """
     新增图床
@@ -513,7 +519,7 @@ async def drawingbed_create(file: UploadFile = File(...)):
             }
 
 
-@app.delete("/api/backend/drawingbed_delete/{filename}", tags=["backend"])
+@app.delete("/api/backend/drawingbed_delete/{filename}", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def drawingbed_delete(filename: str):
     """
     删除图床
@@ -598,7 +604,7 @@ async def update_theme():
 """
 
 
-@app.get("/api/backend/payment_read/{skip}/{limit}", tags=["backend"])
+@app.get("/api/backend/payment_read/{skip}/{limit}", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def payment_read(skip: int = 0, limit: int = 10):
     """
     获取支付接口设置
@@ -612,7 +618,7 @@ async def payment_read(skip: int = 0, limit: int = 10):
             "msg": "支付接口查询成功"}
 
 
-@app.patch("/api/backend/payment_update", tags=["backend"])
+@app.patch("/api/backend/payment_update", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def payment_update(cla: PayUpdate):
     """
     更新支付接口设置
@@ -626,7 +632,7 @@ async def payment_update(cla: PayUpdate):
             }
 
 
-@app.patch("/api/backend/payment_callback_update", tags=["backend"])
+@app.patch("/api/backend/payment_callback_update", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def payment_callback_update(callback: str):
     """
     更新支付接口设置
@@ -645,7 +651,7 @@ async def payment_callback_update(callback: str):
 """
 
 
-@app.get("/api/backend/message", tags=["TodoBackend"])
+@app.get("/api/backend/message", tags=["TodoBackend"], dependencies=[Depends(current_superuser)])
 async def get_message():
     """
     获取消息通知设置
@@ -653,7 +659,7 @@ async def get_message():
     return {"message": "消息通知设置"}
 
 
-@app.post("/api/backend/send_email_test", tags=["backend"])
+@app.post("/api/backend/send_email_test", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def send_email(addressee: str = 'admin@qq.com', subject: str = '测试邮件', content: str = '今日报告已生成，请查收。'):
     """
     测试SMTP
@@ -672,7 +678,7 @@ async def send_email(addressee: str = 'admin@qq.com', subject: str = '测试邮�
             }
 
 
-@app.patch("/api/backend/save_email_settings", tags=["backend"])
+@app.patch("/api/backend/save_email_settings", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def save_email_settings(config: dict = {'sendname': 'no_replay', 'sendmail': 'demo@gmail.com',
                                               'smtp_address': 'smtp.163.com', 'smtp_port': '465',
                                               'smtp_pwd': 'ZZZZZZZ'}):
@@ -724,7 +730,7 @@ async def switch_message():
 """
 
 
-@app.get("/api/backend/get_other_config", tags=["backend"])
+@app.get("/api/backend/get_other_config", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def get_other_config():
     """
     获取综合设置
@@ -736,7 +742,7 @@ async def get_other_config():
             }
 
 
-@app.patch("/api/backend/home_notice", tags=["backend"])
+@app.patch("/api/backend/home_notice", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def update_home_notice(home_notice: str):
     """
     更新店铺公告
@@ -749,7 +755,7 @@ async def update_home_notice(home_notice: str):
             }
 
 
-@app.patch("/api/backend/icp", tags=["backend"])
+@app.patch("/api/backend/icp", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def update_icp(icp: str):
     """
     更新底部备案
@@ -762,7 +768,7 @@ async def update_icp(icp: str):
             }
 
 
-@app.patch("/api/backend/other_optional", tags=["backend"])
+@app.patch("/api/backend/other_optional", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def update_other_optional(other_optional: dict = {"login_mode": 1, "tourist_orders": 1,
                                                         "front_desk_inventory_display": 1, "front_end_sales_display": 1,
                                                         "sales_statistics": 1}):
@@ -795,7 +801,7 @@ async def reset_admin_account():
 """
 
 
-@app.get("/api/backend/back_store", tags=["backend"])
+@app.get("/api/backend/back_store", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def back_store():
     """
     返回商店主页
@@ -814,7 +820,7 @@ async def back_store():
 """
 
 
-@app.get("/api/backend/logout", tags=["backend"])
+@app.get("/api/backend/logout", tags=["backend"], dependencies=[Depends(current_superuser)])
 async def logout(response: Response):
     """
     退出登录，清除COOKIE
@@ -854,7 +860,7 @@ async def user_invitation():
 
 
 @app.get("/api/frontend/user_order/{skip}/{limit}", tags=["TodoFrontend"])
-async def user_order(skip: int = 0, limit: int = 10):
+async def user_order(skip: int = 0, limit: int = 10, user: User = Depends(current_active_user)):
     """
     获取个人中心信息接口 返回最近订单
     """
@@ -866,7 +872,7 @@ async def user_order(skip: int = 0, limit: int = 10):
 
 
 @app.get("/api/frontend/user_payment_details/{skip}/{limit}", tags=["TodoFrontend"])
-async def user_payment_details(skip: int = 0, limit: int = 10):
+async def user_payment_details(skip: int = 0, limit: int = 10, user: User = Depends(current_active_user)):
     """
     获取订单中心信息接口
     """
@@ -878,12 +884,12 @@ async def user_payment_details(skip: int = 0, limit: int = 10):
 
 
 @app.get("/api/frontend/user_wallet", tags=["TodoFrontend"])
-async def user_wallet():
+async def user_wallet(user: User = Depends(current_active_user)):
     """
     获取我的钱包信息接口
     """
     # Token 获取User email
-    wallet_balance = db.search_data(User, UserMoney, [User.email == 'admin@qq.com'])
+    wallet_balance = db.search_data(User, UserMoney, [User.email == user.email])
     return {"code": 200,
             "data": wallet_balance,
             "msg": "我的钱包余额查询成功"
@@ -891,14 +897,14 @@ async def user_wallet():
 
 
 @app.get("/api/frontend/user_order_query", tags=["TodoFrontend"])
-async def user_order_query():
+async def user_order_query(user: User = Depends(current_active_user)):
     """
     查询订单信息接口
     """
     return {"message": "订单查询"}
 
 
-@app.get("/api/frontend/logout", tags=["TodoFrontend"])
+@app.get("/api/frontend/logout", tags=["TodoFrontend"], dependencies=[Depends(current_user)])
 async def logout(response: Response):
     """
     用户退出登录接口，清除COOKIE
