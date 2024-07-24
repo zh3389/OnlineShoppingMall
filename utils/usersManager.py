@@ -16,7 +16,7 @@ from fastapi_users.authentication import (AuthenticationBackend, BearerTransport
 
 
 SECRET = "SECRET"
-DATABASE_URL = "sqlite+aiosqlite:///utils/database.db"
+DATABASE_URL = "sqlite+aiosqlite:///database/database.db"
 engine = create_async_engine(DATABASE_URL)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 

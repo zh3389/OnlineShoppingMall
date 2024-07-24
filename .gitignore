@@ -6,6 +6,7 @@ Desktop.ini
 utils/database.db
 /test
 /drawingbed
+/database
 
 # Thumbnail cache files
 ._*
