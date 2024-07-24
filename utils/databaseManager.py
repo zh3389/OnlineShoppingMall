@@ -341,9 +341,18 @@ class Database:
     def search_dashboard(self):
         """获取所有记录"""
         with self.session_scope() as session:
+            # 获取当前时间
             now = datetime.now()
+            # 今日开始时间
             today = now.date()
-            start_of_month = now - timedelta(days=30)
+            # 昨日时间段
+            yesterday_start = today - timedelta(days=1)
+            yesterday_end = today
+            # 本月开始时间
+            start_of_month = datetime(now.year, now.month, 1)
+            # 上月时间段
+            start_of_last_month = (start_of_month - timedelta(days=1)).replace(day=1)
+            end_of_last_month = start_of_month - timedelta(days=1)
 
             # 成交订单数
             total_orders = session.query(func.count(Order.id)).filter(Order.status == True).scalar()
@@ -439,10 +448,18 @@ class Database:
             month_orders = session.query(func.count(Order.id)).filter(Order.status==True, Order.updatetime.between(start_of_month, now)).scalar()
             # 本月收益
             month_revenue = session.query(func.sum(Order.total_price)).filter(Order.status==True, Order.updatetime.between(start_of_month, now)).scalar()
-
+            # 昨日订单数
+            yesterday_orders = session.query(func.count(Order.id)).filter(Order.status==True, Order.updatetime.between(yesterday_start, yesterday_end)).scalar()
+            # 昨日收益
+            yesterday_revenue = session.query(func.sum(Order.total_price)).filter(Order.status==True, Order.updatetime.between(yesterday_start, yesterday_end)).scalar()
+            # 上月订单数
+            last_month_orders = session.query(func.count(Order.id)).filter(Order.status==True, Order.updatetime.between(start_of_last_month, end_of_last_month)).scalar()
+            # 上月收益
+            last_month_revenue = session.query(func.sum(Order.total_price)).filter(Order.status==True, Order.updatetime.between(start_of_last_month, end_of_last_month)).scalar()
             return {"total_orders": total_orders, "total_revenue": total_revenue, "total_users": total_users, "total_stock": total_stock,
                     "order_statistics": order_statistics,
                     "today_orders": today_orders, "today_revenue": today_revenue, "month_orders": month_orders, "month_revenue": month_revenue,
+                    "yesterday_orders": yesterday_orders, "yesterday_revenue": yesterday_revenue, "last_month_orders": last_month_orders, "last_month_revenue": last_month_revenue,
                     "top_5_products": top_5_products}
 
     def search_data(self, model, output_model, filter_params):
