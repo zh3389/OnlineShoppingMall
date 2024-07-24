@@ -62,6 +62,10 @@ class ProdInfoID(ProdInfoBase):
 
 
 class ProdInfoCreate(ProdInfoBase):
+    name: Optional[str] = Field(None, description="产品名称")
+    prod_price: Optional[float] = Field(None, description="产品价格")
+    auto: Optional[bool] = Field(False, description="是否自动发货")
+    state: Optional[bool] = Field(False, description="是否上架")
     prod_cag_name: Optional[str] = Field(None, description="产品分类名称")
     prod_info: Optional[str] = Field(None, description="产品信息")
     prod_img_url: Optional[str] = Field(None, description="产品图片url")
@@ -73,10 +77,7 @@ class ProdInfoCreate(ProdInfoBase):
 
 
 class ProdInfoUpdate(ProdInfoCreate, ProdInfoID):
-    name: Optional[str] = Field(None, description="产品名称")
-    prod_price: Optional[float] = Field(None, description="产品价格")
-    auto: Optional[bool] = Field(None, description="是否自动上架")
-    state: Optional[bool] = Field(None, description="是否上架")
+    pass
 
 
 class ProdInfoResponse(ProdInfoCreate, ProdInfoID):

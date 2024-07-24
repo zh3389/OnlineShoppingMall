@@ -104,13 +104,16 @@ async def classification_delete(item_id: int):
 """
 
 
-@app.get("/api/backend/product_read/{skip}/{limit}/{classify}", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
+@app.get("/api/backend/product_read", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
 async def product_read(skip: int = 0, limit: int = 10, classify: Optional[str] = None):
     """
     获取商品列表
     """
-    prodinfos = db.search_filter_page_turning(DbModels.ProdInfo, DbSchemas.ProdInfoResponse, {DbModels.ProdInfo.prod_cag_name == classify}, skip, limit)
-    return ResponseModel(code=200, data={"data": prodinfos}, msg="商品信息查询成功")
+    if classify is None:
+        prodinfos = db.read_datas(DbModels.ProdInfo, DbSchemas.ProdInfoResponse, skip, limit)
+    else:
+        prodinfos = db.search_filter_page_turning(DbModels.ProdInfo, DbSchemas.ProdInfoResponse, {DbModels.ProdInfo.prod_cag_name == classify}, skip, limit)
+    return ResponseModel(code=200, data=prodinfos, msg="商品信息查询成功")
 
 
 @app.post("/api/backend/product_create", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
