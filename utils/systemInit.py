@@ -25,8 +25,8 @@ class System_Init:
             Database(self.database_url).create_tables()
             Database(self.database_url).create_example_data()
         if 'user' not in table_names:
-            asyncio.run(init_user_tabel())
-            # asyncio.create_task(init_user_tabel())
+            # asyncio.run(init_user_tabel())
+            asyncio.create_task(init_user_tabel())
         db = Database(self.database_url)
         return db
 
