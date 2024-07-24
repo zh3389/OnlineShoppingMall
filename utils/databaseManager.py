@@ -282,7 +282,12 @@ class Database:
         with self.session_scope() as session:
             session.add(record)
 
-    def read_data(self, input_model, output_model, skip=0, limit=10):
+    def read_data(self, model, uid: int):
+        """获取单条记录"""
+        with self.session_scope() as session:
+            return session.query(model).filter(model.id == uid).first()
+
+    def read_datas(self, input_model, output_model, skip=0, limit=10):
         """获取所有记录"""
         with self.session_scope() as session:
             # 获取总记录数
@@ -300,22 +305,23 @@ class Database:
         """更新记录"""
         with self.session_scope() as session:
             record = session.query(model).filter_by(id=dic["id"]).first()
-            for key, value in dic.items():
-                print("key, value:", key, value)
-                setattr(record, key, value)
-            session.add(record)
+            if record:
+                for key, value in dic.items():
+                    setattr(record, key, value)
+                session.add(record)
+                return record
+            return None
 
     def update_data_name(self, model, dic):
         """更新记录"""
         with self.session_scope() as session:
             record = session.query(model).filter_by(name=dic["name"]).first()
-            for key, value in dic.items():
-                setattr(record, key, value)
-            session.add(record)
-
-    def get_data(self, model, uid: int):
-        with self.session_scope() as session:
-            return session.query(model).filter(model.id == uid).first()
+            if record:
+                for key, value in dic.items():
+                    setattr(record, key, value)
+                session.add(record)
+                return record
+            return None
 
     def delete_data(self, model, uid):
         """删除记录"""
@@ -335,6 +341,7 @@ class Database:
             records = session.query(model).filter_by(**filter_params).all()
             for record in records:
                 session.delete(record)
+            return records
 
     def delete_card_duplicates(self):
         """定制: 删除重复的卡片"""

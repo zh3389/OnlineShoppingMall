@@ -57,7 +57,7 @@ async def classification_read(skip: Optional[int] = Query(0), limit: Optional[in
     """
     获取分类列表
     """
-    prodcags = db.read_data(DbModels.ProdCag, DbSchemas.ProdCagResponse, skip, limit)
+    prodcags = db.read_datas(DbModels.ProdCag, DbSchemas.ProdCagResponse, skip, limit)
     return ResponseModel(code=200, data={"data": prodcags}, msg="分类查询成功")
 
 
@@ -78,16 +78,18 @@ async def classification_update(cla: DbSchemas.ProdCagUpdate):
     修改分类
     """
     data = dict(cla)
-    db.update_data(DbModels.ProdCag, data)
+    record = db.update_data(DbModels.ProdCag, data)
+    if record is None:
+        return ResponseModel(code=500, data={}, msg="分类修改失败, 请检查修改的数据。")
     return ResponseModel(code=200, data=data, msg="分类修改成功")
 
 
-@app.delete("/api/backend/class_delete/{item_id}", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
+@app.delete("/api/backend/class_delete", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
 async def classification_delete(item_id: int):
     """
     删除分类
     """
-    data = db.get_data(DbModels.ProdCag, item_id)
+    data = db.read_data(DbModels.ProdCag, item_id)
     if data is None:
         return ResponseModel(code=404, data={}, msg="找不到数据")
     delete_data = db.delete_data(DbModels.ProdCag, item_id)
@@ -128,17 +130,19 @@ async def product_update(cla: DbSchemas.ProdInfoUpdate):
     修改商品
     """
     data = dict(cla)
-    db.update_data(DbModels.ProdInfo, data)
+    record = db.update_data(DbModels.ProdInfo, data)
+    if record is None:
+        return ResponseModel(code=500, data={}, msg="商品信息修改失败, 请检查修改的数据。")
     return ResponseModel(code=200, data=data, msg="商品信息修改成功")
 
 
 @app.delete("/api/backend/product_delete", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
-async def product_delete(cla: DbSchemas.ProdInfoID):
+async def product_delete(item_id: int):
     """
     删除商品
     """
-    db.delete_data(DbModels.ProdInfo, cla.id)
-    return ResponseModel(code=200, data={"id": cla.id}, msg="商品信息删除成功")
+    db.delete_data(DbModels.ProdInfo, item_id)
+    return ResponseModel(code=200, data={"id": item_id}, msg="商品信息删除成功")
 
 
 """
@@ -153,7 +157,7 @@ async def cami_read(skip: int = 0, limit: int = 10):
     """
     获取卡密列表
     """
-    camis = db.read_data(DbModels.Card, DbSchemas.CardResponse, skip, limit)
+    camis = db.read_datas(DbModels.Card, DbSchemas.CardResponse, skip, limit)
     return ResponseModel(code=200, data={"data": camis}, msg="卡密查询成功")
 
 
@@ -174,10 +178,9 @@ async def cami_update(cla: DbSchemas.CardUpdate):
     修改卡密
     """
     data = dict(cla)
-    try:
-        db.update_data(DbModels.Card, data)
-    except Exception:
-        return ResponseModel(code=500, data={}, msg="卡密修改失败")
+    record = db.update_data(DbModels.Card, data)
+    if record is None:
+        return ResponseModel(code=500, data={}, msg="卡密修改失败, 请检查修改的数据。")
     return ResponseModel(code=200, data=data, msg="卡密修改成功")
 
 
@@ -215,12 +218,12 @@ async def cami_clear_duplicates():
 
 
 @app.delete("/api/backend/cami_delete", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
-async def cami_delete(cla: DbSchemas.CardID):
+async def cami_delete(item_id: int):
     """
     删除卡密
     """
-    db.delete_data(DbModels.Card, cla.id)
-    return ResponseModel(code=200, data={"id": cla.id}, msg="卡密删除成功")
+    db.delete_data(DbModels.Card, item_id)
+    return ResponseModel(code=200, data={"id": item_id}, msg="卡密删除成功")
 
 
 """
@@ -282,7 +285,7 @@ async def order_read(skip: int = 0, limit: int = 10):
     """
     获取订单列表
     """
-    orders = db.read_data(DbModels.Order, DbSchemas.OrderResponse, skip, limit)
+    orders = db.read_datas(DbModels.Order, DbSchemas.OrderResponse, skip, limit)
     return ResponseModel(code=200, data={"data": orders}, msg="订单查询成功")
 
 
@@ -328,7 +331,7 @@ async def user_read(skip: int = 0, limit: int = 10):
     """
     获取用户列表
     """
-    users = db.read_data(DbModels.User, DbUsers.UserResponse, skip, limit)
+    users = db.read_datas(DbModels.User, DbUsers.UserResponse, skip, limit)
     return ResponseModel(code=200, data={"data": users}, msg="用户查询成功")
 
 
@@ -497,7 +500,7 @@ async def payment_read(skip: int = 0, limit: int = 10):
     获取支付接口设置
     """
     temp_dic = {}
-    payments = db.read_data(DbModels.Payment, DbSchemas.PayResponse, skip, limit)
+    payments = db.read_datas(DbModels.Payment, DbSchemas.PayResponse, skip, limit)
     temp_dic["pager"] = payments['pager']
     data = [payment.dict() for payment in payments['data']]
     return ResponseModel(code=200, data={"data": data, "pager": temp_dic['pager']}, msg="支付接口查询成功")
@@ -510,7 +513,9 @@ async def payment_update(cla: DbSchemas.PayUpdate):
     """
     cla.config = str(cla.config)
     data = dict(cla)
-    db.update_data(DbModels.Payment, data)
+    record = db.update_data(DbModels.Payment, data)
+    if record is None:
+        return ResponseModel(code=500, data={}, msg="支付接口设置更新失败, 请检查修改的数据。")
     return ResponseModel(code=200, data=data, msg="支付接口设置更新成功")
 
 
@@ -689,7 +694,7 @@ async def home(skip: int = 0, limit: int = 10):
     """
     获取首页商品信息
     """
-    prodinfos = db.read_data(DbModels.ProdInfo, DbSchemas.ProdInfoResponse, skip, limit)
+    prodinfos = db.read_datas(DbModels.ProdInfo, DbSchemas.ProdInfoResponse, skip, limit)
     return ResponseModel(code=200, data=prodinfos, msg="获取首页商品信息成功")
 
 
@@ -706,7 +711,7 @@ async def user_order(skip: int = 0, limit: int = 10, user: DbUsers.User = Depend
     """
     获取个人中心信息接口 返回最近订单
     """
-    orders = db.read_data(DbModels.Order, DbSchemas.OrderResponse, skip, limit)
+    orders = db.read_datas(DbModels.Order, DbSchemas.OrderResponse, skip, limit)
     return ResponseModel(code=200, data=orders, msg="用户订单信息查询成功")
 
 
@@ -715,7 +720,7 @@ async def user_payment_details(skip: int = 0, limit: int = 10, user: DbUsers.Use
     """
     获取订单中心信息接口
     """
-    orders = db.read_data(DbModels.Order, DbSchemas.OrderResponse, skip, limit)
+    orders = db.read_datas(DbModels.Order, DbSchemas.OrderResponse, skip, limit)
     return ResponseModel(code=200, data=orders, msg="用户支付明细查询成功")
 
 

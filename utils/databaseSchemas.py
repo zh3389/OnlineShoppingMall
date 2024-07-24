@@ -28,21 +28,19 @@ class ProdCagBase(BaseModel):
     pass
 
 
-class ProdCagID(ProdCagBase):
-    id: int = 1
-
-
 class ProdCagCreate(ProdCagBase):
-    name: str = "test"
+    name: str = "测试类别名称"
     sort: int = 50
     state: bool = True
 
 
-class ProdCagUpdate(ProdCagID, ProdCagCreate):
-    pass
+class ProdCagUpdate(ProdCagCreate):
+    id: int = 1
 
 
-class ProdCagResponse(ProdCagID, ProdCagCreate):
+class ProdCagResponse(ProdCagCreate):
+    id: int = 1
+
     class Config:
         orm_mode = True
         from_attributes = True
