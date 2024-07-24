@@ -6,7 +6,7 @@ from utils.usersManager import init_user_tabel
 from utils.utils import EmailManager
 
 
-class System_Init:
+class SystemInit:
     def __init__(self, database_url='sqlite:///database/database.db'):
         self.database_url = database_url
         self.db = self.init_database()

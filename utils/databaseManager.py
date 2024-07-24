@@ -313,11 +313,16 @@ class Database:
                 setattr(record, key, value)
             session.add(record)
 
+    def get_data(self, model, uid: int):
+        with self.session_scope() as session:
+            return session.query(model).filter(model.id == uid).first()
+
     def delete_data(self, model, uid):
         """删除记录"""
         with self.session_scope() as session:
             record = session.query(model).filter_by(id=uid).first()
             session.delete(record)
+            return record
 
     def create_batch_data(self, records: List[T]):
         """批量添加记录"""

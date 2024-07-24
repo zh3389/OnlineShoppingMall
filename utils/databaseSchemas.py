@@ -6,6 +6,19 @@ from typing import Optional, Dict
 
 """
 ========================================
+Response 模板
+========================================
+"""
+
+
+class ResponseModel(BaseModel):
+    code: int
+    data: dict
+    msg: str
+
+
+"""
+========================================
 产品分类 数据的验证和序列化
 ========================================
 """
@@ -29,7 +42,7 @@ class ProdCagUpdate(ProdCagID, ProdCagCreate):
     pass
 
 
-class ProdCagResponse(ProdCagID):
+class ProdCagResponse(ProdCagID, ProdCagCreate):
     class Config:
         orm_mode = True
         from_attributes = True
