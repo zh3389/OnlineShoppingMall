@@ -12,6 +12,7 @@ myFolder/*
 venv
 test
 drawingbed
+database
 
 # 忽略以 tmp 开头的文件
 tmp*
