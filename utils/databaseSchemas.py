@@ -13,7 +13,7 @@ Response 模板
 
 class ResponseModel(BaseModel):
     code: int
-    data: dict
+    data: Optional[Dict] = None
     msg: str
 
 
@@ -34,12 +34,18 @@ class ProdCagCreate(ProdCagBase):
     state: bool = True
 
 
-class ProdCagUpdate(ProdCagCreate):
-    id: int = 1
+class ProdCagUpdate(ProdCagBase):
+    id: int
+    name: Optional[str] = None
+    sort: Optional[int] = None
+    state: Optional[bool] = None
 
 
-class ProdCagResponse(ProdCagCreate):
-    id: int = 1
+class ProdCagResponse(ProdCagBase):
+    id: int
+    name: str
+    sort: int
+    state: bool
 
     class Config:
         orm_mode = True
@@ -57,30 +63,39 @@ class ProdInfoBase(BaseModel):
     pass
 
 
-class ProdInfoID(ProdInfoBase):
-    id: int = 1
-
-
 class ProdInfoCreate(ProdInfoBase):
     name: str = "产品名称"
-    prod_cag_name: str = None
-    prod_info: str = None
-    prod_img_url: str = None
-    prod_discription: str = None
-    prod_price: float = 888
-    prod_price_wholesale: Optional[str] = Field(None, description="产品批发价格")
-    prod_sales: int = None
-    prod_tag: str = None
+    prod_cag_name: str = "所属分类"
+    prod_info: str = "商品描述"
+    prod_img_url: str = "产品图片名称URL,上传图像后会返回名称"
+    prod_discription: str = "卡密使用教程"
+    prod_price: float = 9.99
+    prod_price_wholesale: str = "产品批发价格显示str"
+    prod_sales: int = 8
+    prod_tag: str = "产品标签, 限时优惠"
     auto: bool = False
-    sort: int = None
+    sort: int = 50
     state: bool = False
 
 
-class ProdInfoUpdate(ProdInfoCreate, ProdInfoID):
-    pass
+class ProdInfoUpdate(ProdInfoBase):
+    id: int
+    name: Optional[str] = None
+    prod_cag_name: Optional[str] = None
+    prod_info: Optional[str] = None
+    prod_img_url: Optional[str] = None
+    prod_discription: Optional[str] = None
+    prod_price: Optional[float] = None
+    prod_price_wholesale: Optional[str] = None
+    prod_sales: Optional[int] = None
+    prod_tag: Optional[str] = None
+    auto: Optional[bool] = None
+    sort: Optional[int] = None
+    state: Optional[bool] = None
 
 
-class ProdInfoResponse(ProdInfoCreate, ProdInfoID):
+class ProdInfoResponse(ProdInfoUpdate):
+
     class Config:
         orm_mode = True
         from_attributes = True
@@ -97,23 +112,20 @@ class CardBase(BaseModel):
     pass
 
 
-class CardID(CardBase):
-    id: int
-
-
 class CardCreate(CardBase):
-    prod_name: str  # 必填
-    card: str  # 必填
-    reuse: Optional[bool] = False  # 默认False
+    prod_name: str = "商品名称"
+    card: str = "卡密"
+    reuse: Optional[bool] = False
 
 
-class CardUpdate(CardID):
-    prod_name: Optional[str] = None  # 必填
-    card: Optional[str] = None  # 必填
-    reuse: Optional[bool] = None  # 默认False
+class CardUpdate(CardBase):
+    id: int
+    prod_name: Optional[str] = None
+    card: Optional[str] = None
+    reuse: Optional[bool] = None
 
 
-class CardResponse(CardID, CardCreate):
+class CardResponse(CardUpdate):
     class Config:
         orm_mode = True
         from_attributes = True

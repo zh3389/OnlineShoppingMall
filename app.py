@@ -126,7 +126,7 @@ async def product_create(cla: DbSchemas.ProdInfoCreate):
     """
     data_dict = dict(cla)
     data = DbModels.ProdInfo(**data_dict)
-    if db.search_data(DbModels.ProdInfo, DbSchemas.ProdInfoResponse, [DbModels.ProdInfo.name == cla.name]):
+    if db.check_data(DbModels.ProdInfo, [DbModels.ProdInfo.name == cla.name]):
         return ResponseModel(code=500, data={}, msg="商品已存在")
     db.create_data(data)
     return ResponseModel(code=200, data=data_dict, msg="商品信息新增成功")
@@ -681,7 +681,7 @@ async def back_store():
     返回商店主页
     """
     store_url = db.search_data(DbModels.Config, DbSchemas.ConfigResponseName, [DbModels.Config.name == 'store_url'])
-    return ResponseModel(code=200, data=store_url, msg="返回商店主页URL获取成功")
+    return ResponseModel(code=200, data=dict(store_url), msg="返回商店主页URL获取成功")
 
 
 """
@@ -749,7 +749,7 @@ async def user_wallet(user: DbUsers.User = Depends(DbUsers.current_active_user))
     """
     # Token 获取User email
     wallet_balance = db.search_data(DbUsers.User, DbUsers.UserMoney, [DbUsers.User.email == user.email])
-    return ResponseModel(code=200, data=wallet_balance, msg="我的钱包余额查询成功")
+    return ResponseModel(code=200, data=dict(wallet_balance), msg="我的钱包余额查询成功")
 
 
 @app.get("/api/frontend/user_order_query", tags=["TodoFrontend"])

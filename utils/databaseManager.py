@@ -498,6 +498,12 @@ class Database:
             data = [output_model.from_orm(record) for record in records]
             return {"records": data, "pager": {"page": current_page, "pageSize": total_pages, "total": total_elements}}
 
+    def check_data(self, model, filter_params):
+        """查询记录"""
+        with self.session_scope() as session:
+            exists = session.query(session.query(model).filter(*filter_params).exists()).scalar()
+            return exists
+
     def get_all_records(self, model):
         """获取所有记录"""
         with self.session_scope() as session:
