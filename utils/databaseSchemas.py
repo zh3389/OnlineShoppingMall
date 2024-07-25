@@ -62,18 +62,18 @@ class ProdInfoID(ProdInfoBase):
 
 
 class ProdInfoCreate(ProdInfoBase):
-    name: Optional[str] = Field(None, description="产品名称")
-    prod_price: Optional[float] = Field(None, description="产品价格")
-    auto: Optional[bool] = Field(False, description="是否自动发货")
-    state: Optional[bool] = Field(False, description="是否上架")
-    prod_cag_name: Optional[str] = Field(None, description="产品分类名称")
-    prod_info: Optional[str] = Field(None, description="产品信息")
-    prod_img_url: Optional[str] = Field(None, description="产品图片url")
-    prod_discription: Optional[str] = Field(None, description="产品描述")
+    name: str = "产品名称"
+    prod_cag_name: str = None
+    prod_info: str = None
+    prod_img_url: str = None
+    prod_discription: str = None
+    prod_price: float = 888
     prod_price_wholesale: Optional[str] = Field(None, description="产品批发价格")
-    prod_sales: Optional[int] = Field(None, description="产品销量")
-    prod_tag: Optional[str] = Field(None, description="产品标签")
-    sort: Optional[int] = Field(None, description="排序")
+    prod_sales: int = None
+    prod_tag: str = None
+    auto: bool = False
+    sort: int = None
+    state: bool = False
 
 
 class ProdInfoUpdate(ProdInfoCreate, ProdInfoID):

@@ -299,7 +299,7 @@ class Database:
             total_pages = (total_elements + limit - 1) // limit
             current_page = (skip // limit) + 1
             data = [output_model.from_orm(info) for info in infos]
-            return {"data": data, "pager": {"page": current_page, "pageSize": total_pages, "total": total_elements}}
+            return {"records": data, "pager": {"page": current_page, "pageSize": total_pages, "total": total_elements}}
 
     def update_data(self, model, dic):
         """更新记录"""
@@ -496,7 +496,7 @@ class Database:
             total_pages = (total_elements + page_size - 1) // page_size
             current_page = page
             data = [output_model.from_orm(record) for record in records]
-            return {"data": data, "pager": {"page": current_page, "pageSize": total_pages, "total": total_elements}}
+            return {"records": data, "pager": {"page": current_page, "pageSize": total_pages, "total": total_elements}}
 
     def get_all_records(self, model):
         """获取所有记录"""

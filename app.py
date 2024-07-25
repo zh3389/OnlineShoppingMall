@@ -58,7 +58,7 @@ async def classification_read(skip: Optional[int] = Query(0), limit: Optional[in
     获取分类列表
     """
     prodcags = db.read_datas(DbModels.ProdCag, DbSchemas.ProdCagResponse, skip, limit)
-    return ResponseModel(code=200, data={"data": prodcags}, msg="分类查询成功")
+    return ResponseModel(code=200, data=prodcags, msg="分类查询成功")
 
 
 @app.post("/api/backend/class_create", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
@@ -68,6 +68,8 @@ async def classification_create(cla: DbSchemas.ProdCagCreate):
     """
     data_dict = dict(cla)
     data = DbModels.ProdCag(**data_dict)
+    if db.search_data(DbModels.ProdCag, DbSchemas.ProdCagResponse, [DbModels.ProdCag.name == cla.name]):
+        return ResponseModel(code=500, data={}, msg="分类已存在")
     db.create_data(data)
     return ResponseModel(code=200, data=data_dict, msg="分类新增成功")
 
@@ -80,7 +82,7 @@ async def classification_update(cla: DbSchemas.ProdCagUpdate):
     data = dict(cla)
     record = db.update_data(DbModels.ProdCag, data)
     if record is None:
-        return ResponseModel(code=500, data={}, msg="分类修改失败, 请检查修改的数据。")
+        return ResponseModel(code=500, data={}, msg="分类修改失败, 找不到指定的数据。")
     return ResponseModel(code=200, data=data, msg="分类修改成功")
 
 
@@ -92,10 +94,11 @@ async def classification_delete(item_id: int):
     data = db.read_data(DbModels.ProdCag, item_id)
     if data is None:
         return ResponseModel(code=404, data={}, msg="找不到数据")
-    delete_data = db.delete_data(DbModels.ProdCag, item_id)
-    if delete_data:
-        return ResponseModel(code=200, data={"id": item_id}, msg="分类删除成功")
-    return ResponseModel(code=500, data={}, msg="分类删除失败")
+    record = db.delete_data(DbModels.ProdCag, item_id)
+    if record is None:
+        return ResponseModel(code=500, data={}, msg="分类删除失败")
+    return ResponseModel(code=200, data={"id": item_id}, msg="分类删除成功")
+
 
 """
 ========================================
@@ -105,7 +108,7 @@ async def classification_delete(item_id: int):
 
 
 @app.get("/api/backend/product_read", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
-async def product_read(skip: int = 0, limit: int = 10, classify: Optional[str] = None):
+async def product_read(skip: Optional[int] = Query(0), limit: Optional[int] = Query(10), classify: Optional[str] = None):
     """
     获取商品列表
     """
@@ -123,6 +126,8 @@ async def product_create(cla: DbSchemas.ProdInfoCreate):
     """
     data_dict = dict(cla)
     data = DbModels.ProdInfo(**data_dict)
+    if db.search_data(DbModels.ProdInfo, DbSchemas.ProdInfoResponse, [DbModels.ProdInfo.name == cla.name]):
+        return ResponseModel(code=500, data={}, msg="商品已存在")
     db.create_data(data)
     return ResponseModel(code=200, data=data_dict, msg="商品信息新增成功")
 
@@ -135,7 +140,7 @@ async def product_update(cla: DbSchemas.ProdInfoUpdate):
     data = dict(cla)
     record = db.update_data(DbModels.ProdInfo, data)
     if record is None:
-        return ResponseModel(code=500, data={}, msg="商品信息修改失败, 请检查修改的数据。")
+        return ResponseModel(code=500, data={}, msg="商品信息修改失败, 找不到指定的数据。")
     return ResponseModel(code=200, data=data, msg="商品信息修改成功")
 
 
@@ -144,7 +149,12 @@ async def product_delete(item_id: int):
     """
     删除商品
     """
-    db.delete_data(DbModels.ProdInfo, item_id)
+    data = db.read_data(DbModels.ProdInfo, item_id)
+    if data is None:
+        return ResponseModel(code=404, data={}, msg="找不到数据")
+    record = db.delete_data(DbModels.ProdInfo, item_id)
+    if record is None:
+        return ResponseModel(code=500, data={}, msg="商品信息删除失败, 找不到指定的数据。")
     return ResponseModel(code=200, data={"id": item_id}, msg="商品信息删除成功")
 
 
@@ -155,13 +165,13 @@ async def product_delete(item_id: int):
 """
 
 
-@app.get("/api/backend/cami_read/{skip}/{limit}", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
-async def cami_read(skip: int = 0, limit: int = 10):
+@app.get("/api/backend/cami_read", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
+async def cami_read(skip: Optional[int] = Query(0), limit: Optional[int] = Query(10)):
     """
     获取卡密列表
     """
     camis = db.read_datas(DbModels.Card, DbSchemas.CardResponse, skip, limit)
-    return ResponseModel(code=200, data={"data": camis}, msg="卡密查询成功")
+    return ResponseModel(code=200, data=camis, msg="卡密查询成功")
 
 
 @app.post("/api/backend/cami_create", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
@@ -183,17 +193,17 @@ async def cami_update(cla: DbSchemas.CardUpdate):
     data = dict(cla)
     record = db.update_data(DbModels.Card, data)
     if record is None:
-        return ResponseModel(code=500, data={}, msg="卡密修改失败, 请检查修改的数据。")
+        return ResponseModel(code=500, data={}, msg="卡密修改失败, 找不到指定的数据。")
     return ResponseModel(code=200, data=data, msg="卡密修改成功")
 
 
-@app.get("/api/backend/cami_search/{cardstr}/{skip}/{limit}", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
-async def cami_search(cardstr: str, skip: int, limit: int):
+@app.get("/api/backend/cami_search/{cardstr}", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
+async def cami_search(cardstr: str, skip: Optional[int] = Query(0), limit: Optional[int] = Query(10)):
     """
     搜索卡密
     """
     camis = db.search_filter_page_turning(DbModels.Card, DbSchemas.CardResponse, {DbModels.Card.card.like(f"%{cardstr}%")}, skip, limit)
-    return ResponseModel(code=200, data={"data": camis}, msg="卡密搜索成功")
+    return ResponseModel(code=200, data=camis, msg="卡密搜索成功")
 
 
 @app.delete("/api/backend/cami_batch_delete", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
@@ -225,7 +235,12 @@ async def cami_delete(item_id: int):
     """
     删除卡密
     """
-    db.delete_data(DbModels.Card, item_id)
+    data = db.read_data(DbModels.Card, item_id)
+    if data is None:
+        return ResponseModel(code=404, data={}, msg="找不到数据")
+    record = db.delete_data(DbModels.Card, item_id)
+    if record is None:
+        return ResponseModel(code=500, data={}, msg="卡密删除失败, 找不到指定的数据。")
     return ResponseModel(code=200, data={"id": item_id}, msg="卡密删除成功")
 
 
@@ -283,17 +298,17 @@ async def coupon_switch():
 """
 
 
-@app.get("/api/backend/order_read/{skip}/{limit}", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
-async def order_read(skip: int = 0, limit: int = 10):
+@app.get("/api/backend/order_read", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
+async def order_read(skip: Optional[int] = Query(0), limit: Optional[int] = Query(10)):
     """
     获取订单列表
     """
     orders = db.read_datas(DbModels.Order, DbSchemas.OrderResponse, skip, limit)
-    return ResponseModel(code=200, data={"data": orders}, msg="订单查询成功")
+    return ResponseModel(code=200, data=orders, msg="订单查询成功")
 
 
 @app.post("/api/backend/order_search", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
-async def order_search(cla: DbSchemas.OrderSearch, skip: int = 0, limit: int = 10):
+async def order_search(cla: DbSchemas.OrderSearch, skip: Optional[int] = Query(0), limit: Optional[int] = Query(10)):
     """
     搜索订单
     """
@@ -301,7 +316,7 @@ async def order_search(cla: DbSchemas.OrderSearch, skip: int = 0, limit: int = 1
                          DbModels.Order.contact.like(f"%{cla.contact}%"),
                          DbModels.Order.card.like(f"%{cla.card}%"))]
     orders = db.search_filter_page_turning(DbModels.Order, DbSchemas.OrderResponse, filter_params, skip, limit)
-    return ResponseModel(code=200, data={"data": orders}, msg="订单查询成功")
+    return ResponseModel(code=200, data=orders, msg="订单查询成功")
 
 
 @app.delete("/api/backend/order_delete", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
@@ -329,23 +344,24 @@ async def order_delete_all():
 """
 
 
-@app.get("/api/backend/user_read/{skip}/{limit}", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
-async def user_read(skip: int = 0, limit: int = 10):
+@app.get("/api/backend/user_read", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
+async def user_read(skip: Optional[int] = Query(0), limit: Optional[int] = Query(10)):
     """
     获取用户列表
     """
     users = db.read_datas(DbModels.User, DbUsers.UserResponse, skip, limit)
-    return ResponseModel(code=200, data={"data": users}, msg="用户查询成功")
+    return ResponseModel(code=200, data=users, msg="用户查询成功")
 
 
-@app.get("/api/backend/user_search/{skip}/{limit}", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
-async def user_search(userstr: str, skip: int = 0, limit: int = 10):
+@app.get("/api/backend/user_search/{userstr}", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
+async def user_search(userstr: str, skip: Optional[int] = Query(0), limit: Optional[int] = Query(10)):
     """
     搜索用户
     """
     filter_params = [or_(DbModels.User.email.like(f"%{userstr}%"))]
     users = db.search_filter_page_turning(DbModels.User, DbUsers.UserResponse, filter_params, skip, limit)
-    return ResponseModel(code=200, data={"data": users}, msg="用户查询成功")
+    return ResponseModel(code=200, data=users, msg="用户查询成功")
+
 
 @app.patch("/api/backend/user_reset", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
 async def user_reset(cla: DbUsers.UserID):
@@ -381,8 +397,8 @@ def generate_random_filename(extension: str) -> str:
     return f"{timestamp}_{random_str}.{extension}"
 
 
-@app.get("/api/backend/drawingbed_read/", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
-async def drawingbed_read(skip: int = 0, limit: int = 10):
+@app.get("/api/backend/drawingbed_read", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
+async def drawingbed_read(skip: Optional[int] = Query(0), limit: Optional[int] = Query(10)):
     files = list(Path(UPLOAD_DIR).iterdir())
     total_files = len(files)
     start = skip * limit
@@ -393,7 +409,8 @@ async def drawingbed_read(skip: int = 0, limit: int = 10):
     for file_name in file_names:
         file_location = Path(UPLOAD_DIR) / file_name
         data.append({"filename": file_name, "file_location": file_location})
-    return ResponseModel(code=200, data={"data": data, "pager": {"page": skip, "pageSize": limit, "total": total_files}}, msg="图像查询成功")
+    res_data = {"records": data, "pager": {"page": skip, "pageSize": limit, "total": total_files}}
+    return ResponseModel(code=200, data=res_data, msg="图像查询成功")
 
 
 @app.get("/api/backend/drawingbed_show/{filename}", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
@@ -497,8 +514,8 @@ async def update_theme():
 """
 
 
-@app.get("/api/backend/payment_read/{skip}/{limit}", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
-async def payment_read(skip: int = 0, limit: int = 10):
+@app.get("/api/backend/payment_read", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
+async def payment_read(skip: Optional[int] = Query(0), limit: Optional[int] = Query(10)):
     """
     获取支付接口设置
     """
@@ -506,7 +523,8 @@ async def payment_read(skip: int = 0, limit: int = 10):
     payments = db.read_datas(DbModels.Payment, DbSchemas.PayResponse, skip, limit)
     temp_dic["pager"] = payments['pager']
     data = [payment.dict() for payment in payments['data']]
-    return ResponseModel(code=200, data={"data": data, "pager": temp_dic['pager']}, msg="支付接口查询成功")
+    res_data = {"records": data, "pager": temp_dic['pager']}
+    return ResponseModel(code=200, data=res_data, msg="支付接口查询成功")
 
 
 @app.patch("/api/backend/payment_update", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
@@ -563,10 +581,7 @@ async def save_email_settings(config: dict = {'sendname': 'no_replay', 'sendmail
     保存SMTP设置
     """
     try:
-        dic = dict()
-        dic["name"] = "邮箱通知"
-        dic["config"] = str(config)
-        dic["admin_account"] = "admin@qq.com"
+        dic = {"name": "邮箱通知", "config": str(config), "admin_account": "admin@qq.com"}
         db.update_data_name(DbModels.Notice, dic)
     except Exception:
         db.create_data(DbModels.Notice(name="邮箱通知", config=str(config), admin_account="admin@qq.com"))
@@ -692,8 +707,8 @@ async def logout(response: Response):
 """
 
 
-@app.get("/api/frontend/home/{skip}/{limit}", tags=["TodoFrontend"])
-async def home(skip: int = 0, limit: int = 10):
+@app.get("/api/frontend/homes", tags=["TodoFrontend"])
+async def home(skip: Optional[int] = Query(0), limit: Optional[int] = Query(10)):
     """
     获取首页商品信息
     """
@@ -709,8 +724,8 @@ async def user_invitation():
     return ResponseModel(code=200, data={}, msg="邀请好友信息查询成功")
 
 
-@app.get("/api/frontend/user_order/{skip}/{limit}", tags=["TodoFrontend"])
-async def user_order(skip: int = 0, limit: int = 10, user: DbUsers.User = Depends(DbUsers.current_active_user)):
+@app.get("/api/frontend/user_order", tags=["TodoFrontend"])
+async def user_order(skip: Optional[int] = Query(0), limit: Optional[int] = Query(10), user: DbUsers.User = Depends(DbUsers.current_active_user)):
     """
     获取个人中心信息接口 返回最近订单
     """
@@ -718,8 +733,8 @@ async def user_order(skip: int = 0, limit: int = 10, user: DbUsers.User = Depend
     return ResponseModel(code=200, data=orders, msg="用户订单信息查询成功")
 
 
-@app.get("/api/frontend/user_payment_details/{skip}/{limit}", tags=["TodoFrontend"])
-async def user_payment_details(skip: int = 0, limit: int = 10, user: DbUsers.User = Depends(DbUsers.current_active_user)):
+@app.get("/api/frontend/user_payment_details", tags=["TodoFrontend"])
+async def user_payment_details(skip: Optional[int] = Query(0), limit: Optional[int] = Query(10), user: DbUsers.User = Depends(DbUsers.current_active_user)):
     """
     获取订单中心信息接口
     """
