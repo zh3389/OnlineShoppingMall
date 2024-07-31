@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Optional
 from typing import AsyncGenerator
-from fastapi import Depends, Request
+from fastapi import Depends, Request, Body
 from fastapi_users.exceptions import UserAlreadyExists
 from pydantic import BaseModel
 from sqlalchemy import Column, Float, Integer, DateTime
@@ -155,7 +155,7 @@ class UserBase(BaseModel):
 
 
 class UserID(UserBase):
-    id: uuid.UUID
+    id: uuid.UUID = Body(description="用户ID")
 
 
 class UserResponse(UserID):

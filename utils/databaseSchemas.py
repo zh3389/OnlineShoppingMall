@@ -1,3 +1,4 @@
+from fastapi import Body
 from datetime import datetime
 import ast
 from pydantic import BaseModel, Field
@@ -29,16 +30,16 @@ class ProdCagBase(BaseModel):
 
 
 class ProdCagCreate(ProdCagBase):
-    name: str = "测试类别名称"
-    sort: int = 50
-    state: bool = True
+    name: str = Body(default="测试名称cag", description="【必填】分类的名称")
+    sort: int = Body(default=0, description="【必填】分类排序的数值0～100")
+    state: bool = Body(default=True, description="【必填】是否激活该类别，用于筛选该类别商品是否显示")
 
 
 class ProdCagUpdate(ProdCagBase):
-    id: int
-    name: Optional[str] = None
-    sort: Optional[int] = None
-    state: Optional[bool] = None
+    id: int = Body(description="【必填】分类的唯一ID")
+    name: Optional[str] = Body(default="测试名称cag", description="【可选】分类的名称")
+    sort: Optional[int] = Body(default=0, description="【可选】分类排序的数值0～100")
+    state: Optional[bool] = Body(default=True, description="【可选】是否激活该类别，用于筛选该类别商品是否显示")
 
 
 class ProdCagResponse(ProdCagBase):
@@ -64,34 +65,34 @@ class ProdInfoBase(BaseModel):
 
 
 class ProdInfoCreate(ProdInfoBase):
-    name: str = "产品名称"
-    prod_cag_name: str = "所属分类"
-    prod_info: str = "商品描述"
-    prod_img_url: str = "产品图片名称URL,上传图像后会返回名称"
-    prod_discription: str = "卡密使用教程"
-    prod_price: float = 9.99
-    prod_price_wholesale: str = "产品批发价格显示str"
-    prod_sales: int = 8
-    prod_tag: str = "产品标签, 限时优惠"
-    auto: bool = False
-    sort: int = 50
-    state: bool = False
+    name: str = Body(default="测试添加名称info", description="【必填】产品的名称")
+    prod_cag_name: Optional[str] = Body(description="【可选】产品的分类名称, 用于筛选商品是哪个类别的商品")
+    prod_info: Optional[str] = Body(description="【可选】产品的描述信息")
+    prod_img_url: Optional[str] = Body(description="【可选】""产品图片名称URL,上传图像后会返回名称")
+    prod_discription: Optional[str] = Body(description="【可选】卡密使用教程")
+    prod_price: float = Body(default=99.99, description="【必填】产品价格")
+    prod_price_wholesale: Optional[str] = Body(description="【可选】产品批发价格显示str")
+    prod_sales: Optional[int] = Body(description="【可选】产品销量")
+    prod_tag: Optional[str] = Body(description="【可选】产品标签，例限时优惠")
+    auto: bool = Body(default=False, description="【必填】是否自动发货")
+    sort: Optional[int] = Body(description="【可选】产品排序优先级")
+    state: bool = Body(default=False, description="【必填】是否展示该商品")
 
 
 class ProdInfoUpdate(ProdInfoBase):
-    id: int
-    name: Optional[str] = None
-    prod_cag_name: Optional[str] = None
-    prod_info: Optional[str] = None
-    prod_img_url: Optional[str] = None
-    prod_discription: Optional[str] = None
-    prod_price: Optional[float] = None
-    prod_price_wholesale: Optional[str] = None
-    prod_sales: Optional[int] = None
-    prod_tag: Optional[str] = None
-    auto: Optional[bool] = None
-    sort: Optional[int] = None
-    state: Optional[bool] = None
+    id: int = Body(description="【必填】产品的唯一ID")
+    name: Optional[str] = Body(description="【可选】产品的名称")
+    prod_cag_name: Optional[str] = Body(description="【可选】产品的分类名称, 用于筛选商品是哪个类别的商品")
+    prod_info: Optional[str] = Body(description="【可选】产品的描述信息")
+    prod_img_url: Optional[str] = Body(description="【可选】""产品图片名称URL,上传图像后会返回名称")
+    prod_discription: Optional[str] = Body(description="【可选】卡密使用教程")
+    prod_price: Optional[float] = Body(description="【可选】产品价格")
+    prod_price_wholesale: Optional[str] = Body(description="【可选】产品批发价格显示str")
+    prod_sales: Optional[int] = Body(description="【可选】产品销量")
+    prod_tag: Optional[str] = Body(description="【可选】产品标签，例限时优惠")
+    auto: Optional[bool] = Body(description="【可选】是否自动发货")
+    sort: Optional[int] = Body(description="【可选】产品排序优先级")
+    state: Optional[bool] = Body(description="【可选】是否展示该商品")
 
 
 class ProdInfoResponse(ProdInfoUpdate):
@@ -113,16 +114,16 @@ class CardBase(BaseModel):
 
 
 class CardCreate(CardBase):
-    prod_name: str = "商品名称"
-    card: str = "卡密"
-    reuse: Optional[bool] = False
+    prod_name: str = Body(default="测试卡密名称", description="【必填】卡密名称")
+    card: str = Body(default="测试卡密内容", description="【必填】卡密内容")
+    reuse: Optional[bool] = Body(default=False, description="【必填】是否允许重复使用")
 
 
 class CardUpdate(CardBase):
-    id: int
-    prod_name: Optional[str] = None
-    card: Optional[str] = None
-    reuse: Optional[bool] = None
+    id: int = Body(description="【必填】卡密ID")
+    prod_name: Optional[str] = Body(description="【可选】卡密名称")
+    card: Optional[str] = Body(description="【可选】卡密内容")
+    reuse: Optional[bool] = Body(description="【可选】是否允许重复使用")
 
 
 class CardResponse(CardUpdate):
@@ -132,8 +133,8 @@ class CardResponse(CardUpdate):
 
 
 class CardFilterDelete(CardBase):
-    prod_name: Optional[str] = None
-    isused: Optional[bool] = None
+    prod_name: Optional[str] = Body(description="【可选】商品名称")
+    isused: Optional[bool] = Body(description="【可选】是否已使用")
 
 
 """
@@ -148,9 +149,9 @@ class OrderBase(BaseModel):
 
 
 class OrderSearch(OrderBase):
-    out_order_id: Optional[str] = None
-    contact: Optional[str] = None
-    card: Optional[str] = None
+    out_order_id: Optional[str] = Body(description="【可选】订单号")
+    contact: Optional[str] = Body(description="【可选】用户联系方式")
+    card: Optional[str] = Body(description="【可选】卡密内容")
 
 
 class OrderResponse(OrderBase):
@@ -173,7 +174,7 @@ class OrderResponse(OrderBase):
 
 
 class OrderDelete(OrderBase):
-    id: int
+    id: int = Body(description="【必填】订单ID")
 
 
 """
@@ -223,8 +224,8 @@ class PyaId(PayBase):
 
 
 class PayUpdate(PyaId):
-    config: Optional[Dict] = None
-    isactive: Optional[bool] = None
+    config: Optional[Dict] = Body(description="【可选】支付接口配置")
+    isactive: Optional[bool] = Body(description="【可选】是否激活该支付方式")
 
 
 class PayResponse(PyaId):
