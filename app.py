@@ -300,42 +300,52 @@ async def cami_delete(item_id: int = Query(description="【必填】卡密唯一
 """
 
 
-@app.get("/api/backend/coupon_read", tags=["TodoBackend"], dependencies=[Depends(DbUsers.current_superuser)])
+@app.get("/api/backend/coupon_read", tags=["TodoBackend"],
+         dependencies=[Depends(DbUsers.current_superuser)], summary="获取优惠券列表")
 async def coupon_read():
     """
-    获取优惠券列表
+    【输入参数】：无
+    【输出参数】：优惠券列表查询成功 返回 200
     """
     return ResponseModel(code=200, data={"data": []}, msg="优惠券查询成功")
 
 
-@app.post("/api/backend/coupon_create", tags=["TodoBackend"], dependencies=[Depends(DbUsers.current_superuser)])
+@app.post("/api/backend/coupon_create", tags=["TodoBackend"],
+          dependencies=[Depends(DbUsers.current_superuser)], summary="新增优惠券")
 async def coupon_create():
     """
-    新增优惠券
+    【输入参数】：无
+    【输出参数】：优惠券新增成功 返回 200
     """
     return ResponseModel(code=200, data={}, msg="优惠券新增成功")
 
 
-@app.patch("/api/backend/coupon_update", tags=["TodoBackend"], dependencies=[Depends(DbUsers.current_superuser)])
+@app.patch("/api/backend/coupon_update", tags=["TodoBackend"],
+           dependencies=[Depends(DbUsers.current_superuser)], summary="修改优惠券")
 async def coupon_update():
     """
-    修改优惠券
+    【输入参数】：无
+    【输出参数】：优惠券修改成功 返回 200
     """
     return ResponseModel(code=200, data={}, msg="优惠券修改成功")
 
 
-@app.delete("/api/backend/coupon_delete", tags=["TodoBackend"], dependencies=[Depends(DbUsers.current_superuser)])
+@app.delete("/api/backend/coupon_delete", tags=["TodoBackend"],
+            dependencies=[Depends(DbUsers.current_superuser)], summary="删除优惠券")
 async def coupon_delete():
     """
-    删除优惠券
+    【输入参数】：无
+    【输出参数】：优惠券删除成功 返回 200
     """
     return ResponseModel(code=200, data={}, msg="优惠券删除成功")
 
 
-@app.patch("/api/backend/coupon_switch", tags=["TodoBackend"], dependencies=[Depends(DbUsers.current_superuser)])
+@app.patch("/api/backend/coupon_switch", tags=["TodoBackend"],
+           dependencies=[Depends(DbUsers.current_superuser)], summary="开关优惠券")
 async def coupon_switch():
     """
-    开关优惠券
+    【输入参数】：无
+    【输出参数】：优惠券开关成功 返回 200
     """
     return ResponseModel(code=200, data={}, msg="优惠券开关成功")
 
@@ -554,26 +564,29 @@ async def drawingbed_delete(filename: str = Query(description="【必填】图�
 """
 
 
-@app.get("/api/backend/invite", tags=["TodoBackend"])
+@app.get("/api/backend/invite", tags=["TodoBackend"], summary="获取佣金记录列表")
 async def get_invite():
     """
-    获取佣金记录列表
+    【输入参数】：无
+    【输出参数】：佣金记录列表获取成功 返回 200
     """
     return ResponseModel(code=200, data={"data": []}, msg="佣金记录列表获取成功")
 
 
-@app.get("/api/backend/invite_search", tags=["TodoBackend"])
+@app.get("/api/backend/invite_search", tags=["TodoBackend"], summary="搜索佣金记录")
 async def search_invite():
     """
-    搜索佣金记录
+    【输入参数】：无
+    【输出参数】：搜索佣金记录返回 200
     """
     return ResponseModel(code=200, data={"data": []}, msg="搜索佣金记录")
 
 
-@app.delete("/api/backend/invite_delete", tags=["TodoBackend"])
+@app.delete("/api/backend/invite_delete", tags=["TodoBackend"], summary="删除佣金记录")
 async def delete_invite():
     """
-    删除佣金记录
+    【输入参数】：无
+    【输出参数】：佣金记录删除成功 返回 200
     """
     return ResponseModel(code=200, data={"data": []}, msg="佣金记录删除成功")
 
@@ -585,10 +598,11 @@ async def delete_invite():
 """
 
 
-@app.get("/api/backend/theme", tags=["TodoBackend"])
+@app.get("/api/backend/theme", tags=["TodoBackend"], summary="获取主题设置")
 async def get_theme():
     """
-    获取主题设置
+    【输入参数】：无
+    【输出参数】：主题设置获取成功 返回 200
     """
     return ResponseModel(code=200, data={"data": []}, msg="主题设置获取成功")
 
@@ -598,10 +612,11 @@ class Theme(BaseModel):
     description: Optional[str] = None
 
 
-@app.patch("/api/backend/theme_update", tags=["TodoBackend"])
+@app.patch("/api/backend/theme_update", tags=["TodoBackend"], summary="更新主题设置")
 async def update_theme():
     """
-    更新主题设置
+    【输入参数】：无
+    【输出参数】：主题设置更新成功 返回 200
     """
     return ResponseModel(code=200, data={"data": []}, msg="主题设置更新成功")
 
@@ -666,10 +681,12 @@ async def payment_callback_update(callback: str = Query(description="支付回�
 """
 
 
-@app.get("/api/backend/message", tags=["TodoBackend"], dependencies=[Depends(DbUsers.current_superuser)])
+@app.get("/api/backend/message", tags=["TodoBackend"],
+         dependencies=[Depends(DbUsers.current_superuser)], summary="获取消息通知设置")
 async def get_message():
     """
-    获取消息通知设置
+    【输入参数】：无
+    【输出参数】：消息通知设置获取成功 返回 200
     """
     return ResponseModel(code=200, data={"data": []}, msg="消息通知设置获取成功")
 
@@ -689,12 +706,12 @@ async def send_email(addressee: str = Query("admin@qq.com", description="收件�
 
 @app.patch("/api/backend/save_email_settings", tags=["backend"],
            dependencies=[Depends(DbUsers.current_superuser)], summary="保存SMTP设置")
-async def save_email_settings(config: dict = Query({'sendname': 'no_replay', 'sendmail': 'demo@gmail.com',
-                                                    'smtp_address': 'smtp.163.com', 'smtp_port': '465',
-                                                    'smtp_pwd': 'ZZZZZZZ'}, description="SMTP设置保存")):
+async def save_email_settings(config: dict = Body(default={'sendname': 'no_replay', 'sendmail': 'demo@gmail.com',
+                                                           'smtp_address': 'smtp.163.com', 'smtp_port': '465',
+                                                           'smtp_pwd': 'ZZZZZZZ'}, description="SMTP设置保存")):
     """
     【输入参数】：SMTP设置字典
-    【输出参数】：是否保存成功 200
+    【输出参数】：SMTP设置保存成功 返回 200
     """
     try:
         dic = {"name": "邮箱通知", "config": str(config), "admin_account": "admin@qq.com"}
@@ -704,26 +721,29 @@ async def save_email_settings(config: dict = Query({'sendname': 'no_replay', 'se
     return ResponseModel(code=200, data=config, msg="SMTP设置保存成功")
 
 
-@app.post("/api/backend/save_admin_setting", tags=["TodoBackend"])
+@app.post("/api/backend/save_admin_setting", tags=["TodoBackend"], summary="测试Admin消息")
 async def save_admin_setting():
     """
-    测试Admin消息
+    【输入参数】：无
+    【输出参数】：Admin消息测试成功 返回 200
     """
     return ResponseModel(code=200, data={}, msg="Admin消息测试成功")
 
 
-@app.patch("/api/backend/admin_message_test", tags=["TodoBackend"])
+@app.patch("/api/backend/admin_message_test", tags=["TodoBackend"], summary="设置Admin消息")
 async def admin_message_test():
     """
-    设置Admin消息
+    【输入参数】：无
+    【输出参数】：Admin消息设置成功 返回 200
     """
     return ResponseModel(code=200, data={}, msg="Admin消息设置成功")
 
 
-@app.patch("/api/backend/message_switch", tags=["TodoBackend"])
+@app.patch("/api/backend/message_switch", tags=["TodoBackend"], summary="切换消息开关")
 async def switch_message():
     """
-    切换消息开关
+    【输入参数】：
+    【输出参数】：消息开关切换成功 返回 200
     """
     return ResponseModel(code=200, data={}, msg="消息开关切换成功")
 
@@ -735,51 +755,62 @@ async def switch_message():
 """
 
 
-@app.get("/api/backend/get_other_config", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
+@app.get("/api/backend/get_other_config", tags=["backend"],
+         dependencies=[Depends(DbUsers.current_superuser)], summary="获取综合设置")
 async def get_other_config():
     """
-    获取综合设置
+    【输入参数】：无
+    【输出参数】：综合设置查询成功 返回 200
     """
     result = db.search_filter(DbModels.Config, DbSchemas.ConfigResponse, {})
     return ResponseModel(code=200, data=result, msg="综合设置查询成功")
 
 
-@app.patch("/api/backend/home_notice", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
-async def update_home_notice(home_notice: str):
+@app.patch("/api/backend/home_notice", tags=["backend"],
+           dependencies=[Depends(DbUsers.current_superuser)], summary="更新首页公告")
+async def update_home_notice(home_notice: str = Query(description="首页公告")):
     """
-    更新店铺公告
+    【输入参数】：参考 Parameters 里的说明
+    【输出参数】：首页公告更新成功 返回 200
     """
     dic = {"name": "home_notice", "info": home_notice, "description": "首页公告", "isshow": True}
     db.update_data_name(DbModels.Config, dic)
     return ResponseModel(code=200, data=dic, msg="首页公告更新成功")
 
 
-@app.patch("/api/backend/icp", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
-async def update_icp(icp: str):
+@app.patch("/api/backend/icp", tags=["backend"],
+           dependencies=[Depends(DbUsers.current_superuser)], summary="更新底部备案")
+async def update_icp(icp: str = Query(description="底部备案")):
     """
-    更新底部备案
+    【输入参数】：参考 Parameters 里的说明
+    【输出参数】：底部备案更新成功 返回 200
     """
     dic = {"name": "icp", "info": icp, "description": "底部备案", "isshow": True}
     db.update_data_name(DbModels.Config, dic)
     return ResponseModel(code=200, data=dic, msg="底部备案更新成功")
 
 
-@app.patch("/api/backend/other_optional", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
-async def update_other_optional(other_optional: dict = {"login_mode": 1, "tourist_orders": 1,
-                                                        "front_desk_inventory_display": 1, "front_end_sales_display": 1,
-                                                        "sales_statistics": 1}):
+@app.patch("/api/backend/other_optional", tags=["backend"],
+           dependencies=[Depends(DbUsers.current_superuser)], summary="更新可选参数")
+async def update_other_optional(other_optional: dict = Body(default={"login_mode": 1, "tourist_orders": 1,
+                                                                     "front_desk_inventory_display": 1,
+                                                                     "front_end_sales_display": 1,
+                                                                     "sales_statistics": 1},
+                                                            description="可选参数")):
     """
-    更新可选参数
+    【输入参数】：参考 Parameters 里的说明
+    【输出参数】：可选参数更新成功 返回 200
     """
     dic = {"name": "other_optional", "info": str(other_optional), "description": "可选参数", "isshow": True}
     db.update_data_name(DbModels.Config, dic)
     return ResponseModel(code=200, data=dic, msg="可选参数更新成功")
 
 
-@app.patch("/api/backend/admin_reset", tags=["TodoBackend"])
+@app.patch("/api/backend/admin_reset", tags=["TodoBackend"], summary="管理员账密修改")
 async def reset_admin_account():
     """
-    管理员账密修改
+    【输入参数】：无
+    【输出参数】：管理员账密修改成功 返回 200
     """
     return ResponseModel(code=200, data={"暂未实现": ""}, msg="管理员账密修改成功")
 
@@ -791,10 +822,12 @@ async def reset_admin_account():
 """
 
 
-@app.get("/api/backend/back_store", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
+@app.get("/api/backend/back_store", tags=["backend"],
+         dependencies=[Depends(DbUsers.current_superuser)], summary="返回商店主页")
 async def back_store():
     """
-    返回商店主页
+    【输入参数】：无
+    【输出参数】：商店主页URL, 并执行跳转
     """
     store_url = db.search_data(DbModels.Config, DbSchemas.ConfigResponseName, [DbModels.Config.name == 'store_url'])
     return ResponseModel(code=200, data=dict(store_url), msg="返回商店主页URL获取成功")
@@ -807,10 +840,12 @@ async def back_store():
 """
 
 
-@app.get("/api/backend/logout", tags=["backend"], dependencies=[Depends(DbUsers.current_superuser)])
+@app.get("/api/backend/logout", tags=["backend"],
+         dependencies=[Depends(DbUsers.current_superuser)], summary="退出登录")
 async def logout(response: Response):
     """
-    退出登录，清除COOKIE
+    【输入参数】：无
+    【输出参数】：退出登录，清除COOKIE
     """
     response.delete_cookie(key="session")
     return ResponseModel(code=200, data={}, msg="退出登录成功")
@@ -823,63 +858,77 @@ async def logout(response: Response):
 """
 
 
-@app.get("/api/frontend/homes", tags=["TodoFrontend"])
-async def home(skip: Optional[int] = Query(0), limit: Optional[int] = Query(10)):
+@app.get("/api/frontend/homes", tags=["TodoFrontend"], summary="获取首页商品信息接口")
+async def home(skip: Optional[int] = Query(0, description="【默认 0】跳过的记录数"),
+               limit: Optional[int] = Query(10, description="【默认 10】获取的记录数")):
     """
-    获取首页商品信息
+    【输入参数】：参考 Parameters 里的说明
+    【输出参数】：首页商品信息查询结果 [{}, {}, ...]
     """
     prodinfos = db.read_datas(DbModels.ProdInfo, DbSchemas.ProdInfoResponse, skip, limit)
     return ResponseModel(code=200, data=prodinfos, msg="获取首页商品信息成功")
 
 
-@app.get("/api/frontend/user_invitation", tags=["TodoFrontend"])
-async def user_invitation():
+@app.get("/api/frontend/user_invitation", tags=["TodoFrontend"], summary="获取邀请好友信息接口")
+async def user_invitation(user: DbUsers.User = Depends(DbUsers.current_active_user)):
     """
-    获取邀请好友信息接口
+    【输入参数】：用户 Token 验证身份
+    【输出参数】：邀请好友信息查询结果 [{}, {}, ...]
     """
     return ResponseModel(code=200, data={}, msg="邀请好友信息查询成功")
 
 
-@app.get("/api/frontend/user_order", tags=["TodoFrontend"])
-async def user_order(skip: Optional[int] = Query(0), limit: Optional[int] = Query(10), user: DbUsers.User = Depends(DbUsers.current_active_user)):
+@app.get("/api/frontend/user_order", tags=["TodoFrontend"], summary="获取个人中心信息接口 返回最近订单")
+async def user_order(skip: Optional[int] = Query(0),
+                     limit: Optional[int] = Query(10),
+                     user: DbUsers.User = Depends(DbUsers.current_active_user)):
     """
-    获取个人中心信息接口 返回最近订单
+    【输入参数】：用户 Token 验证身份, 参考 Parameters 里的说明
+    【输出参数】：用户订单信息查询结果 [{}, {}, ...]
     """
     orders = db.read_datas(DbModels.Order, DbSchemas.OrderResponse, skip, limit)
     return ResponseModel(code=200, data=orders, msg="用户订单信息查询成功")
 
 
-@app.get("/api/frontend/user_payment_details", tags=["TodoFrontend"])
-async def user_payment_details(skip: Optional[int] = Query(0), limit: Optional[int] = Query(10), user: DbUsers.User = Depends(DbUsers.current_active_user)):
+@app.get("/api/frontend/user_payment_details", tags=["TodoFrontend"], summary="获取订单中心信息接口")
+async def user_payment_details(skip: Optional[int] = Query(0, description="【默认 0】跳过的记录数"),
+                               limit: Optional[int] = Query(10, description="【默认 10】获取的记录数"),
+                               user: DbUsers.User = Depends(DbUsers.current_active_user)):
     """
-    获取订单中心信息接口
+    【输入参数】：用户 Token 验证身份, 参考 Parameters 里的说明
+    【输出参数】：用户支付明细查询结果 [{}, {}, ...]
     """
     orders = db.read_datas(DbModels.Order, DbSchemas.OrderResponse, skip, limit)
     return ResponseModel(code=200, data=orders, msg="用户支付明细查询成功")
 
 
-@app.get("/api/frontend/user_wallet", tags=["TodoFrontend"])
+@app.get("/api/frontend/user_wallet", tags=["TodoFrontend"], summary="获取我的钱包信息接口")
 async def user_wallet(user: DbUsers.User = Depends(DbUsers.current_active_user)):
     """
-    获取我的钱包信息接口
+    【输入参数】：用户 Token 验证身份
+    【输出参数】：用户的钱包余额
     """
     # Token 获取User email
     wallet_balance = db.search_data(DbUsers.User, DbUsers.UserMoney, [DbUsers.User.email == user.email])
     return ResponseModel(code=200, data=dict(wallet_balance), msg="我的钱包余额查询成功")
 
 
-@app.get("/api/frontend/user_order_query", tags=["TodoFrontend"])
+@app.get("/api/frontend/user_order_query", tags=["TodoFrontend"], summary="查询订单信息接口")
 async def user_order_query(user: DbUsers.User = Depends(DbUsers.current_active_user)):
     """
-    查询订单信息接口
+    【输入参数】：用户 Token 验证身份
+    【输出参数】：订单查询结果 [{}, {}, ...]
     """
     return ResponseModel(code=200, data={}, msg="订单查询")
 
 
-@app.get("/api/frontend/logout", tags=["TodoFrontend"], dependencies=[Depends(DbUsers.current_user)])
+@app.get("/api/frontend/logout", tags=["TodoFrontend"],
+         dependencies=[Depends(DbUsers.current_user)], summary="退出登录")
 async def logout(response: Response):
     """
-    用户退出登录接口，清除COOKIE
+    【输入参数】：无
+    【输出参数】：无
+    【其它说明】：用户退出登录接口，清除COOKIE
     """
     response.delete_cookie(key="session")
     return ResponseModel(code=200, data={}, msg="退出登录成功")
