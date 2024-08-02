@@ -18,9 +18,9 @@ from utils.systemInit import SystemInit
 
 
 app = FastAPI()
-db = SystemInit().db
-email_manager = SystemInit().create_email_manager()
-
+system_init = SystemInit()
+db = system_init.db
+email_manager = system_init.email_manager
 
 # 配置 CORS
 origins = [
@@ -996,4 +996,5 @@ async def authenticated_route(user: DbUsers.User = Depends(DbUsers.current_activ
 
 
 if __name__ == '__main__':
+    # uvicorn.run(app, host="0.0.0.0", port=8000)
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)

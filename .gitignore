@@ -16,6 +16,7 @@ Thumbs.db
 # Files that might appear on external disks
 .Spotlight-V100
 .Trashes
+shopmall.tar
 
 # Compiled Python files
 *.pyc

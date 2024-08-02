@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, inspect
 from contextlib import contextmanager
 from utils.usersManager import User
 
@@ -158,6 +158,11 @@ class Database:
                                  )
         else:
             return create_engine(db_url, echo=True, pool_size=20, max_overflow=0)
+
+    def table_names(self):
+        inspector = inspect(self.engine)  # 使用inspect来检查数据库中的表
+        table_names = inspector.get_table_names()  # 获取所有表名
+        return table_names
 
     def create_tables(self):
         """创建数据库表"""

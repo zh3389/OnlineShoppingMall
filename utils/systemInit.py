@@ -10,24 +10,22 @@ class SystemInit:
     def __init__(self, database_url='sqlite:///database/database.db'):
         self.database_url = database_url
         self.db = self.init_database()
+        self.email_manager = self.create_email_manager()
 
     def init_database(self):
         """
         数据库初始化
         """
-        from sqlalchemy import create_engine, inspect
-        engine = create_engine(self.database_url)  # 创建数据库引擎
-        inspector = inspect(engine)  # 使用inspect来检查数据库中的表
-        table_names = inspector.get_table_names()  # 获取所有表名
-        print("数据库表名:", table_names)
         # 判断表是否存在
+        db = Database(self.database_url)
+        table_names = db.table_names()
+        print("数据库表名:", table_names)
         if 'order' not in table_names:
-            Database(self.database_url).create_tables()
-            Database(self.database_url).create_example_data()
+            db.create_tables()
+            db.create_example_data()
         if 'user' not in table_names:
             # asyncio.run(init_user_tabel())
             asyncio.create_task(init_user_tabel())
-        db = Database(self.database_url)
         return db
 
     def create_email_manager(self):
